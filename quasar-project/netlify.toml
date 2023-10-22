@@ -1,4 +1,0 @@
-[build]
-  command = "quasar build"
-  publish = "dist/spa"
-  environment = { PATH = "/opt/buildhome/.nvm/versions/node/v18.14.2/bin:$PATH" }
