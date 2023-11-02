@@ -22,6 +22,12 @@ import {
   Ref,
 } from 'vue';
 import { Todo, Meta } from './models';
+import {firebaseConfig} from '../firebase/init';
+import { onMounted } from 'vue'; // Import onMounted from Vue 3
+import { doc, getDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
 
 function useClickCount() {
   const clickCount = ref(0);
@@ -58,6 +64,23 @@ export default defineComponent({
     }
   },
   setup (props) {
+
+    //dohvaćanje korisnika iz firestore-a, provjera rada
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    onMounted(async () => {
+      try {
+        const usersCollection = doc(db, 'users', 'urekkLRIn5YTqhYMezPx'); // Replace 'users' with your actual collection name
+        const usersSnapshot = await getDoc(usersCollection);
+
+        console.log('Document data:', usersSnapshot.data());
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    });
+    
+    
     return { ...useClickCount(), ...useDisplayTodo(toRef(props, 'todos')) };
   },
 });
