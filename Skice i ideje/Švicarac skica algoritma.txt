@@ -1,0 +1,90 @@
+Skica algoritma švicarca
+
+pseudokod:
+
+// Objekt Igrac ----------------------------------------------------------------------------------
+
+klasa Igrac {
+
+	ime: 			string
+	prezime: 		string
+	rang:			int		
+	ime_tima:		string
+	igrao_protiv:	Igrac[]	// Lista igraca protiv kojih je ovaj igrac igrao u ovom turniru
+	igrao_kao_b:	int		// Varijale za kasniju provjeru
+	igrao_kao_c:	int
+	zadnja_boja:	int		// 1 je crna, 0 je bijela or something, vazno je samo da imamo evidentirano
+	dobio_bye:		bool		// Koliko sam ja skontao, igrac ne moze dobiti bye dvaput u turniru
+	broj_bodova:	int		// broj bodova u trenutnom turniru
+
+	bool Igrao_Protiv(Igrac igrac){	// Funkcija za kasniju provjeru u algoritmu
+		return igrao_protiv.contains(igrac)
+	}
+
+	// Pri konstrukciji objekta bi lista bila prazna, i populirali
+	// bi se ime, prezime itd
+
+}
+
+
+// Objekt Mec (ne znam kako drugačije nazvati, ako imaš ideja, please do tell) ------------------
+
+klasa Mec {
+	
+	mec_id:		int	// A surprise tool that will help uis later, trebat ce nam za edittanje pobjednika nakon meca
+	igrac_b:		Igrac
+	igrac_c:		Igrac
+	pobjednik:		Igrac
+
+}
+
+// Objekt Swiss_Maker
+
+klasa Swiss_Maker {
+	
+	Mec[] Napravi_Kolo_Prvo(Igrac[] igraci) {
+		Mec[] kolo
+		
+		if paran broj igraca
+		// Spari igrace po rangu u inicijalne meceve
+		
+		else
+		// Spari koga mozes, jednom daj bye
+		
+		
+		return kolo
+	}
+
+	Mec[] Napravi_Kolo(Igrac[] igraci) {
+		Mec[] kolo
+		
+		if paran broj igraca
+		// Podijeli igrace u dvije liste, oni koji su igrali crnog i oni koji su igrali bijelog
+		// u zadnjoj partiji i sortiraj liste po bodovima
+		// Spari igrace prvo po bodovima u inicijalne meceve 
+
+		else
+		// Podijeli igrace u dvije liste, oni koji su igrali crnog i oni koji su igrali bijelog
+		// u zadnjoj partiji i sortiraj liste po bodovima
+		// Spari igrace prvo po bodovima u inicijalne meceve
+		// Ako je nespareni nije dobio bye, daj mu bye
+		// Ako je nespareni igrac dobio bye, pronadji prvi mec
+		// s igracem njegovog ranga, i da se podudara boja s kojom bi trebao igrati
+		// Izvuci igraca manjeg ranga iz tog meca i daj mu bye 
+
+		return kolo
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
