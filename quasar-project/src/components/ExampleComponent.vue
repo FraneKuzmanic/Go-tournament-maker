@@ -1,4 +1,5 @@
 <template>
+  <meta charset="UTF8">
   <div>
     <p>{{ title }}</p>
     <ul>
@@ -9,30 +10,28 @@
     <p>Count: {{ todoCount }} / {{ meta.totalCount }}</p>
     <p>Active: {{ active ? 'yes' : 'no' }}</p>
     <p>Clicks on todos: {{ clickCount }}</p>
+    <input type="file" id="picture" accept="image/*" :capture="'environment'" @change="onFileChange"/>
+    <button v-on:click="textFromPicture">SAVE</button>
+    <div>{{ text }}</div>
   </div>
 </template>
 
+
 <script lang="ts">
-import {
-  defineComponent,
-  PropType,
-  computed,
-  ref,
-  toRef,
-  Ref,
-} from 'vue';
+import { defineComponent, PropType, computed, ref, toRef, Ref } from 'vue';
 import { Todo, Meta } from './models';
-import {firebaseConfig} from '../firebase/init';
+import { firebaseConfig } from '../firebase/init';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import { doc, getDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { extractTextFromImage } from 'textifyimage';
 
 
 function useClickCount() {
   const clickCount = ref(0);
   function increment() {
-    clickCount.value += 1
+    clickCount.value += 1;
     return clickCount.value;
   }
 
@@ -49,22 +48,44 @@ export default defineComponent({
   props: {
     title: {
       type: String,
-      required: true
+      required: true,
     },
     todos: {
       type: Array as PropType<Todo[]>,
-      default: () => []
+      default: () => [],
     },
     meta: {
       type: Object as PropType<Meta>,
-      required: true
+      required: true,
     },
     active: {
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
-  setup (props) {
 
+  methods :{
+    onFileChange(event){
+      console.log(event);
+      this.selectedFile = event.target.files[0]
+
+    },
+    
+    textFromPicture() {
+     var txt = extractTextFromImage(this.selectedFile); 
+     txt
+     .then((data) => {
+       console.log(data);
+       this.text = data; // Output the extracted text
+     })
+     .catch((error) => {
+       console.log(error); // Handle any errors
+     });
+
+   }
+     },
+
+  
+  setup(props) {
     //dohvaćanje korisnika iz firestore-a, provjera rada
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -79,9 +100,8 @@ export default defineComponent({
         console.error('Error fetching users:', error);
       }
     });
-    
-    
-    return { ...useClickCount(), ...useDisplayTodo(toRef(props, 'todos')) };
+
+    return { ...useClickCount(), ...useDisplayTodo(toRef(props, 'todos')), text: 'Ovdje će se prikazati tekst sa slike', selectedFile : null};
   },
 });
 </script>
