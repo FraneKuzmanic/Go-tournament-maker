@@ -64,7 +64,7 @@ export default defineComponent({
   },
 
   methods :{
-    onFileChange(event){
+    onFileChange(event: any){
       console.log(event);
       this.selectedFile = event.target.files[0]
 
@@ -73,11 +73,11 @@ export default defineComponent({
     textFromPicture() {
      var txt = extractTextFromImage(this.selectedFile); 
      txt
-     .then((data) => {
+     .then((data: any) => {
        console.log(data);
        this.text = data; // Output the extracted text
      })
-     .catch((error) => {
+     .catch((error: any) => {
        console.log(error); // Handle any errors
      });
 
