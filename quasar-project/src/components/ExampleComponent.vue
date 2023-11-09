@@ -1,18 +1,33 @@
 <template>
   <meta charset="UTF8">
-  <div>
-    <p>{{ title }}</p>
-    <ul>
-      <li v-for="todo in todos" :key="todo.id" @click="increment">
-        {{ todo.id }} - {{ todo.content }}
-      </li>
-    </ul>
-    <p>Count: {{ todoCount }} / {{ meta.totalCount }}</p>
-    <p>Active: {{ active ? 'yes' : 'no' }}</p>
-    <p>Clicks on todos: {{ clickCount }}</p>
-    <input type="file" id="picture" accept="image/*" :capture="'environment'" @change="onFileChange"/>
-    <button v-on:click="textFromPicture">SAVE</button>
-    <div>{{ text }}</div>
+
+  <h1>Players lesgooo</h1>
+  <div id="main-container">
+    <div class="player-group" id="left-column">
+      <draggable v-model="playersColumnLeft" tag="ul" group="players" item-key="id" >
+        <template #item="{ element: player }">
+          <li @click="updateMatchups">{{ player.name }} {{ player.surname[0] }}.</li>
+        </template>
+      </draggable>
+    </div>
+
+    <div class="player-group" id="right-column">
+      <draggable v-model="playersColumnRight" tag="ul" group="players" item-key="id">
+        <template #item="{ element: player }">
+          <li>{{ player.name }} {{ player.surname[0] }}.</li>
+        </template>
+      </draggable>
+    </div>
+  </div>
+  
+  <div id="unmatched-drawer">
+    <div class="player-group" id="unmatched-column">
+      <draggable v-model="unmatchedPlayers" tag="ul" group="players" item-key="id">
+        <template #item="{ element: player }">
+          <li>{{ player.name }} {{ player.surname[0] }}.</li>
+        </template>
+      </draggable>
+    </div>
   </div>
 </template>
 
@@ -25,7 +40,8 @@ import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import { doc, getDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { extractTextFromImage } from 'textifyimage';
+import draggable from 'vuedraggable';
+import internal from 'stream';
 
 
 function useClickCount() {
@@ -62,33 +78,51 @@ export default defineComponent({
       type: Boolean,
     },
   },
-
-  methods :{
-    onFileChange(event: any){
-      console.log(event);
-      this.selectedFile = event.target.files[0]
-
-    },
-    
-    textFromPicture() {
-     var txt = extractTextFromImage(this.selectedFile); 
-     txt
-     .then((data: any) => {
-       console.log(data);
-       this.text = data; // Output the extracted text
-     })
-     .catch((error: any) => {
-       console.log(error); // Handle any errors
-     });
-
-   }
-     },
-
-  
   setup(props) {
     //dohvaćanje korisnika iz firestore-a, provjera rada
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    const playersColumnLeft = ref([
+      {id: 0, name: 'Boris', surname: 'Milasinovic', rank: 5, pts: 2},
+      {id: 1, name: 'Evil Boris', surname: 'Milasinovic', rank: 5, pts: 2},
+      {id: 2, name: 'Igor', surname: 'Mekterovic', rank: 4, pts: 1.5},
+      {id: 3, name: 'Ljiljana', surname: 'Brkic', rank: 4, pts: 1.5},
+    ])
+
+    const playersColumnRight = ref([
+      {id: 4, name: 'Mario', surname: 'Kusek', rank: 3, pts: 1},
+      {id: 5, name: 'Kristijan', surname: 'Kilassa', rank: 3, pts: 1},
+      {id: 6, name: 'Hrvoje', surname: 'Pandzic', rank: 2, pts: 1.5},
+      {id: 7, name: 'Petar', surname: 'Mostarac', rank: 2, pts: 1.5},
+    ])
+
+    const unmatchedPlayers = ref([])
+    // Have all the players in one array
+    // Make the first split of arrays to be computed
+
+    var matchups = ref()
+    
+
+    const updateMatchups = () => {
+      var _matchups = []
+      const leftColumnLength = playersColumnLeft.value.length
+      const rightColumnLength = playersColumnRight.value.length
+      var shorterArray
+      //iterate over the shorter array
+      if(leftColumnLength < rightColumnLength)
+        shorterArray = leftColumnLength
+      else
+        shorterArray = rightColumnLength
+
+      for(var i=0; i<shorterArray; i++){
+          _matchups[i] = {player1: playersColumnLeft.value[i], player2: playersColumnRight.value[i]}
+      }
+
+      console.log(_matchups)
+      matchups.value = _matchups
+    }
+
 
     onMounted(async () => {
       try {
@@ -101,7 +135,7 @@ export default defineComponent({
       }
     });
 
-    return { ...useClickCount(), ...useDisplayTodo(toRef(props, 'todos')), text: 'Ovdje će se prikazati tekst sa slike', selectedFile : null};
+    return { playersColumnLeft, playersColumnRight, unmatchedPlayers, updateMatchups, matchups }
   },
 });
 </script>
