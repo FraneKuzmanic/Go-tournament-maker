@@ -33,7 +33,7 @@
 
 
 <script lang="ts">
-import { defineComponent, PropType, computed, ref, toRef, Ref } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
 import { Todo, Meta } from './models';
 import { firebaseConfig } from '../firebase/init';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
@@ -41,23 +41,11 @@ import { doc, getDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import draggable from 'vuedraggable';
-import internal from 'stream';
 
 
-function useClickCount() {
-  const clickCount = ref(0);
-  function increment() {
-    clickCount.value += 1;
-    return clickCount.value;
-  }
 
-  return { clickCount, increment };
-}
 
-function useDisplayTodo(todos: Ref<Todo[]>) {
-  const todoCount = computed(() => todos.value.length);
-  return { todoCount };
-}
+
 
 
 export default defineComponent({
