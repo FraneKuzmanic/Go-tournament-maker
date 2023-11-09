@@ -59,6 +59,7 @@ function useDisplayTodo(todos: Ref<Todo[]>) {
   return { todoCount };
 }
 
+
 export default defineComponent({
   name: 'ExampleComponent',
   props: {
@@ -77,7 +78,9 @@ export default defineComponent({
     active: {
       type: Boolean,
     },
-  },
+
+  },  
+  components : {draggable},
   setup(props) {
     //dohvaćanje korisnika iz firestore-a, provjera rada
     const app = initializeApp(firebaseConfig);
