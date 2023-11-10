@@ -6,6 +6,7 @@
       :todos="todos"
       :meta="meta"
     ></example-component>
+    <input-screen />
   </q-page>
 </template>
 
@@ -13,10 +14,11 @@
 import { Todo, Meta } from 'components/models';
 import ExampleComponent from 'components/ExampleComponent.vue';
 import { defineComponent, ref } from 'vue';
+import InputScreen from 'src/components/InputScreen.vue';
 
 export default defineComponent({
   name: 'IndexPage',
-  components: { ExampleComponent },
+  components: { ExampleComponent, InputScreen },
   setup() {
     const todos = ref<Todo[]>([
       {
