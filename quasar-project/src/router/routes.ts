@@ -1,4 +1,5 @@
 import { RouteRecordRaw } from 'vue-router';
+import InputScreen from 'components/InputScreen.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -11,6 +12,10 @@ const routes: RouteRecordRaw[] = [
     path: '/tournament/:tournamentId/:creatorId?',
     name: 'tournamentDetail',
     component: () => import('src/pages/TournamentDetail.vue'),
+  },
+  {
+    path: '/addplayers',
+    component: InputScreen
   },
 
   // Always leave this as last one,
