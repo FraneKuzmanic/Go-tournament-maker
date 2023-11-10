@@ -1,10 +1,15 @@
 import { RouteRecordRaw } from 'vue-router';
+import InputScreen from 'components/InputScreen.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+  },
+  {
+    path: '/addplayers',
+    component: InputScreen
   },
 
   // Always leave this as last one,
