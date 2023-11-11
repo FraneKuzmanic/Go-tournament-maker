@@ -1,4 +1,5 @@
 <template>
+  <send-mail/>
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <tournament-schedule />
 </template>
@@ -14,12 +15,14 @@ import { useRoute } from 'vue-router';
 import InputScreen from '../components/InputScreen.vue';
 import TournamentSchedule from 'src/components/TournamentSchedule.vue';
 import { usePlayersStore } from 'app/utils/store';
+import Mail from '../components/SendMail.vue'
 
 export default defineComponent({
   name: 'TournamentPage',
   components: {
     'input-screen': InputScreen, //komponenta koja je container za forme za unose igraca
     'tournament-schedule': TournamentSchedule, //komponenta koja implementira sparivanje igraca
+    'send-mail':Mail
   },
   methods: {},
   setup() {
