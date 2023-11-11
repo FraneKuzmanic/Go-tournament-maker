@@ -23,9 +23,11 @@
         label="RATING"
         :rules="[(val) => !!val || 'Rating je obavezan']"
       />
-      <q-btn :disable="addedToDB" @click="searchEGD" label="TRAŽI" />
-      <q-btn :disable="!found && !notFound" label="DODAJ" type="submit" />
-      <q-btn @click="remove" label="UKLONI" />
+         <div class="center-buttons">
+        <q-btn :disable="addedToDB" @click="searchEGD" label="TRAŽI" />
+        <q-btn :disable="!found && !notFound" label="DODAJ" type="submit" />
+        <q-btn @click="remove" label="UKLONI" />
+      </div>
       <q-dialog v-model="notFound2">
         <q-card>
           <q-card-section>
@@ -43,6 +45,15 @@
     </q-form>
   </div>
 </template>
+
+<style>
+.center-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem; /* Adjust margin as needed */
+  margin-bottom: 1.5rem;
+}
+</style>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';

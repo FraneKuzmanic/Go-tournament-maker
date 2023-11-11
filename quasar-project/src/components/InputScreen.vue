@@ -2,13 +2,15 @@
   <q-layout class="form-container">
     <q-page-container>
       <q-page>
-        <q-btn
-          color="white"
-          text-color="black"
-          @click="addForm"
-          label="NOVI IGRAČ"
-          style="margin-bottom: 1rem"
-        />
+        <div class="q-pa-md row justify-center">
+          <q-btn
+            class="q-mb-md"
+            color="white"
+            text-color="black"
+            @click="addForm"
+            label="NOVI IGRAČ"
+          />
+        </div>
         <player-input
           v-for="index in count"
           :key="index"
