@@ -27,7 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import CreateButton from '../components/CreateButton.vue'; // Import the component
+import CreateButton from '../components/CreateButton.vue'; // Importamo gumb za stvarat turnir
+//Ova komponenta nema neku aplikacijsku logiku nego klasicni html, css
 </script>
 
 <style>

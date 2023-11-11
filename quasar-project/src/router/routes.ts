@@ -1,21 +1,16 @@
 import { RouteRecordRaw } from 'vue-router';
-import InputScreen from 'components/InputScreen.vue'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
-    name: 'home',
+    path: '/', //ovo doslovno znaci na ruti '/' mi generiraj HomePage komponentu
+    name: 'Home',
     component: () => import('src/pages/HomePage.vue'),
   },
 
   {
-    path: '/tournament/:tournamentId/:creatorId?',
-    name: 'tournamentDetail',
-    component: () => import('src/pages/TournamentDetail.vue'),
-  },
-  {
-    path: '/addplayers',
-    component: InputScreen
+    path: '/tournament/:tournamentId/:creatorId?', //creatorId je opcionalni dio rute jer postoje admini i obicni korisnici
+    name: 'TournamentPage',
+    component: () => import('src/pages/TournamentPage.vue'),
   },
 
   // Always leave this as last one,

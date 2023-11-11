@@ -31,14 +31,15 @@ import { firebaseConfig, addNewTournament } from '../firebase/init';
 import { doc, getDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { Player } from 'src/models/models';
 
 export default defineComponent({
-  name: 'ExampleComponent',
+  name: 'CreateButton',
   methods: {
     async createTournament(event: Event) {
       const creatorId: string =
-        Date.now().toString(36) + Math.random().toString(36).substring(2);
-      const players: string[] = ['mate', 'boris', 'igor', 'mario'];
+        Date.now().toString(36) + Math.random().toString(36).substring(2); //stvaranje jedinstvenog identifikatora za kreatora turnira, inace to nije dobro na frontendu radit, al nez kako to napravit iz firebase-a, citaj "nije mi se dalo saznat kako"
+      const players: Player[] = [];
 
       const tournamentId: string = await addNewTournament({
         creatorId: creatorId,
@@ -46,9 +47,11 @@ export default defineComponent({
       });
 
       this.$router.push({
-        name: 'tournamentDetail',
+        name: 'TournamentPage',
         params: { tournamentId: tournamentId, creatorId: creatorId },
-      });
+      }); //nakon stvaranja turnira prebacujemo URL na URL za taj turnir i rendera se komponenta turnira
+
+      localStorage.setItem('creatorId', creatorId); //spremamo id kreatora u njegov local storage
     },
   },
 });

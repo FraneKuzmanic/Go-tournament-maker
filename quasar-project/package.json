@@ -15,7 +15,9 @@
   "dependencies": {
     "@quasar/extras": "^1.16.4",
     "firebase": "^10.5.2",
+    "pinia": "^2.1.7",
     "quasar": "^2.6.0",
+    "uuid": "^9.0.1",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0",
     "vuedraggable": "^4.1.0"

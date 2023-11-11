@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import 'firebase/firestore';
-import { getFirestore, collection, doc, getDoc, addDoc } from 'firebase/firestore';
-import { Tournament } from "src/models/models";
+import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { Tournament, Player } from "src/models/models";
 
 //konfiguracija za povezivanje s nasim firebaseom
 export const firebaseConfig = {
@@ -28,7 +28,6 @@ export const addNewTournament = async (tournament: Tournament): Promise<string> 
       creatorId: tournament.creatorId,
       players: tournament.players,
     });
-    console.log("Document written with ID: ", docRef.id);
     return docRef.id;
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -37,8 +36,8 @@ export const addNewTournament = async (tournament: Tournament): Promise<string> 
   return "";
 }
 
-//funkcija za dohvat određenog turnira iz firestore-a
-export const getTournament = async (tournamentId: string): Promise<Tournament | undefined> => {
+//funkcija za dohvat igraca iz firestore-a
+export const getTournamentPlayers = async (tournamentId: string): Promise<Player[] | undefined> => {
 
   const docRef = doc(db, "tournaments", tournamentId);
   const docSnap = await getDoc(docRef);
@@ -51,5 +50,28 @@ export const getTournament = async (tournamentId: string): Promise<Tournament | 
   console.log("Tournament doesn't exist!");
   }
 
-  return tournament;
+  return tournament?.players;
 }
+
+export const addNewPlayer = async(player: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  await updateDoc(dbRef, {
+    players: arrayUnion(player)
+  });
+
+}
+
+export const removePlayer = async(player: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  await updateDoc(dbRef, {
+    players: arrayRemove(player)
+  });
+
+}
+
+//OVDJE PISEMO SVE FUNKCIJE KOJE KOMUNICIRAJU S FIREBASEOM, PUNO JE ELEGANTNIJE I LAKSE ODE IH NAPISAT 
+//JER ONDA SAMO JEDAN PUT MORAMO INICIJALIZIRAT FIRESTORE I OSTALE STVARI ZA FB
