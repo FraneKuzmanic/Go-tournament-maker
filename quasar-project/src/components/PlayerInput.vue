@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <q-form class="form" v-if="showcomponent" @submit="onSubmit">
+  <div class="q-pa-md row justify-center">
+    <q-form class="form q-col-md-5" v-if="showcomponent" @submit="onSubmit">
       <q-input
         filled
         v-model.trim="name"

@@ -1,5 +1,5 @@
 <template>
-  <send-mail/>
+   <send-mail style="background-color: #303030;" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <tournament-schedule />
 </template>

@@ -1,15 +1,38 @@
 <template>
-  <div class="q-pa-md">
-    <div>
-      <q-btn @click="adminURL" class="glossy" color="teal" v-if="!openMailInput" label="Email for admin" />
-      <q-btn @click="userURL" class="glossy" color="teal" v-if="!openMailInput" label="Email for user" />
+  <div class="q-pa-md" style="background-color: #303030;">
+    <div class="row justify-center"> 
+      <div class="q-mr-md" >
+        <q-btn @click="adminURL" class="glossy" id="buttons" v-if="!openMailInput" label="Email for admin" />
+      </div>
+      <div class="q-ml-md">
+        <q-btn @click="userURL" class="glossy" id="buttons" v-if="!openMailInput" label="Email for user" />
+      </div>
     </div>
-    <q-form class="q-gutter-md" v-if="openMailInput" @submit.prevent="sendEmail">
-      <q-input label="Your email" filled type="email" v-model="to" required lazy-rules/>
-      <q-btn type="submit">Send Email</q-btn>
+    <q-form class="q-gutter-md " v-if="openMailInput" @submit.prevent="sendEmail" style="text-align: center;">
+      <q-input label="Your email" filled type="email" v-model="to" required lazy-rules style="background-color: white;  width: 50%; margin: 20px auto 0;"/>
+      <q-btn type="submit"  style="background-color: white;">Send Email</q-btn>
     </q-form>
   </div>
 </template>
+
+<style> 
+#buttons {
+  background-color: rgba(246, 122, 21, 0.92);
+  font-size: 1rem;
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 500;
+  width: 35vw;
+  border-radius: 14px;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  max-width: 250px;
+  cursor: pointer;
+}
+#id{
+  
+}
+</style>
 
 <script lang="ts">
   import emailjs from 'emailjs-com';
