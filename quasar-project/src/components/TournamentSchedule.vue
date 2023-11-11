@@ -92,7 +92,6 @@ export default defineComponent({
       playersColumnRight.value = playersColumnRight.value.filter(
         (player: Player) => playersIds.includes(player.id)
       );
-      console.log(unmatchedPlayers);
     };
 
     const updateMatchups = () => {

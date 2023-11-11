@@ -152,7 +152,9 @@ createQuasarApp(createApp, quasarUserOptions)
 
     return Promise[ method ]([
       
-      import('boot/notify-defaults')
+      import('boot/notify-defaults'),
+      
+      import('boot/store')
       
     ]).then(bootFiles => {
       const boot = mapFn(bootFiles).filter(entry => typeof entry === 'function')

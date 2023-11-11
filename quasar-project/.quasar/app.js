@@ -19,7 +19,6 @@ import RootComponent from 'app/src/App.vue'
 
 
 import createRouter from 'app/src/router/index'
-import { createPinia } from 'pinia'
 
 
 
@@ -36,10 +35,8 @@ export default async function (createAppFn, quasarUserOptions) {
 
   app.use(Quasar, quasarUserOptions)
 
-  const pinia = createPinia();
-
-  app.use(pinia);
-
+  
+  
 
   const router = markRaw(
     typeof createRouter === 'function'
