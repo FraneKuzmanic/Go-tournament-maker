@@ -1,13 +1,14 @@
 <template>
    <send-mail style="background-color: #303030;" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  <colorPicker :tournamentId="tournamentId"></colorPicker>
   <tournament-schedule />
 </template>
 
 <style></style>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import { Tournament, Player, AppState } from 'src/models/models';
 import { getTournamentPlayers } from 'src/firebase/init';
 import type { Ref } from 'vue';
@@ -16,13 +17,15 @@ import InputScreen from '../components/InputScreen.vue';
 import TournamentSchedule from 'src/components/TournamentSchedule.vue';
 import { usePlayersStore } from 'app/utils/store';
 import Mail from '../components/SendMail.vue'
+import ColorPicker from 'src/components/ColorPicker.vue';
 
 export default defineComponent({
   name: 'TournamentPage',
   components: {
     'input-screen': InputScreen, //komponenta koja je container za forme za unose igraca
     'tournament-schedule': TournamentSchedule, //komponenta koja implementira sparivanje igraca
-    'send-mail':Mail
+    'send-mail':Mail,
+    'colorPicker' : ColorPicker
   },
   methods: {},
   setup() {

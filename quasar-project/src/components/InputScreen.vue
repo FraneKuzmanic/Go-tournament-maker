@@ -17,6 +17,8 @@
           :tournamentId="tournamentId"
         />
       </q-page>
+
+
     </q-page-container>
   </q-layout>
 </template>
@@ -30,7 +32,7 @@ export default defineComponent({
   name: 'InputScreen',
   components: {
     PlayerInput,
-  },
+},
   props: {
     tournamentId: {
       type: String,

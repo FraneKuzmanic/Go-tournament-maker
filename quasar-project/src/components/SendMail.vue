@@ -86,11 +86,11 @@
           templateParams,
           'VV9vJMN1YIRQDseRH'
         )
-          .then((response) => {
+          .then((response: Response) => {
             console.log('Email sent:', response);
             alert('Email sent successfully!');
           })
-          .catch((error) => {
+          .catch((error: Error) => {
             console.error('Error sending email:', error);
             alert('Error sending email. Please try again.');
           });
