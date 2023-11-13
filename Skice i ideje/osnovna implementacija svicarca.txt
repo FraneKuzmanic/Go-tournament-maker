@@ -1,0 +1,142 @@
+type Player = {
+    id: string;
+    name: string;
+    surname: string
+    team: string
+    rank: number;
+    score: number;
+    bye: boolean
+    opponents: Set<string>; 
+    gamesAsBlack: number; 
+  };
+  
+  type Match = {
+    player1: Player;
+    player2: Player;
+    round: number;
+  };
+  
+  class SwissSystem {
+    private players: Player[];
+    private rounds: number;
+    private currentRound: number;
+    private matches: Match[];
+  
+    constructor(players: Player[], rounds: number) {
+      this.players = players;
+      this.rounds = rounds;
+      this.currentRound = 0;
+      this.matches = [];
+    
+      for (const player of this.players) {
+        player.opponents = new Set();
+        player.gamesAsBlack = 0;
+        player.bye = false;
+      }
+    }
+  
+    private sortPlayers(): void {
+      // Sort by score and then by rank
+      this.players.sort((a, b) => b.score - a.score || a.rank - b.rank);
+    }
+  
+    private findOpponent(player: Player, pool: Player[]): Player | null {
+      for (const potentialOpponent of pool) {
+        if (
+          !player.opponents.has(potentialOpponent.id) &&
+          potentialOpponent.id !== player.id &&
+          Math.abs(player.gamesAsBlack - potentialOpponent.gamesAsBlack) <= 1
+        ) {
+          return potentialOpponent;
+        }
+      }
+      return null;
+    }
+
+    public generateFirstRound(): Match[] {
+
+            if (this.currentRound > 0) {
+              throw new Error('The first round has already been generated.');
+            }
+          
+            this.currentRound++;
+            this.sortPlayers();
+          
+            const roundMatches: Match[] = [];
+          
+            for (let i = 0; i < this.players.length / 2; i++) {
+              const player1 = this.players[i];
+              const player2 = this.players[i + this.players.length / 2];
+              
+              roundMatches.push({
+                player1,
+                player2,
+                round: this.currentRound,
+              });
+          
+              player1.opponents.add(player2.id);
+              player2.opponents.add(player1.id);
+              player1.gamesAsBlack++;
+            }
+
+             // Handle the case when there's an odd number of players
+             if (this.players.length % 2 !== 0) {
+                // Find the player without an opponent
+                const playerWithoutOpponent = this.players.find(player => player.opponents.size == 0);
+            
+                if (playerWithoutOpponent) {
+                  playerWithoutOpponent.bye = true;
+                  playerWithoutOpponent.score += 1;
+                } 
+              }
+          
+            this.matches.push(...roundMatches);
+            return roundMatches;
+          }
+          
+  
+    public generateRound(): Match[] {
+      if (this.currentRound >= this.rounds) {
+        throw new Error('All rounds have already been played.');
+      }
+  
+      this.currentRound++;
+      this.sortPlayers();
+  
+      const roundMatches: Match[] = [];
+      const pool: Player[] = [...this.players]; // Clone the array
+  
+      while (pool.length > 0) {
+        const player = pool.shift()!; // Remove and get the first player from the pool
+  
+        // Find an opponent for the current player
+        const opponent = this.findOpponent(player, pool);
+  
+        if (opponent) {
+          pool.splice(pool.indexOf(opponent), 1); 
+  
+         
+          const matchAsBlack = player.gamesAsBlack <= opponent.gamesAsBlack ? player : opponent;
+          matchAsBlack.gamesAsBlack++;
+  
+          roundMatches.push({
+            player1: matchAsBlack,
+            player2: matchAsBlack === player ? opponent : player,
+            round: this.currentRound,
+          });
+  
+          
+          player.opponents.add(opponent.id);
+          opponent.opponents.add(player.id);
+        } else {
+            if(!player.bye){
+                player.score += 1; 
+                player.bye = true;
+            }
+        }
+      }
+  
+      this.matches.push(...roundMatches);
+      return roundMatches;
+    }
+  }

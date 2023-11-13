@@ -34,3 +34,5 @@ export default route(function (/* { store, ssrContext } */) {
 
   return Router;
 });
+
+//OVO JE KONFIGURACIJSKA DATOTEKA ZA VUE ROUTER
