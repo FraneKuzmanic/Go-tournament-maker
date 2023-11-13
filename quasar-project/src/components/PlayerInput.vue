@@ -1,57 +1,61 @@
 <template>
-  <div class="q-pa-md row justify-center">
-    <q-form class="form q-col-md-5" v-if="showcomponent" @submit="onSubmit">
-      <q-input
-        filled
-        v-model.trim="name"
-        :disable="addedToDB"
-        label="IME"
-        :rules="[(val) => !!val || 'Ime je obavezno']"
+  <q-form
+    class="form q-col-md-5 q-pa-sm"
+    @submit="onSubmit"
+    v-if="showcomponent"
+  >
+    <q-input
+      filled
+      v-model.trim="name"
+      :disable="addedToDB"
+      label="IME"
+      :rules="[(val) => !!val || 'Ime je obavezno']"
+    />
+    <q-input
+      filled
+      v-model.trim="lastname"
+      :disable="addedToDB"
+      label="PREZIME"
+      :rules="[(val) => !!val || 'Prezime je obavezno']"
+    />
+    <q-input
+      v-if="notFound || found"
+      filled
+      v-model.trim="rating"
+      :disable="addedToDB"
+      label="RATING"
+      :rules="[(val) => !!val || 'Rating je obavezan']"
+    />
+    <div class="center-buttons">
+      <q-btn :disable="addedToDB" @click="searchEGD" label="TRAŽI" />
+      <q-btn
+        :disable="(!found && !notFound) || addedToDB"
+        label="DODAJ"
+        type="submit"
       />
-      <q-input
-        filled
-        v-model.trim="lastname"
-        :disable="addedToDB"
-        label="PREZIME"
-        :rules="[(val) => !!val || 'Prezime je obavezno']"
-      />
-      <q-input
-        v-if="notFound || found"
-        filled
-        v-model.trim="rating"
-        :disable="addedToDB"
-        label="RATING"
-        :rules="[(val) => !!val || 'Rating je obavezan']"
-      />
-         <div class="center-buttons">
-        <q-btn :disable="addedToDB" @click="searchEGD" label="TRAŽI" />
-        <q-btn :disable="!found && !notFound" label="DODAJ" type="submit" />
-        <q-btn @click="remove" label="UKLONI" />
-      </div>
-      <q-dialog v-model="notFound2">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">Alert</div>
-          </q-card-section>
-          <q-card-section class="q-pt-none">
-            Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime i
-            prezime ili upišite rating i kliknite na gumb DODAJ
-          </q-card-section>
-          <q-card-actions>
-            <q-btn flat label="OK" color="primary" v-close-popup />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-    </q-form>
-  </div>
+      <q-btn @click="remove" label="UKLONI" />
+    </div>
+    <q-dialog v-model="notFound2">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime i
+          prezime ili upišite rating i kliknite na gumb DODAJ
+        </q-card-section>
+        <q-card-actions>
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-form>
 </template>
 
 <style>
 .center-buttons {
   display: flex;
   justify-content: center;
-  margin-top: 1rem; /* Adjust margin as needed */
-  margin-bottom: 1.5rem;
 }
 </style>
 

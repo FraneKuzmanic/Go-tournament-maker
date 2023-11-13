@@ -10,11 +10,13 @@ export const usePlayersStore = defineStore('players', {
     state: (): AppState => {
         return {
           players: [],
+          currentPlayer: undefined,
         }
     },
     actions: {
         addNewPlayer(newPlayer: Player) {
             this.players.push(newPlayer);
+            this.currentPlayer = newPlayer;
         },
 
         setPlayers(initPlayers: Player[]){
@@ -23,6 +25,7 @@ export const usePlayersStore = defineStore('players', {
 
         removePlayer(delPlayer: Player){
             this.players = this.players.filter((player: Player) => player.id !== delPlayer.id);
+            this.currentPlayer = delPlayer;
         }
 
     }

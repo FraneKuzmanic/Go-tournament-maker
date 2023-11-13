@@ -9,7 +9,7 @@
         item-key="id"
       >
         <template #item="{ element: player }">
-          <li @click="updateMatchups" :id="player.id" > 
+          <li @click="updateMatchups" :id="player.id">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
           </li>
         </template>
@@ -24,7 +24,9 @@
         item-key="id"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">{{ player.name }} {{ player.lastname }}, {{ player.rating }}</li>
+          <li :id="player.id">
+            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+          </li>
         </template>
       </draggable>
     </div>
@@ -38,8 +40,10 @@
         group="players"
         item-key="id"
       >
-        <template #item="{ element: player }" >
-          <li :id="player.id">{{ player.name }} {{ player.lastname }}, {{ player.rating }}</li>
+        <template #item="{ element: player }">
+          <li :id="player.id">
+            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+          </li>
         </template>
       </draggable>
     </div>
@@ -80,11 +84,37 @@ export default defineComponent({
       () => {
         updatePlayers(); //ova watch funkcija dolazi iz samo vue-a i ona prati stanje igraca, kad god se promjeni stanje igraca, npr doda ili makne igrac, aktivirat ce funkcija updatePlayers()
       }
-    )
-  
+    );
 
     const updatePlayers = () => {
-      //ova funkcija bi na svaku promjenu s igracima(dodavanje,uklanjanje,premjestanje) trebala azurirati state ove komponente i preraspodijeliti u kojem se stupcu koji igraci nalaze, medjutim trenutno nije potpuno ispravna
+      //ova funkcija bi na svaku promjenu s igracima(dodavanje,uklanjanje,premjestanje) trebala azurirati state ove komponente i preraspodijeliti u kojem se stupcu koji igraci nalaze
+      const playerId = store.currentPlayer?.id;
+      if (playerId) {
+        let playerInd = playersColumnLeft.value.findIndex(
+          (player) => player.id === playerId
+        );
+        if (playerInd !== -1) {
+          playersColumnLeft.value.splice(playerInd, 1);
+          return;
+        }
+        playerInd = playersColumnRight.value.findIndex(
+          (player) => player.id === playerId
+        );
+        if (playerInd !== -1) {
+          playersColumnRight.value.splice(playerInd, 1);
+          return;
+        }
+        playerInd = unmatchedPlayers.value.findIndex(
+          (player) => player.id === playerId
+        );
+        if (playerInd !== -1) {
+          unmatchedPlayers.value.splice(playerInd, 1);
+          return;
+        } else
+          store.currentPlayer
+            ? unmatchedPlayers.value.push(store.currentPlayer)
+            : null;
+      }
       unmatchedPlayers.value = store.players;
       const playersIds = store.players.map((player: Player) => player.id);
       playersColumnLeft.value = playersColumnLeft.value.filter(
