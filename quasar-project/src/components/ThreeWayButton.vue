@@ -10,9 +10,9 @@
           color="white"
           text-color="primary"
           :options="[
-            {label: 'winnerP1', value: '+1'},
-            {label: 'Draw', value: '+0.5/ +0.5'},
-            {label: 'winnerP2', value: '+2'}
+            {label: '+1', value: 'winnerP1'},
+            {label: '+0.5/+0.5', value: 'Draw'},
+            {label: '+1', value: 'winnerP2'}
           ]"
         />
       </div>
