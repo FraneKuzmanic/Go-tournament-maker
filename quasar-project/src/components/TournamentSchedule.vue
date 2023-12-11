@@ -7,6 +7,7 @@
         tag="ul"
         group="players"
         item-key="id"
+        @update ="updateMatchups"
       >
         <template #item="{ element: player }">
           <li @click="updateMatchups" :id="player.id">
@@ -16,12 +17,20 @@
       </draggable>
     </div>
 
+    <div class="outcome-buttons">
+      <!-- Middle Column: ThreeWayButton components -->
+      <!-- <div v-for="matchup in matchups" :key="matchup.id">
+        { matchup }
+      </div> -->
+    </div>
+
     <div class="player-group" id="right-column">
       <draggable
         v-model="playersColumnRight"
         tag="ul"
         group="players"
         item-key="id"
+        @update ="updateMatchups"
       >
         <template #item="{ element: player }">
           <li :id="player.id">
@@ -31,7 +40,9 @@
       </draggable>
     </div>
   </div>
+
   <ThreeWayButton />
+
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
       <draggable
@@ -137,6 +148,7 @@ export default defineComponent({
 
       for (let i = 0; i < shorterArray; i++) {
         _matchups[i] = {
+          id: i,
           playerOne: playersColumnLeft.value[i],
           playerTwo: playersColumnRight.value[i],
         };
@@ -144,6 +156,20 @@ export default defineComponent({
 
       console.log(_matchups);
       matchups.value = _matchups;
+
+      // Remove all previously created ThreeWayButton components
+      const outcomeButtons = document.querySelector('.outcome-buttons');
+      if (outcomeButtons) {
+        while (outcomeButtons.firstChild) {
+          outcomeButtons.removeChild(outcomeButtons.firstChild);
+        }
+      }
+
+      // Dynamically create and append new ThreeWayButton components
+      matchups.value.forEach(() => {
+        const threeWayButton = document.createElement('ThreeWayButton');
+        outcomeButtons?.appendChild(threeWayButton);
+      });
     };
 
     return {
