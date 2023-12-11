@@ -7,7 +7,6 @@
         tag="ul"
         group="players"
         item-key="id"
-        @update ="updateMatchups"
       >
         <template #item="{ element: player }">
           <li @click="updateMatchups" :id="player.id">
@@ -19,9 +18,11 @@
 
     <div class="outcome-buttons">
       <!-- Middle Column: ThreeWayButton components -->
-      <!-- <div v-for="matchup in matchups" :key="matchup.id">
-        { matchup }
-      </div> -->
+      <ul>
+        <li v-for="matchup in matchups" :key="matchup.id">
+          <p> {{ matchup.id }} </p>
+        </li>
+      </ul>
     </div>
 
     <div class="player-group" id="right-column">
@@ -30,10 +31,9 @@
         tag="ul"
         group="players"
         item-key="id"
-        @update ="updateMatchups"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li @click="updateMatchups" :id="player.id">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
           </li>
         </template>
