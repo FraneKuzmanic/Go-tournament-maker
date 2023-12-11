@@ -31,7 +31,7 @@
       </draggable>
     </div>
   </div>
-
+  <ThreeWayButton />
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
       <draggable
@@ -55,12 +55,13 @@
 import { defineComponent, ref, Ref, watch } from 'vue';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import draggable from 'vuedraggable';
+import ThreeWayButton from './ThreeWayButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable },
+  components: { draggable: draggable, ThreeWayButton: ThreeWayButton },
   setup() {
     const store = usePlayersStore();
 
