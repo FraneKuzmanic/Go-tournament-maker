@@ -13,6 +13,7 @@ export interface Player{ //sigurno da cemo doradit neke modele jer ja ni sam ne 
 }
 
 export interface Matchup{
+    id: number,
     playerOne: Player,
     playerTwo: Player,
 }

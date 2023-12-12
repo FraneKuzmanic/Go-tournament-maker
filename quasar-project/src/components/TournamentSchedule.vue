@@ -16,6 +16,15 @@
       </draggable>
     </div>
 
+    <div class="outcome-buttons">
+      <!-- Middle Column: ThreeWayButton components -->
+      <ul>
+        <li v-for="matchup in num_of_matchups" :key="matchup">
+          <ThreeWayButton />
+        </li>
+      </ul>
+    </div>
+
     <div class="player-group" id="right-column">
       <draggable
         v-model="playersColumnRight"
@@ -24,13 +33,15 @@
         item-key="id"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li @click="updateMatchups" :id="player.id">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
           </li>
         </template>
       </draggable>
     </div>
   </div>
+
+  <ThreeWayButton />
 
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
@@ -52,15 +63,16 @@
 
 <script lang="ts">
 //Ovo je Gabrijele tvoja komponenta,samo sam je preimenova
-import { defineComponent, ref, Ref, watch } from 'vue';
+import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import draggable from 'vuedraggable';
+import ThreeWayButton from './ThreeWayButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable },
+  components: { draggable: draggable, ThreeWayButton: ThreeWayButton },
   setup() {
     const store = usePlayersStore();
 
@@ -69,10 +81,10 @@ export default defineComponent({
     const playersColumnRight: Ref<Player[]> = ref([]);
 
     const unmatchedPlayers: Ref<Player[]> = ref([]);
-    // Have all the players in one array
-    // Make the first split of arrays to be computed
 
     const matchups: Ref<Matchup[]> = ref([]);
+
+    let num_of_matchups = computed(() => matchups.value.length);
 
     onMounted(async (): Promise<void> => {
       //prilikom ucitavanja komponente dohvacaju se svi igraci iz store-a i  stavljaju u unmatched players
@@ -133,13 +145,28 @@ export default defineComponent({
 
       for (let i = 0; i < shorterArray; i++) {
         _matchups[i] = {
+          id: i,
           playerOne: playersColumnLeft.value[i],
           playerTwo: playersColumnRight.value[i],
         };
       }
 
       console.log(_matchups);
+      console.log(num_of_matchups);
       matchups.value = _matchups;
+      // // Remove all previously created ThreeWayButton components
+      // const outcomeButtons = document.querySelector('.outcome-buttons');
+      // if (outcomeButtons) {
+      //   while (outcomeButtons.firstChild) {
+      //     outcomeButtons.removeChild(outcomeButtons.firstChild);
+      //   }
+      // }
+
+      // // Dynamically create and append new ThreeWayButton components
+      // matchups.value.forEach(() => {
+      //   const threeWayButton = document.createElement('ThreeWayButton');
+      //   outcomeButtons?.appendChild(threeWayButton);
+      // });
     };
 
     return {
@@ -148,6 +175,7 @@ export default defineComponent({
       unmatchedPlayers,
       updateMatchups,
       matchups,
+      num_of_matchups,
     };
   },
 });
