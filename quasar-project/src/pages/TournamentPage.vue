@@ -1,4 +1,5 @@
 <template>
+  <RoundPicker></RoundPicker>
   <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <colorPicker :tournamentId="tournamentId"></colorPicker>
@@ -18,6 +19,7 @@ import TournamentSchedule from 'src/components/TournamentSchedule.vue';
 import { usePlayersStore } from 'app/utils/store';
 import Mail from '../components/SendMail.vue';
 import ColorPicker from 'src/components/ColorPicker.vue';
+import RoundPicker from 'src/components/RoundPicker.vue';
 
 export default defineComponent({
   name: 'TournamentPage',
@@ -26,6 +28,8 @@ export default defineComponent({
     'tournament-schedule': TournamentSchedule, //komponenta koja implementira sparivanje igraca
     'send-mail': Mail,
     colorPicker: ColorPicker,
+    RoundPicker: RoundPicker,
+
   },
   methods: {},
   setup() {
