@@ -15,7 +15,7 @@ export const usePlayersStore = defineStore('players', {
     },
     actions: {
         addNewPlayer(newPlayer: Player) {
-            this.players.push(newPlayer);
+            this.players = [...this.players, newPlayer];
             this.currentPlayer = newPlayer;
         },
 

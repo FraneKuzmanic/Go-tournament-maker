@@ -110,19 +110,16 @@ export default defineComponent({
         if (playerInd !== -1) {
           unmatchedPlayers.value.splice(playerInd, 1);
           return;
-        } else
-          store.currentPlayer
-            ? unmatchedPlayers.value.push(store.currentPlayer)
-            : null;
+        } else {
+          if (store.currentPlayer)
+            unmatchedPlayers.value = [
+              ...unmatchedPlayers.value,
+              store.currentPlayer,
+            ];
+        }
+      } else {
+        unmatchedPlayers.value = store.players;
       }
-      unmatchedPlayers.value = store.players;
-      const playersIds = store.players.map((player: Player) => player.id);
-      playersColumnLeft.value = playersColumnLeft.value.filter(
-        (player: Player) => playersIds.includes(player.id)
-      );
-      playersColumnRight.value = playersColumnRight.value.filter(
-        (player: Player) => playersIds.includes(player.id)
-      );
     };
 
     const updateMatchups = () => {
