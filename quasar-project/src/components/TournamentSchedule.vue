@@ -132,6 +132,7 @@ export default defineComponent({
       } else {
         unmatchedPlayers.value = store.players;
       }
+      updateMatchups();
     };
 
     const updateMatchups = () => {
