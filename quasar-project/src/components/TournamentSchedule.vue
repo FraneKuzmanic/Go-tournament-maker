@@ -19,8 +19,8 @@
     <div class="outcome-buttons">
       <!-- Middle Column: ThreeWayButton components -->
       <ul>
-        <li v-for="matchup in matchups" :key="matchup.id">
-          <p> {{ matchup.id }} </p>
+        <li v-for="matchup in num_of_matchups" :key="matchup">
+          <ThreeWayButton />
         </li>
       </ul>
     </div>
@@ -63,7 +63,7 @@
 
 <script lang="ts">
 //Ovo je Gabrijele tvoja komponenta,samo sam je preimenova
-import { defineComponent, ref, Ref, watch } from 'vue';
+import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import draggable from 'vuedraggable';
 import ThreeWayButton from './ThreeWayButton.vue';
@@ -81,10 +81,11 @@ export default defineComponent({
     const playersColumnRight: Ref<Player[]> = ref([]);
 
     const unmatchedPlayers: Ref<Player[]> = ref([]);
-    // Have all the players in one array
-    // Make the first split of arrays to be computed
 
+    
     const matchups: Ref<Matchup[]> = ref([]);
+
+    let num_of_matchups = computed(() => matchups.value.length);
 
     onMounted(async (): Promise<void> => {
       //prilikom ucitavanja komponente dohvacaju se svi igraci iz store-a i  stavljaju u unmatched players
@@ -135,6 +136,7 @@ export default defineComponent({
       playersColumnRight.value = playersColumnRight.value.filter(
         (player: Player) => playersIds.includes(player.id)
       );
+      updateMatchups();
     };
 
     const updateMatchups = () => {
@@ -155,21 +157,21 @@ export default defineComponent({
       }
 
       console.log(_matchups);
+      console.log(num_of_matchups);
       matchups.value = _matchups;
+      // // Remove all previously created ThreeWayButton components
+      // const outcomeButtons = document.querySelector('.outcome-buttons');
+      // if (outcomeButtons) {
+      //   while (outcomeButtons.firstChild) {
+      //     outcomeButtons.removeChild(outcomeButtons.firstChild);
+      //   }
+      // }
 
-      // Remove all previously created ThreeWayButton components
-      const outcomeButtons = document.querySelector('.outcome-buttons');
-      if (outcomeButtons) {
-        while (outcomeButtons.firstChild) {
-          outcomeButtons.removeChild(outcomeButtons.firstChild);
-        }
-      }
-
-      // Dynamically create and append new ThreeWayButton components
-      matchups.value.forEach(() => {
-        const threeWayButton = document.createElement('ThreeWayButton');
-        outcomeButtons?.appendChild(threeWayButton);
-      });
+      // // Dynamically create and append new ThreeWayButton components
+      // matchups.value.forEach(() => {
+      //   const threeWayButton = document.createElement('ThreeWayButton');
+      //   outcomeButtons?.appendChild(threeWayButton);
+      // });
     };
 
     return {
@@ -178,6 +180,7 @@ export default defineComponent({
       unmatchedPlayers,
       updateMatchups,
       matchups,
+      num_of_matchups
     };
   },
 });
