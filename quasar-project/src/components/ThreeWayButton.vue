@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="buttonContainer">
       <q-btn-toggle
         v-model="model"
         class="my-custom-toggle"
@@ -15,6 +15,7 @@
           { label: '+1', value: 'winnerP2' }
         ]"
         @update:model-value="handleToggleChange"
+        size="20px"
       />
     </div>
   </template>
@@ -70,6 +71,8 @@
   <style scoped>
   .my-custom-toggle {
     border: 1px solid #027be3;
+    margin-top: 20px;
+    justify-self: center;
   }
   </style>
   
