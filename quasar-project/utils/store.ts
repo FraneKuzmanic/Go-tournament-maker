@@ -27,6 +27,5 @@ export const usePlayersStore = defineStore('players', {
             this.players = this.players.filter((player: Player) => player.id !== delPlayer.id);
             this.currentPlayer = delPlayer;
         }
-
     }
 })

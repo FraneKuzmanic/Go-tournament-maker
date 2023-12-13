@@ -54,8 +54,16 @@
         item-key="id"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li :id="player.id" style="display: flex; justify-content: space-between; align-items: center;">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+            @click.stop
+            round
+            color="red"
+            icon="delete"
+            dense
+            @click="handleClick(player)"
+          />
           </li>
         </template>
       </draggable>
@@ -71,6 +79,9 @@ import draggable from 'vuedraggable';
 import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
+import { removePlayer } from '../firebase/init';
+import { useRoute } from 'vue-router';
+import { strict } from 'assert';
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -84,7 +95,8 @@ export default defineComponent({
 
     const unmatchedPlayers: Ref<Player[]> = ref([]);
 
-    
+    const route = useRoute();
+
     const matchups: Ref<Matchup[]> = ref([]);
 
     let num_of_matchups = computed(() => matchups.value.length);
@@ -178,6 +190,13 @@ export default defineComponent({
       console.log("it's a draw!, both players get half a point!")
     }
 
+    function handleClick(player:Player){
+      const tournamentId = route.params.tournamentId
+      if(typeof(tournamentId) === "string"){
+        removePlayer(player,tournamentId)
+      }
+    }
+
     return {
       playersColumnLeft,
       playersColumnRight,
@@ -187,7 +206,8 @@ export default defineComponent({
       num_of_matchups,
       PlayerOneWon,
       PlayerTwoWon,
-      Draw
+      Draw,
+      handleClick
     };
   },
 });

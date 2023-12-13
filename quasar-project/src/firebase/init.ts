@@ -45,9 +45,9 @@ export const getTournamentPlayers = async (tournamentId: string): Promise<Player
   let tournament: Tournament | undefined;
 
   if (docSnap.exists()) {
-  tournament = docSnap.data() as Tournament;
+    tournament = docSnap.data() as Tournament;
   } else {
-  console.log("Tournament doesn't exist!");
+    console.log("Tournament doesn't exist!");
   }
 
   return tournament?.players;

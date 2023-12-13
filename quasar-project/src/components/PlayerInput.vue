@@ -64,8 +64,8 @@ import { defineComponent, ref } from 'vue';
 import { addNewPlayer, removePlayer } from '../firebase/init';
 import { useQuasar } from 'quasar';
 import type { PropType, Ref } from 'vue';
-import { Player } from '../models/models.ts';
-import { usePlayersStore } from 'app/utils/store';
+import { Player } from '../models/models';
+import { usePlayersStore } from '../../utils/store';
 import { v4 as uuidv4 } from 'uuid';
 
 export default defineComponent({
