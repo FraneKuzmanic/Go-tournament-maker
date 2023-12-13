@@ -1,12 +1,12 @@
 <template>
     <div class="outcome-container">
-        <div class="outcome-button" id="outcome-left">
+        <div class="outcome-button" id="outcome-left" @click="$emit('playerOneWon')">
             +1
         </div>
-        <div class="outcome-button" id="outcome-middle">
+        <div class="outcome-button" id="outcome-middle" @click="$emit('draw')">
             +0.5/+0.5
         </div>
-        <div class="outcome-button" id="outcome-right">
+        <div class="outcome-button" id="outcome-right" @click="$emit('playerTwoWon')">
             +1
         </div>
     </div>
@@ -15,6 +15,7 @@
 
 <script>
     export default {
+        emits: ['playerOneWon', 'playerTwoWon', 'draw'],
         return: {
 
         }
@@ -44,5 +45,15 @@
 
     .outcome-button:hover {
         background-color: brown;
+    }
+
+    #outcome-left {
+        border-top-left-radius: 15px;
+        border-bottom-left-radius: 15px;
+    }
+
+    #outcome-right {
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
     }
 </style>

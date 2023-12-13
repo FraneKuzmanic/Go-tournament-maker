@@ -17,10 +17,13 @@
     </div>
 
     <div class="outcome-buttons">
-      <!-- Middle Column: ThreeWayButton components -->
       <ul>
         <li v-for="matchup in num_of_matchups" :key="matchup">
-          <ThreeWayButton />
+          <OutcomeButton 
+            @playerOneWon="PlayerOneWon(matchup)"
+            @player-two-won="PlayerTwoWon(matchup)"
+            @draw="Draw(matchup)">
+            </OutcomeButton>
         </li>
       </ul>
     </div>
@@ -160,20 +163,22 @@ export default defineComponent({
       console.log(_matchups);
       console.log(num_of_matchups);
       matchups.value = _matchups;
-      // // Remove all previously created ThreeWayButton components
-      // const outcomeButtons = document.querySelector('.outcome-buttons');
-      // if (outcomeButtons) {
-      //   while (outcomeButtons.firstChild) {
-      //     outcomeButtons.removeChild(outcomeButtons.firstChild);
-      //   }
-      // }
-
-      // // Dynamically create and append new ThreeWayButton components
-      // matchups.value.forEach(() => {
-      //   const threeWayButton = document.createElement('ThreeWayButton');
-      //   outcomeButtons?.appendChild(threeWayButton);
-      // });
     };
+
+    function PlayerOneWon(matchup_id: number) {
+      matchup_id--;
+      console.log(matchups.value[matchup_id].playerOne.name + "won!")
+    }
+
+    function PlayerTwoWon(matchup_id: number) {
+      matchup_id--;
+      console.log(matchups.value[matchup_id].playerTwo.name + "won!")
+    }
+
+    function Draw(matchup_id: number) {
+      matchup_id--;
+      console.log("it's a draw!, both players get half a point!")
+    }
 
     return {
       playersColumnLeft,
@@ -181,7 +186,10 @@ export default defineComponent({
       unmatchedPlayers,
       updateMatchups,
       matchups,
-      num_of_matchups
+      num_of_matchups,
+      PlayerOneWon,
+      PlayerTwoWon,
+      Draw
     };
   },
 });

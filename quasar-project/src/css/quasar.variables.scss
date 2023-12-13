@@ -117,10 +117,7 @@ body {
 .outcome-buttons {
   position: relative ;
   background-color: rgb(68, 167, 159);
-  display: flex;
-  padding: 5px;
   margin: auto;
-  justify-content: center;
   width: 30%;
   height: 100%;
 }
@@ -129,17 +126,3 @@ body {
   list-style: none;
   padding: 0;
 }
-
-.outcome-buttons ul li {
-  background-color: rgb(37, 124, 159);
-  margin: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  color: white;
-  height: 50px;
-  list-style-type: none;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
