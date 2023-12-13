@@ -59,11 +59,15 @@ body {
 }
 
 #left-column li {
-  justify-content: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-#right-column li {
-  justify-content: right;
+#right-column li{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 #main-container {

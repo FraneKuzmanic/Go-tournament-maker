@@ -21,4 +21,6 @@ export interface Matchup{
 export interface AppState{
     players: Player[],
     currentPlayer: Player | undefined,
+    playerToEdit: Player | undefined,
+    editedPlayer: Player |undefined,
 }

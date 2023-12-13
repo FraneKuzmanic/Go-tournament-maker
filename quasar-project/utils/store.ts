@@ -9,8 +9,10 @@ import { Player, AppState } from 'src/models/models'
 export const usePlayersStore = defineStore('players', {
     state: (): AppState => {
         return {
-          players: [],
+          players: [], 
           currentPlayer: undefined,
+          playerToEdit: undefined,
+          editedPlayer: undefined,
         }
     },
     actions: {
@@ -26,6 +28,10 @@ export const usePlayersStore = defineStore('players', {
         removePlayer(delPlayer: Player){
             this.players = this.players.filter((player: Player) => player.id !== delPlayer.id);
             this.currentPlayer = delPlayer;
+        },
+
+        editPlayer(player: Player){
+            this.playerToEdit = player;
         }
 
     }

@@ -11,6 +11,22 @@
         <template #item="{ element: player }">
           <li @click="updateMatchups" :id="player.id">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <img
+              @click="
+                startEditPlayer(
+                  {
+                    id: player.id,
+                    name: player.name,
+                    lastname: player.lastname,
+                    rating: player.rating,
+                  },
+                  'left'
+                )
+              "
+              class="edit-icon"
+              src="/edit.png"
+              alt="slika"
+            />
           </li>
         </template>
       </draggable>
@@ -35,6 +51,22 @@
         <template #item="{ element: player }">
           <li @click="updateMatchups" :id="player.id">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <img
+              @click="
+                startEditPlayer(
+                  {
+                    id: player.id,
+                    name: player.name,
+                    lastname: player.lastname,
+                    rating: player.rating,
+                  },
+                  'right'
+                )
+              "
+              class="edit-icon"
+              src="/edit.png"
+              alt="slika"
+            />
           </li>
         </template>
       </draggable>
@@ -54,6 +86,22 @@
         <template #item="{ element: player }">
           <li :id="player.id">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <img
+              @click="
+                startEditPlayer(
+                  {
+                    id: player.id,
+                    name: player.name,
+                    lastname: player.lastname,
+                    rating: player.rating,
+                  },
+                  'unmatched'
+                )
+              "
+              class="edit-icon"
+              src="/edit.png"
+              alt="slika"
+            />
           </li>
         </template>
       </draggable>
@@ -76,6 +124,8 @@ export default defineComponent({
   setup() {
     const store = usePlayersStore();
 
+    const editedPlayerColumn: Ref<string> = ref('');
+
     const playersColumnLeft: Ref<Player[]> = ref([]); //doda sam ove Ref<> oznake radi typescripta,a i smanjujemo sansu za pogrijesit jer nas tako typescript cuva, ili nazivcira
 
     const playersColumnRight: Ref<Player[]> = ref([]);
@@ -86,17 +136,24 @@ export default defineComponent({
 
     let num_of_matchups = computed(() => matchups.value.length);
 
-    onMounted(async (): Promise<void> => {
-      //prilikom ucitavanja komponente dohvacaju se svi igraci iz store-a i  stavljaju u unmatched players
-      unmatchedPlayers.value = store.players; //kasnije cemo smislit kako cemo pamtit parove i kola, zasad se sve stavlja u unmatched na pocetku
-    });
-
     watch(
       () => store.players,
       () => {
         updatePlayers(); //ova watch funkcija dolazi iz samo vue-a i ona prati stanje igraca, kad god se promjeni stanje igraca, npr doda ili makne igrac, aktivirat ce funkcija updatePlayers()
       }
     );
+
+    watch(
+      () => store.editedPlayer,
+      () => {
+        updateEditedPlayer();
+      }
+    );
+
+    const startEditPlayer = (player: Player, column: string) => {
+      editedPlayerColumn.value = column;
+      store.editPlayer(player);
+    };
 
     const updatePlayers = () => {
       //ova funkcija bi na svaku promjenu s igracima(dodavanje,uklanjanje,premjestanje) trebala azurirati state ove komponente i preraspodijeliti u kojem se stupcu koji igraci nalaze
@@ -133,6 +190,27 @@ export default defineComponent({
         unmatchedPlayers.value = store.players;
       }
       updateMatchups();
+    };
+
+    const updateEditedPlayer = () => {
+      if (editedPlayerColumn.value === 'right' && store.editedPlayer) {
+        const index = playersColumnRight.value.findIndex(
+          (player) => player.id === store.editedPlayer?.id
+        );
+        playersColumnRight.value.splice(index, 1, store.editedPlayer);
+      }
+      if (editedPlayerColumn.value === 'left' && store.editedPlayer) {
+        const index = playersColumnLeft.value.findIndex(
+          (player) => player.id === store.editedPlayer?.id
+        );
+        playersColumnLeft.value.splice(index, 1, store.editedPlayer);
+      }
+      if (editedPlayerColumn.value === 'unmatched' && store.editedPlayer) {
+        const index = unmatchedPlayers.value.findIndex(
+          (player) => player.id === store.editedPlayer?.id
+        );
+        unmatchedPlayers.value.splice(index, 1, store.editedPlayer);
+      }
     };
 
     const updateMatchups = () => {
@@ -175,9 +253,20 @@ export default defineComponent({
       playersColumnRight,
       unmatchedPlayers,
       updateMatchups,
+      startEditPlayer,
       matchups,
       num_of_matchups,
     };
   },
 });
 </script>
+
+<style>
+.edit-icon {
+  width: 20px;
+  height: 80%;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+</style>

@@ -50,6 +50,43 @@
       </q-card>
     </q-dialog>
   </q-form>
+  <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmitEdit" v-if="isEdit">
+    <!-- ovo je forma koja ce se prikazat ako izaberemo editanje igrača -->
+    <q-input
+      filled
+      v-model.trim="name"
+      :rules="[(val) => !!val || 'Ime je obavezno']"
+    />
+    <q-input
+      filled
+      v-model.trim="lastname"
+      :rules="[(val) => !!val || 'Prezime je obavezno']"
+    />
+    <q-input
+      filled
+      v-model.trim="rating"
+      :rules="[(val) => !!val || 'Rating je obavezan']"
+    />
+    <div class="center-buttons">
+      <q-btn @click="searchEGD" label="TRAŽI" />
+      <q-btn label="SPREMI" type="submit" />
+      <q-btn @click="removeEditForm" label="PONIŠTI" />
+    </div>
+    <q-dialog v-model="notFound2">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Alert</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime i
+          prezime ili upišite rating
+        </q-card-section>
+        <q-card-actions>
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+  </q-form>
 </template>
 
 <style>
@@ -60,10 +97,10 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import { addNewPlayer, removePlayer } from '../firebase/init';
 import { useQuasar } from 'quasar';
-import type { PropType, Ref } from 'vue';
+import type { Ref } from 'vue';
 import { Player } from '../models/models.ts';
 import { usePlayersStore } from 'app/utils/store';
 import { v4 as uuidv4 } from 'uuid';
@@ -89,6 +126,15 @@ export default defineComponent({
     const rating: Ref<string> = ref('');
     const showcomponent: Ref<boolean> = ref(true);
     const addedToDB: Ref<boolean> = ref(false);
+    const isEdit: Ref<boolean> = ref(false); // je li korisnik odabrao edit opciju forme
+    const playerToEditData: Ref<Player | undefined> = ref(undefined); // ovdje spremamo editirane podatke iz forme
+
+    watch(
+      () => store.playerToEdit, //kad god se promijeni u store-u igrac koji se zeli editati znaci da dodajemo edit formu
+      () => {
+        addEditForm();
+      }
+    );
 
     async function searchEGD(): Promise<void> {
       const res = await fetch(
@@ -121,6 +167,7 @@ export default defineComponent({
       await addNewPlayer(playerForDB, props.tournamentId);
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
+      showcomponent.value = false;
     }
     async function remove() {
       showcomponent.value = false;
@@ -148,6 +195,46 @@ export default defineComponent({
         color: 'green',
       });
     }
+    function showNotifEdit() {
+      $q.notify({
+        message: 'Igrač je uspješno ažuriran.',
+        color: 'green',
+      });
+    }
+
+    function addEditForm() {
+      isEdit.value = true;
+      showcomponent.value = false;
+      playerToEditData.value = store.playerToEdit;
+
+      if (playerToEditData.value) {
+        //popunit ćemo edit formu s trenutnim podatcima igrača kojeg editamo
+        name.value = playerToEditData.value.name;
+        lastname.value = playerToEditData.value.lastname;
+        rating.value = playerToEditData.value.rating;
+      }
+    }
+
+    function removeEditForm() {
+      isEdit.value = false;
+    }
+
+    async function onSubmitEdit() {
+      if (playerToEditData.value) {
+        const editedPlayer: Player = {
+          // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+          id: playerToEditData.value.id,
+          name: name.value,
+          lastname: lastname.value,
+          rating: rating.value,
+        };
+        store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
+        await removePlayer(playerToEditData.value, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
+        await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
+      }
+      removeEditForm();
+      showNotifEdit();
+    }
 
     return {
       name,
@@ -161,6 +248,10 @@ export default defineComponent({
       searchEGD,
       onSubmit,
       remove,
+      isEdit,
+      playerToEditData,
+      removeEditForm,
+      onSubmitEdit,
     };
   },
 });
