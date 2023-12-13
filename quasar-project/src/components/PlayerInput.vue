@@ -162,6 +162,7 @@ export default defineComponent({
         name: name.value,
         lastname: lastname.value,
         rating: rating.value,
+        column: 'unmatched',
       };
       id.value = playerForDB.id;
       await addNewPlayer(playerForDB, props.tournamentId);
@@ -169,20 +170,11 @@ export default defineComponent({
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       showcomponent.value = false;
     }
-    async function remove() {
-      showcomponent.value = false;
-      const playerForDB: Player = {
-        id: id.value,
-        name: name.value,
-        lastname: lastname.value,
-        rating: rating.value,
-      };
-      if (addedToDB.value) {
-        await removePlayer(playerForDB, props.tournamentId);
-        showNotifDel();
-        store.removePlayer(playerForDB);
-      }
+
+    function remove(): void {
+      //pošto nećemo više uklanjati igrače preko forme, ne treba nam ova funkcija
     }
+
     function showNotifAdd() {
       $q.notify({
         message: 'Igrač je uspješno dodan.',
@@ -227,6 +219,7 @@ export default defineComponent({
           name: name.value,
           lastname: lastname.value,
           rating: rating.value,
+          column: playerToEditData.value.column,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
         await removePlayer(playerToEditData.value, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu

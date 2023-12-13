@@ -3,7 +3,7 @@
   <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
-  <tournament-schedule />
+  <tournament-schedule :tournamentId="tournamentId" />
 </template>
 
 <style></style>

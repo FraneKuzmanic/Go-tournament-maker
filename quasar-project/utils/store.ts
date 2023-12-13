@@ -9,25 +9,19 @@ import { Player, AppState } from 'src/models/models'
 export const usePlayersStore = defineStore('players', {
     state: (): AppState => {
         return {
-          players: [], 
-          currentPlayer: undefined,
-          playerToEdit: undefined,
-          editedPlayer: undefined,
+          players: [], //ova varijabla nam služi samo da bi iz nje povukli sve igrače iz baze prilikom učitavanja turnira 
+          playerToAdd: undefined, //u ovoj varijabli pohranjujemo trenutnog igrača koji se želi dodati u turnir
+          playerToEdit: undefined, //u ovoj varijabli pohranjujemo trenutnog igrača kojeg želimo ažurirati
+          editedPlayer: undefined, //ovdje spremamo ažuriranog igrača
         }
     },
     actions: {
         addNewPlayer(newPlayer: Player) {
-            this.players = [...this.players, newPlayer];
-            this.currentPlayer = newPlayer;
+            this.playerToAdd = newPlayer;
         },
 
         setPlayers(initPlayers: Player[]){
             this.players = initPlayers;
-        },
-
-        removePlayer(delPlayer: Player){
-            this.players = this.players.filter((player: Player) => player.id !== delPlayer.id);
-            this.currentPlayer = delPlayer;
         },
 
         editPlayer(player: Player){

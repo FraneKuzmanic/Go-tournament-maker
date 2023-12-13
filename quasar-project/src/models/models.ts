@@ -10,6 +10,7 @@ export interface Player{ //sigurno da cemo doradit neke modele jer ja ni sam ne 
     name: string;
     lastname: string;
     rating: string ;
+    column: string | undefined;
 }
 
 export interface Matchup{
@@ -20,7 +21,7 @@ export interface Matchup{
 
 export interface AppState{
     players: Player[],
-    currentPlayer: Player | undefined,
+    playerToAdd: Player | undefined,
     playerToEdit: Player | undefined,
     editedPlayer: Player |undefined,
 }

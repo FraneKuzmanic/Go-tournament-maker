@@ -73,5 +73,22 @@ export const removePlayer = async(player: Player, tournamentId: string): Promise
 
 }
 
+export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  console.log(oldPlayer);
+  console.log(newPlayer);
+
+  await updateDoc(dbRef, {
+    players: arrayRemove(oldPlayer)
+  });
+
+  await updateDoc(dbRef, {
+    players: arrayUnion(newPlayer)
+  });
+
+}
+
 //OVDJE PISEMO SVE FUNKCIJE KOJE KOMUNICIRAJU S FIREBASEOM, PUNO JE ELEGANTNIJE I LAKSE ODE IH NAPISAT 
 //JER ONDA SAMO JEDAN PUT MORAMO INICIJALIZIRAT FIRESTORE I OSTALE STVARI ZA FB
