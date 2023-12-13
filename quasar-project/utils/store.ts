@@ -33,6 +33,5 @@ export const usePlayersStore = defineStore('players', {
         editPlayer(player: Player){
             this.playerToEdit = player;
         }
-
     }
 })

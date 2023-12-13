@@ -33,10 +33,14 @@
     </div>
 
     <div class="outcome-buttons">
-      <!-- Middle Column: ThreeWayButton components -->
       <ul>
         <li v-for="matchup in num_of_matchups" :key="matchup">
-          <ThreeWayButton />
+          <OutcomeButton
+            @playerOneWon="PlayerOneWon(matchup)"
+            @player-two-won="PlayerTwoWon(matchup)"
+            @draw="Draw(matchup)"
+          >
+          </OutcomeButton>
         </li>
       </ul>
     </div>
@@ -73,8 +77,7 @@
     </div>
   </div>
 
-  <ThreeWayButton />
-
+  <OutcomeButton />
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
       <draggable
@@ -84,7 +87,14 @@
         item-key="id"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li
+            :id="player.id"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <img
               @click="
@@ -102,6 +112,14 @@
               src="/edit.png"
               alt="slika"
             />
+            <q-btn
+              @click.stop
+              round
+              color="red"
+              icon="delete"
+              dense
+              @click="handleClick(player)"
+            />
           </li>
         </template>
       </draggable>
@@ -114,13 +132,16 @@
 import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import draggable from 'vuedraggable';
-import ThreeWayButton from './ThreeWayButton.vue';
+import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
+import { removePlayer } from '../firebase/init';
+import { useRoute } from 'vue-router';
+import { strict } from 'assert';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, ThreeWayButton: ThreeWayButton },
+  components: { draggable: draggable, OutcomeButton: OutcomeButton },
   setup() {
     const store = usePlayersStore();
 
@@ -131,6 +152,8 @@ export default defineComponent({
     const playersColumnRight: Ref<Player[]> = ref([]);
 
     const unmatchedPlayers: Ref<Player[]> = ref([]);
+
+    const route = useRoute();
 
     const matchups: Ref<Matchup[]> = ref([]);
 
@@ -233,20 +256,29 @@ export default defineComponent({
       console.log(_matchups);
       console.log(num_of_matchups);
       matchups.value = _matchups;
-      // // Remove all previously created ThreeWayButton components
-      // const outcomeButtons = document.querySelector('.outcome-buttons');
-      // if (outcomeButtons) {
-      //   while (outcomeButtons.firstChild) {
-      //     outcomeButtons.removeChild(outcomeButtons.firstChild);
-      //   }
-      // }
-
-      // // Dynamically create and append new ThreeWayButton components
-      // matchups.value.forEach(() => {
-      //   const threeWayButton = document.createElement('ThreeWayButton');
-      //   outcomeButtons?.appendChild(threeWayButton);
-      // });
     };
+
+    function PlayerOneWon(matchup_id: number) {
+      matchup_id--;
+      console.log(matchups.value[matchup_id].playerOne.name + 'won!');
+    }
+
+    function PlayerTwoWon(matchup_id: number) {
+      matchup_id--;
+      console.log(matchups.value[matchup_id].playerTwo.name + 'won!');
+    }
+
+    function Draw(matchup_id: number) {
+      matchup_id--;
+      console.log("it's a draw!, both players get half a point!");
+    }
+
+    function handleClick(player: Player) {
+      const tournamentId = route.params.tournamentId;
+      if (typeof tournamentId === 'string') {
+        removePlayer(player, tournamentId);
+      }
+    }
 
     return {
       playersColumnLeft,
@@ -256,6 +288,10 @@ export default defineComponent({
       startEditPlayer,
       matchups,
       num_of_matchups,
+      PlayerOneWon,
+      PlayerTwoWon,
+      Draw,
+      handleClick,
     };
   },
 });

@@ -43,7 +43,7 @@ body {
   padding: 10px;
   margin: 20px;
   justify-content: center;
-  width: 35%;
+  width: 30%;
 }
 
 #left-column {
@@ -121,10 +121,12 @@ body {
 .outcome-buttons {
   position: relative ;
   background-color: rgb(68, 167, 159);
-  padding: 5px;
   margin: auto;
-  justify-content: center;
-  width: 20%;
+  width: 30%;
   height: 100%;
 }
 
+.outcome-buttons ul {
+  list-style: none;
+  padding: 0;
+}
