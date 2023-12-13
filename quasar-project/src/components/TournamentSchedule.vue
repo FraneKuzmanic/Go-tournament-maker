@@ -44,7 +44,6 @@
     </div>
   </div>
 
-  <ThreeWayButton />
   <OutcomeButton />
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
@@ -69,14 +68,13 @@
 import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import { onMounted } from 'vue'; // Import onMounted from Vue 3
 import draggable from 'vuedraggable';
-import ThreeWayButton from './ThreeWayButton.vue';
 import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, ThreeWayButton: ThreeWayButton , OutcomeButton: OutcomeButton},
+  components: { draggable: draggable, OutcomeButton: OutcomeButton},
   setup() {
     const store = usePlayersStore();
 
