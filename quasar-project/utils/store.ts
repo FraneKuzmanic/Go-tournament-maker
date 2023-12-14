@@ -26,6 +26,9 @@ export const usePlayersStore = defineStore('players', {
 
         editPlayer(player: Player){
             this.playerToEdit = player;
+        },
+        resetEditPlayer() {
+            this.playerToEdit = undefined; 
         }
     }
 })

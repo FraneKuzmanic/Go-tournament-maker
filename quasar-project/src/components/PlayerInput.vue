@@ -56,7 +56,7 @@
     </q-card>
     
   </q-dialog>
-  <q-dialog v-model="isEdit">
+  <q-dialog v-model="isEdit" @before-hide="resetEditPlayer" @hide="visible=false">
     <q-card>
       <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmitEdit">
     <!-- ovo je forma koja ce se prikazat ako izaberemo editanje igrača -->
@@ -139,7 +139,7 @@ export default defineComponent({
     const notFound: Ref<boolean> = ref(false);
     const notFound2: Ref<boolean> = ref(false);
     
-    const showcomponent: Ref<boolean> = ref(true);
+    const visible: Ref<boolean> = ref(false);
     const isEdit: Ref<boolean> = ref(false); // je li korisnik odabrao edit opciju forme
     const isInput: Ref<boolean> = ref(false);
     const playerToEditData: Ref<Player | undefined> = ref(undefined); // ovdje spremamo editirane podatke iz forme
@@ -201,8 +201,12 @@ export default defineComponent({
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       resetInputForm();
-      showcomponent.value = false;
+
       
+    }
+
+    function resetEditPlayer(): void {
+      store.resetEditPlayer();
     }
 
     function resetInputForm(): void {
@@ -238,16 +242,19 @@ export default defineComponent({
     }
 
     function addEditForm() {
-      isEdit.value = true;
-      showcomponent.value = false;
-      playerToEditData.value = store.playerToEdit;
+      if (!(visible.value)) {
+        isEdit.value = true;
+        visible.value = true;
+        playerToEditData.value = store.playerToEdit;
 
-      if (playerToEditData.value) {
-        //popunit ćemo edit formu s trenutnim podatcima igrača kojeg editamo
-        nameEdit.value = playerToEditData.value.name;
-        lastnameEdit.value = playerToEditData.value.lastname;
-        ratingEdit.value = playerToEditData.value.rating;
+        if (playerToEditData.value) {
+          //popunit ćemo edit formu s trenutnim podatcima igrača kojeg editamo
+          nameEdit.value = playerToEditData.value.name;
+          lastnameEdit.value = playerToEditData.value.lastname;
+          ratingEdit.value = playerToEditData.value.rating;
+        }
       }
+      
     }
 
     function removeEditForm() {
@@ -283,7 +290,7 @@ export default defineComponent({
       nameEdit,
       lastnameEdit,
       ratingEdit,
-      showcomponent,
+      visible,
       notFound2,
       ratingValidation,
       searchEGD,
@@ -294,6 +301,7 @@ export default defineComponent({
       playerToEditData,
       removeEditForm,
       onSubmitEdit,
+      resetEditPlayer
     };
   },
 });
