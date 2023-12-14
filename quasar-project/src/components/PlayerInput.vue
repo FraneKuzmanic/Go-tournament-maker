@@ -29,7 +29,7 @@
       filled
       v-model.trim="rating"
       label="RATING"
-      :rules="[(val) => !!val || 'Rating je obavezan']"
+      :rules="ratingValidation"
     />
     <div class="center-buttons">
       <q-btn @click="searchEGD" label="TRAŽI" />
@@ -73,7 +73,7 @@
     <q-input
       filled
       v-model.trim="ratingEdit"
-      :rules="[(val) => !!val || 'Rating je obavezan']"
+      :rules="ratingValidation"
     />
     <div class="center-buttons">
       <q-btn @click="searchEGD" label="TRAŽI" />
@@ -108,7 +108,7 @@
 </style>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, computed } from 'vue';
 import { addNewPlayer, removePlayer } from '../firebase/init';
 import { useQuasar } from 'quasar';
 import type { Ref } from 'vue';
@@ -151,7 +151,25 @@ export default defineComponent({
       }
     );
 
+    function parseString(str: string): string {
+      str = str.replaceAll('č', 'c');
+      str = str.replaceAll('ć', 'c');
+      str = str.replaceAll('ž', 'z');
+      str = str.replaceAll('š', 's');
+      str = str.replaceAll('đ', 'd');
+      str = str.replaceAll(' ', '_');
+      return str;
+    }
+    const ratingValidation = computed(() => {
+      return [
+        (val: string) => /^(0?[1-9]|[12]\d|30)k$/.test(val) || /^(0?[1-7])d$/.test(val) ||
+                          /^(0?[1-9])p$/.test(val) ? true : 'Unesite rating u ispravnom formatu'
+      ];
+    })
+
     async function searchEGD(): Promise<void> {
+      name.value = parseString(name.value);
+      lastname.value = parseString(lastname.value);
       const res = await fetch(
         'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
           lastname.value +
@@ -238,6 +256,8 @@ export default defineComponent({
 
     async function onSubmitEdit() {
       if (playerToEditData.value) {
+        nameEdit.value = parseString(nameEdit.value);
+        lastnameEdit.value = parseString(lastnameEdit.value);
         const editedPlayer: Player = {
           // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
           id: playerToEditData.value.id,
@@ -265,6 +285,7 @@ export default defineComponent({
       ratingEdit,
       showcomponent,
       notFound2,
+      ratingValidation,
       searchEGD,
       onSubmit,
       remove,
