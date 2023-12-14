@@ -2,18 +2,9 @@
   <q-layout class="form-container">
     <q-page-container>
       <div style="margin-left: 1.5rem; margin-top: 1rem">
-        <q-btn
-          class="q-mb-md"
-          color="white"
-          text-color="black"
-          @click="addForm"
-          label="NOVI IGRAČ"
-        />
       </div>
       <q-page class="q-pa-md row">
         <player-input
-          v-for="index in count"
-          :key="index"
           :tournamentId="tournamentId"
         />
       </q-page>

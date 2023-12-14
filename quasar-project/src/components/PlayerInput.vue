@@ -1,20 +1,26 @@
 <template>
-  <q-form
-    class="form q-col-md-5 q-pa-sm"
-    @submit="onSubmit"
-    v-if="showcomponent"
-  >
+  <q-btn
+    class="q-mb-md"
+    color="white"
+    text-color="black"
+    @click="isInput=true"
+    label="NOVI IGRAČ"
+  />
+  <q-dialog v-model="isInput">
+    <q-card>
+      <q-form
+        class="form q-col-md-5 q-pa-sm"
+        @submit="onSubmit"
+      >
     <q-input
       filled
       v-model.trim="name"
-      :disable="addedToDB"
       label="IME"
       :rules="[(val) => !!val || 'Ime je obavezno']"
     />
     <q-input
       filled
       v-model.trim="lastname"
-      :disable="addedToDB"
       label="PREZIME"
       :rules="[(val) => !!val || 'Prezime je obavezno']"
     />
@@ -22,18 +28,15 @@
       v-if="notFound || found"
       filled
       v-model.trim="rating"
-      :disable="addedToDB"
       label="RATING"
       :rules="[(val) => !!val || 'Rating je obavezan']"
     />
     <div class="center-buttons">
-      <q-btn :disable="addedToDB" @click="searchEGD" label="TRAŽI" />
+      <q-btn @click="searchEGD" label="TRAŽI" />
       <q-btn
-        :disable="(!found && !notFound) || addedToDB"
         label="DODAJ"
         type="submit"
       />
-      <q-btn @click="remove" label="UKLONI" />
     </div>
     <q-dialog v-model="notFound2">
       <q-card>
@@ -50,21 +53,26 @@
       </q-card>
     </q-dialog>
   </q-form>
-  <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmitEdit" v-if="isEdit">
+    </q-card>
+    
+  </q-dialog>
+  <q-dialog v-model="isEdit">
+    <q-card>
+      <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmitEdit">
     <!-- ovo je forma koja ce se prikazat ako izaberemo editanje igrača -->
     <q-input
       filled
-      v-model.trim="name"
+      v-model.trim="nameEdit"
       :rules="[(val) => !!val || 'Ime je obavezno']"
     />
     <q-input
       filled
-      v-model.trim="lastname"
+      v-model.trim="lastnameEdit"
       :rules="[(val) => !!val || 'Prezime je obavezno']"
     />
     <q-input
       filled
-      v-model.trim="rating"
+      v-model.trim="ratingEdit"
       :rules="[(val) => !!val || 'Rating je obavezan']"
     />
     <div class="center-buttons">
@@ -86,7 +94,10 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </q-form>
+    </q-form>
+  </q-card>  
+  </q-dialog>
+  
 </template>
 
 <style>
@@ -120,13 +131,17 @@ export default defineComponent({
     const id: Ref<string> = ref('');
     const name: Ref<string> = ref('');
     const lastname: Ref<string> = ref('');
+    const rating: Ref<string> = ref('');
+    const nameEdit: Ref<string> = ref('');
+    const lastnameEdit: Ref<string> = ref('');
+    const ratingEdit: Ref<string> = ref('');
     const found: Ref<boolean> = ref(false);
     const notFound: Ref<boolean> = ref(false);
     const notFound2: Ref<boolean> = ref(false);
-    const rating: Ref<string> = ref('');
+    
     const showcomponent: Ref<boolean> = ref(true);
-    const addedToDB: Ref<boolean> = ref(false);
     const isEdit: Ref<boolean> = ref(false); // je li korisnik odabrao edit opciju forme
+    const isInput: Ref<boolean> = ref(false);
     const playerToEditData: Ref<Player | undefined> = ref(undefined); // ovdje spremamo editirane podatke iz forme
 
     watch(
@@ -156,7 +171,6 @@ export default defineComponent({
       }
     }
     async function onSubmit(): Promise<void> {
-      addedToDB.value = true;
       const playerForDB: Player = {
         id: uuidv4(name.value + lastname.value + rating.value),
         name: name.value,
@@ -168,7 +182,18 @@ export default defineComponent({
       await addNewPlayer(playerForDB, props.tournamentId);
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
+      resetInputForm();
       showcomponent.value = false;
+      
+    }
+
+    function resetInputForm(): void {
+      name.value = '';
+      lastname.value = '';
+      rating.value = '';
+      found.value = false;
+      notFound.value = false;
+      isInput.value = false;
     }
 
     function remove(): void {
@@ -201,9 +226,9 @@ export default defineComponent({
 
       if (playerToEditData.value) {
         //popunit ćemo edit formu s trenutnim podatcima igrača kojeg editamo
-        name.value = playerToEditData.value.name;
-        lastname.value = playerToEditData.value.lastname;
-        rating.value = playerToEditData.value.rating;
+        nameEdit.value = playerToEditData.value.name;
+        lastnameEdit.value = playerToEditData.value.lastname;
+        ratingEdit.value = playerToEditData.value.rating;
       }
     }
 
@@ -216,9 +241,9 @@ export default defineComponent({
         const editedPlayer: Player = {
           // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
           id: playerToEditData.value.id,
-          name: name.value,
-          lastname: lastname.value,
-          rating: rating.value,
+          name: nameEdit.value,
+          lastname: lastnameEdit.value,
+          rating: ratingEdit.value,
           column: playerToEditData.value.column,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
@@ -235,13 +260,16 @@ export default defineComponent({
       notFound,
       found,
       rating,
+      nameEdit,
+      lastnameEdit,
+      ratingEdit,
       showcomponent,
-      addedToDB,
       notFound2,
       searchEGD,
       onSubmit,
       remove,
       isEdit,
+      isInput,
       playerToEditData,
       removeEditForm,
       onSubmitEdit,
