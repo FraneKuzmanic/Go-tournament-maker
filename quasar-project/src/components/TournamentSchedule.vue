@@ -1,5 +1,9 @@
 <template>
   <meta charset="UTF8" />
+  <div class = "button-container">
+  <q-btn push color="white" text-color="primary" label="Generiraj parove"  @click="getUnmatchedLiElements"/>
+  </div>  
+
   <div id="main-container">
     <div class="player-group" id="left-column">
       <draggable
@@ -183,6 +187,7 @@ export default defineComponent({
       updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
     }
 
+
     async function changeRightColumn(ind: number): Promise<void> {
       console.log(ind);
       const oldPlayer: Player = { ...playersColumnRight.value[ind] };
@@ -338,6 +343,22 @@ export default defineComponent({
       await removePlayer(delPlayer, props.tournamentId);
     }
 
+     const getUnmatchedLiElements = () => {
+    // Get the div element with the ID 'unmatched-column'
+    const unmatchedDiv = document.getElementById('unmatched-column');
+    if (!unmatchedDiv) {
+      console.error("Element with ID 'unmatched-column' not found.");
+      return;
+    }
+
+    // Get all the li elements within the 'unmatched-column' div
+    const liElements = unmatchedDiv.getElementsByTagName('li');
+
+    // Convert the HTMLCollection to an array and log it
+    const liArray = Array.from(liElements);
+    console.log(liArray);
+  };
+
     return {
       playersColumnLeft,
       playersColumnRight,
@@ -351,6 +372,7 @@ export default defineComponent({
       Draw,
       handleDeleteClick,
       handleDragChange,
+      getUnmatchedLiElements,
     };
   },
 });
@@ -363,5 +385,35 @@ export default defineComponent({
   margin-left: 5px;
   margin-bottom: 5px;
   cursor: pointer;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Adjust the height based on your layout */
+  margin-bottom: 20px;
+}
+.button {
+  background-color: rgba(246, 122, 21, 0.92);
+  font-size: 1.5rem;
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 500;
+  width: 10vw;
+  border-radius: 14px;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  max-width: 250px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 500px) {
+  .button {
+    font-size: 1.2rem;
+    min-width: 150px;
+  }
 }
 </style>
