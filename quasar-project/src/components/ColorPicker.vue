@@ -8,6 +8,7 @@
     </q-badge>
 
     <q-slider
+    
       v-model="standard"
       :min="-30"
       :max="5"
@@ -24,7 +25,8 @@
 <script lang="ts">
 import { defineComponent, ref, Ref } from 'vue'
 import { Player } from 'src/models/models'
-import { getTournamentPlayers } from 'src/firebase/init'
+import { addNewPlayer, getTournamentPlayers, removePlayer } from 'src/firebase/init'
+import { usePlayersStore } from 'app/utils/store';
 
 
 
@@ -42,25 +44,49 @@ export default defineComponent({
     setup(props) {
     const players: Ref<Player[]> = ref([]);
     const input : Ref<number> = ref(1);
+    const store = usePlayersStore();
     const changeColor = async () => {
       try {
         const result = await getTournamentPlayers(props.tournamentId);
    
         if (result !== undefined) {
           players.value = result;
-          players.value.forEach((player) => {
+          players.value.forEach(async (player) => {
             if(input.value < 0){
               const div = document.getElementById(player.id);
+              
 
             if(player.rating.includes('k') && parseInt(player.rating) > Math.abs(input.value)){
-
+              const editedPlayer: Player = {
+                      // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+                      id: player.id,
+                      name: player.name,
+                      lastname: player.lastname,
+                      rating: player.rating,
+                      column: player.column,
+                      color: 'blue',
+                    };
+                    await removePlayer(player, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
+                    await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
                 if(div != null){
-                    div.style.backgroundColor = 'blue';
+                  div.style.backgroundColor = 'blue'
                 }
             }
             else{
-              if(div != null){
-                    div.style.backgroundColor = 'green';
+              const editedPlayer: Player = {
+                      // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+                      id: player.id,
+                      name: player.name,
+                      lastname: player.lastname,
+                      rating: player.rating,
+                      column: player.column,
+                      color: 'green',
+                    };
+                    
+                    await removePlayer(player, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
+                    await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
+                    if(div != null){
+                  div.style.backgroundColor = 'green'
                 }
             }
         }
@@ -69,13 +95,35 @@ export default defineComponent({
                 if(player.rating.includes('d') && parseInt(player.rating) > Math.abs(input.value)){
                 
                     
-                if(div != null){
-                    div.style.backgroundColor = 'green';
+                  const editedPlayer: Player = {
+                      // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+                      id: player.id,
+                      name: player.name,
+                      lastname: player.lastname,
+                      rating: player.rating,
+                      column: player.column,
+                      color: 'green',
+                    };
+                    await removePlayer(player, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
+                    await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
+                    if(div != null){
+                  div.style.backgroundColor = 'green'
                 }
             }
                 else{
-                  if(div != null){
-                    div.style.backgroundColor = 'blue';
+                  const editedPlayer: Player = {
+                      // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+                      id: player.id,
+                      name: player.name,
+                      lastname: player.lastname,
+                      rating: player.rating,
+                      column: player.column,
+                      color: 'blue',
+                    };
+                    await removePlayer(player, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
+                    await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
+                    if(div != null){
+                    div.style.backgroundColor = 'blue'
                 }
                 }
             }
@@ -90,12 +138,10 @@ export default defineComponent({
         console.error('Error fetching tournament players:', error);
       }
     };
-
     return {
       standard: ref(input),
       changeColor,
       input: input,
-      
     };
   },
   methods: {
