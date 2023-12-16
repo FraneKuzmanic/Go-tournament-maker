@@ -1,8 +1,8 @@
 <template>
   <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
-  <colorPicker :tournamentId="tournamentId"></colorPicker>
-  <tournament-schedule />
+  <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  <RoundPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
 </template>
 
 <style></style>
@@ -18,14 +18,17 @@ import TournamentSchedule from 'src/components/TournamentSchedule.vue';
 import { usePlayersStore } from 'app/utils/store';
 import Mail from '../components/SendMail.vue';
 import ColorPicker from 'src/components/ColorPicker.vue';
+import RoundPicker from 'src/components/RoundPicker.vue';
+import { store } from 'quasar/wrappers';
 
 export default defineComponent({
   name: 'TournamentPage',
   components: {
     'input-screen': InputScreen, //komponenta koja je container za forme za unose igraca
-    'tournament-schedule': TournamentSchedule, //komponenta koja implementira sparivanje igraca
+    //komponenta koja implementira sparivanje igraca
     'send-mail': Mail,
     colorPicker: ColorPicker,
+    RoundPicker: RoundPicker,
   },
   methods: {},
   setup() {

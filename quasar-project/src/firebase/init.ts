@@ -45,9 +45,9 @@ export const getTournamentPlayers = async (tournamentId: string): Promise<Player
   let tournament: Tournament | undefined;
 
   if (docSnap.exists()) {
-  tournament = docSnap.data() as Tournament;
+    tournament = docSnap.data() as Tournament;
   } else {
-  console.log("Tournament doesn't exist!");
+    console.log("Tournament doesn't exist!");
   }
 
   return tournament?.players;
@@ -69,6 +69,23 @@ export const removePlayer = async(player: Player, tournamentId: string): Promise
 
   await updateDoc(dbRef, {
     players: arrayRemove(player)
+  });
+
+}
+
+export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  console.log(oldPlayer);
+  console.log(newPlayer);
+
+  await updateDoc(dbRef, {
+    players: arrayRemove(oldPlayer)
+  });
+
+  await updateDoc(dbRef, {
+    players: arrayUnion(newPlayer)
   });
 
 }

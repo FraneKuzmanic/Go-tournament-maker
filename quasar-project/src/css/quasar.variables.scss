@@ -43,8 +43,7 @@ body {
   padding: 10px;
   margin: 20px;
   justify-content: center;
-  width: 35%;
-  display: inline-block;
+  width: 30%;
 }
 
 #left-column {
@@ -60,18 +59,25 @@ body {
 }
 
 #left-column li {
-  justify-content: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-#right-column li {
-  justify-content: right;
+#right-column li{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 #main-container {
   width: 100%;
   height: 400px;
-  background-color: red;
+  background-color: rgb(60, 120, 144);
   position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   top: 0;
 }
 
@@ -110,4 +116,20 @@ body {
 
 #unmatched-column ul li{
   width: 30%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.outcome-buttons {
+  position: relative ;
+  background-color: rgb(68, 167, 159);
+  margin: auto;
+  width: 30%;
+  height: 100%;
+}
+
+.outcome-buttons ul {
+  list-style: none;
+  padding: 0;
 }

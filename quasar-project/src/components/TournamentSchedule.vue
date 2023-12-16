@@ -7,13 +7,45 @@
         tag="ul"
         group="players"
         item-key="id"
+        @end="handleDragChange('left')"
       >
         <template #item="{ element: player }">
-          <li @click="updateMatchups" :id="player.id">
+          <li @click="updateMatchups" :id="player.id" :style="{backgroundColor : player.color}">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="edit"
+              dense
+              @click="handleEditClick(player, 'left')"
+            />
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="delete"
+              dense
+              @click="handleDeleteClick(player, 'left')"
+            />
           </li>
         </template>
       </draggable>
+    </div>
+
+    <div class="outcome-buttons" >
+      <ul>
+        <li v-for="matchup in num_of_matchups" :key="matchup">
+          <OutcomeButton
+            @playerOneWon="PlayerOneWon(matchup)"
+            @player-two-won="PlayerTwoWon(matchup)"
+            @draw="Draw(matchup)"
+          >
+          </OutcomeButton>
+        </li>
+      </ul>
     </div>
 
     <div class="player-group" id="right-column">
@@ -22,16 +54,36 @@
         tag="ul"
         group="players"
         item-key="id"
+        @end="handleDragChange('right')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li @click="updateMatchups" :id="player.id" :style="{backgroundColor : player.color}">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="edit"
+              dense
+              @click="handleEditClick(player, 'right')"
+            />
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="delete"
+              dense
+              @click="handleDeleteClick(player, 'right')"
+            />
           </li>
         </template>
       </draggable>
     </div>
   </div>
 
+  <OutcomeButton />
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
       <draggable
@@ -39,10 +91,29 @@
         tag="ul"
         group="players"
         item-key="id"
+        @end="handleDragChange('unmatched')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li :id="player.id" :style="{backgroundColor : player.color}">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="edit"
+              dense
+              @click="handleEditClick(player, 'unmatched')"
+            />
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="delete"
+              dense
+              @click="handleDeleteClick(player, 'unmatched')"
+            />
           </li>
         </template>
       </draggable>
@@ -51,33 +122,40 @@
 </template>
 
 <script lang="ts">
-//Ovo je Gabrijele tvoja komponenta,samo sam je preimenova
-import { defineComponent, ref, Ref, watch } from 'vue';
-import { onMounted } from 'vue'; // Import onMounted from Vue 3
+import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import draggable from 'vuedraggable';
+import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
+import { removePlayer, updatePlayerColumn } from '../firebase/init';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable },
-  setup() {
+  components: { draggable: draggable, OutcomeButton: OutcomeButton },
+  props: {
+    tournamentId: {
+      type: String,
+      required: true,
+    },
+    roundId :{
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
     const store = usePlayersStore();
+
+    const editedPlayerColumn: Ref<string> = ref('');
 
     const playersColumnLeft: Ref<Player[]> = ref([]); //doda sam ove Ref<> oznake radi typescripta,a i smanjujemo sansu za pogrijesit jer nas tako typescript cuva, ili nazivcira
 
     const playersColumnRight: Ref<Player[]> = ref([]);
 
     const unmatchedPlayers: Ref<Player[]> = ref([]);
-    // Have all the players in one array
-    // Make the first split of arrays to be computed
 
     const matchups: Ref<Matchup[]> = ref([]);
 
-    onMounted(async (): Promise<void> => {
-      //prilikom ucitavanja komponente dohvacaju se svi igraci iz store-a i  stavljaju u unmatched players
-      unmatchedPlayers.value = store.players; //kasnije cemo smislit kako cemo pamtit parove i kola, zasad se sve stavlja u unmatched na pocetku
-    });
+    let num_of_matchups = computed(() => matchups.value.length);
 
     watch(
       () => store.players,
@@ -86,43 +164,122 @@ export default defineComponent({
       }
     );
 
-    const updatePlayers = () => {
-      //ova funkcija bi na svaku promjenu s igracima(dodavanje,uklanjanje,premjestanje) trebala azurirati state ove komponente i preraspodijeliti u kojem se stupcu koji igraci nalaze
-      const playerId = store.currentPlayer?.id;
-      if (playerId) {
-        let playerInd = playersColumnLeft.value.findIndex(
-          (player) => player.id === playerId
-        );
-        if (playerInd !== -1) {
-          playersColumnLeft.value.splice(playerInd, 1);
-          return;
-        }
-        playerInd = playersColumnRight.value.findIndex(
-          (player) => player.id === playerId
-        );
-        if (playerInd !== -1) {
-          playersColumnRight.value.splice(playerInd, 1);
-          return;
-        }
-        playerInd = unmatchedPlayers.value.findIndex(
-          (player) => player.id === playerId
-        );
-        if (playerInd !== -1) {
-          unmatchedPlayers.value.splice(playerInd, 1);
-          return;
-        } else
-          store.currentPlayer
-            ? unmatchedPlayers.value.push(store.currentPlayer)
-            : null;
+    watch(
+      () => store.editedPlayer,
+      () => {
+        updateEditedPlayer();
       }
-      unmatchedPlayers.value = store.players;
-      const playersIds = store.players.map((player: Player) => player.id);
-      playersColumnLeft.value = playersColumnLeft.value.filter(
-        (player: Player) => playersIds.includes(player.id)
-      );
-      playersColumnRight.value = playersColumnRight.value.filter(
-        (player: Player) => playersIds.includes(player.id)
-      );
+    );
+
+    watch(
+      () => store.playerToAdd,
+      () => {
+        addPlayer();
+      }
+    );
+
+    async function changeLeftColumn(ind: number): Promise<void> {
+      console.log(ind);
+      const oldPlayer: Player = { ...playersColumnLeft.value[ind] };
+      playersColumnLeft.value[ind].column = 'left';
+      const newPlayer: Player = { ...playersColumnLeft.value[ind] };
+      updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
+    }
+
+    async function changeRightColumn(ind: number): Promise<void> {
+      console.log(ind);
+      const oldPlayer: Player = { ...playersColumnRight.value[ind] };
+      playersColumnRight.value[ind].column = 'right';
+      const newPlayer: Player = { ...playersColumnRight.value[ind] };
+      updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
+    }
+
+    async function changeUnmatchedColumn(ind: number): Promise<void> {
+      console.log(ind);
+      const oldPlayer: Player = { ...unmatchedPlayers.value[ind] };
+      unmatchedPlayers.value[ind].column = 'unmatched';
+      const newPlayer: Player = { ...unmatchedPlayers.value[ind] };
+      updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
+    }
+
+    async function handleDragChange(column: string): Promise<void> {
+      console.log('handleam event change ' + column);
+      if (column === 'left') {
+        const draggedPlayerInd = playersColumnRight.value.findIndex(
+          (player) => player.column !== 'right'
+        );
+        if (draggedPlayerInd !== -1) changeRightColumn(draggedPlayerInd);
+        else {
+          const draggedPlayerInd = unmatchedPlayers.value.findIndex(
+            (player) => player.column !== 'unmatched'
+          );
+          if (draggedPlayerInd !== -1) changeUnmatchedColumn(draggedPlayerInd);
+        }
+      } else if (column === 'right') {
+        const draggedPlayerInd = playersColumnLeft.value.findIndex(
+          (player) => player.column !== 'left'
+        );
+        if (draggedPlayerInd !== -1) changeLeftColumn(draggedPlayerInd);
+        else {
+          const draggedPlayerInd = unmatchedPlayers.value.findIndex(
+            (player) => player.column !== 'unmatched'
+          );
+          if (draggedPlayerInd !== -1) changeUnmatchedColumn(draggedPlayerInd);
+        }
+      } else if (column === 'unmatched') {
+        const draggedPlayerInd = playersColumnLeft.value.findIndex(
+          (player) => player.column !== 'left'
+        );
+        if (draggedPlayerInd !== -1) changeLeftColumn(draggedPlayerInd);
+        else {
+          const draggedPlayerInd = playersColumnRight.value.findIndex(
+            (player) => player.column !== 'right'
+          );
+          if (draggedPlayerInd !== -1) changeRightColumn(draggedPlayerInd);
+        }
+      }
+    }
+
+    const handleEditClick = (player: Player, column: string) => {
+      editedPlayerColumn.value = column;
+      store.editPlayer(player);
+    };
+
+    const updatePlayers = () => {
+      store.players.forEach((player) => {
+        if (player.column === 'left') playersColumnLeft.value.push(player);
+        else if (player.column === 'right')
+          playersColumnRight.value.push(player);
+        else if (player.column === 'unmatched')
+          unmatchedPlayers.value.push(player);
+      });
+
+      updateMatchups();
+    };
+
+    const addPlayer = () => {
+      if (store.playerToAdd) unmatchedPlayers.value.push(store.playerToAdd);
+    };
+
+    const updateEditedPlayer = () => {
+      if (editedPlayerColumn.value === 'right' && store.editedPlayer) {
+        const index = playersColumnRight.value.findIndex(
+          (player) => player.id === store.editedPlayer?.id
+        );
+        playersColumnRight.value.splice(index, 1, store.editedPlayer);
+      }
+      if (editedPlayerColumn.value === 'left' && store.editedPlayer) {
+        const index = playersColumnLeft.value.findIndex(
+          (player) => player.id === store.editedPlayer?.id
+        );
+        playersColumnLeft.value.splice(index, 1, store.editedPlayer);
+      }
+      if (editedPlayerColumn.value === 'unmatched' && store.editedPlayer) {
+        const index = unmatchedPlayers.value.findIndex(
+          (player) => player.id === store.editedPlayer?.id
+        );
+        unmatchedPlayers.value.splice(index, 1, store.editedPlayer);
+      }
     };
 
     const updateMatchups = () => {
@@ -136,22 +293,78 @@ export default defineComponent({
 
       for (let i = 0; i < shorterArray; i++) {
         _matchups[i] = {
+          id: i,
           playerOne: playersColumnLeft.value[i],
           playerTwo: playersColumnRight.value[i],
         };
       }
 
       console.log(_matchups);
+      console.log(num_of_matchups);
       matchups.value = _matchups;
     };
+
+    function PlayerOneWon(matchup_id: number) {
+      matchup_id--;
+      console.log(matchups.value[matchup_id].playerOne.name + 'won!');
+    }
+
+    function PlayerTwoWon(matchup_id: number) {
+      matchup_id--;
+      console.log(matchups.value[matchup_id].playerTwo.name + 'won!');
+    }
+
+    function Draw(matchup_id: number) {
+      matchup_id--;
+      console.log("it's a draw!, both players get half a point!");
+    }
+
+    async function handleDeleteClick(delPlayer: Player, column: string) {
+      if (column === 'right') {
+        const index = playersColumnRight.value.findIndex(
+          (player) => player.id === delPlayer.id
+        );
+        playersColumnRight.value.splice(index, 1);
+      }
+      if (column === 'left') {
+        const index = playersColumnLeft.value.findIndex(
+          (player) => player.id === delPlayer.id
+        );
+        playersColumnLeft.value.splice(index, 1);
+      }
+      if (column === 'unmatched') {
+        const index = unmatchedPlayers.value.findIndex(
+          (player) => player.id === delPlayer.id
+        );
+        unmatchedPlayers.value.splice(index, 1);
+      }
+      await removePlayer(delPlayer, props.tournamentId);
+    }
 
     return {
       playersColumnLeft,
       playersColumnRight,
       unmatchedPlayers,
       updateMatchups,
+      handleEditClick,
       matchups,
+      num_of_matchups,
+      PlayerOneWon,
+      PlayerTwoWon,
+      Draw,
+      handleDeleteClick,
+      handleDragChange,
     };
   },
 });
 </script>
+
+<style>
+.edit-icon {
+  width: 20px;
+  height: 80%;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+</style>

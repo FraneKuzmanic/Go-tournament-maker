@@ -111,7 +111,7 @@ export default defineComponent({
           templateParams,
           'VV9vJMN1YIRQDseRH'
         )
-        .then((response: Response) => {
+        .then((response: any) => {
           console.log('Email sent:', response);
           alert('Email sent successfully!');
         })
