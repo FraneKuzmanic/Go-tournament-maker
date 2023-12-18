@@ -137,10 +137,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    roundId :{
-      type: String,
-      required: true,
-    },
+
   },
   setup(props) {
     const store = usePlayersStore();

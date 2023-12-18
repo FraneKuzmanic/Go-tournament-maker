@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from 'vue';
+import { defineComponent, ref, Ref, watch} from 'vue';
 import { Player } from 'src/models/models';
 import {
   addNewPlayer,
@@ -31,6 +31,8 @@ import {
   removePlayer,
 } from 'src/firebase/init';
 import { Color, useQuasar } from 'quasar';
+import { usePlayersStore } from 'app/utils/store';
+
 
 export default defineComponent({
   name: 'colorPicker',
@@ -42,6 +44,8 @@ export default defineComponent({
     },
   },
   setup(props) {
+
+    const store = usePlayersStore();
     const $q = useQuasar();
     const players: Ref<Player[]> = ref([]);
     const input: Ref<number> = ref(1);
@@ -93,17 +97,21 @@ export default defineComponent({
         column: player.column,
         color: color,
       };
-
-      await removePlayer(player, props.tournamentId);
-      await addNewPlayer(editedPlayer, props.tournamentId);
+      store.editedPlayer = editedPlayer;
+   await removePlayer(player, props.tournamentId);
+   await addNewPlayer(editedPlayer, props.tournamentId);
+   
+      store.resetEditPlayer();
     }
     function showNotifAdd() {
       $q.notify({
         message: 'Uspješno odabran rating',
         color: 'green',
       });
+      
     }
-
+    
+   
     return {
       standard: ref(input),
       changeColor,
