@@ -41,6 +41,7 @@ export default defineComponent({
     onMounted(async (): Promise<void> => {
       //ova se funkcija poziva odmah pri učitavanju komponente
       tournamentId.value = route.params.tournamentId as string; //iz rute uzimamo id turnira
+
       if (route.params.creatorId) {
         creatorId.value = route.params.creatorId as string;
         localStorage.setItem('creatorId', creatorId.value);

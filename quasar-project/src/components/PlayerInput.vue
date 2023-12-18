@@ -36,6 +36,7 @@
       <q-btn
         label="DODAJ"
         type="submit"
+        v-if="notFound || found"
       />
     </div>
     <q-dialog v-model="notFound2">
@@ -130,7 +131,7 @@ export default defineComponent({
     const store = usePlayersStore();
     const id: Ref<string> = ref('');
     const name: Ref<string> = ref('');
-    const color: Ref<Color> = ref('red');
+    const color: Ref<Color> = ref('amber');
     const lastname: Ref<string> = ref('');
     const rating: Ref<string> = ref('');
     const nameEdit: Ref<string> = ref('');
@@ -268,7 +269,7 @@ export default defineComponent({
         nameEdit.value = parseString(nameEdit.value);
         lastnameEdit.value = parseString(lastnameEdit.value);
         const editedPlayer: Player = {
-          // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+          // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a i boje, to ostaje isto
           id: playerToEditData.value.id,
           name: nameEdit.value,
           lastname: lastnameEdit.value,
@@ -283,6 +284,7 @@ export default defineComponent({
       removeEditForm();
       showNotifEdit();
     }
+
 
     return {
       name,
@@ -304,7 +306,7 @@ export default defineComponent({
       playerToEditData,
       removeEditForm,
       onSubmitEdit,
-      resetEditPlayer
+      resetEditPlayer,
     };
   },
 });
