@@ -36,6 +36,7 @@
       <q-btn
         label="DODAJ"
         type="submit"
+        v-if="notFound || found"
       />
     </div>
     <q-dialog v-model="notFound2">
@@ -110,7 +111,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch, computed } from 'vue';
 import { addNewPlayer, removePlayer } from '../firebase/init';
-import { useQuasar } from 'quasar';
+import { Color, colors, useQuasar } from 'quasar';
 import type { Ref } from 'vue';
 import { Player } from '../models/models.ts';
 import { usePlayersStore } from 'app/utils/store';
@@ -130,6 +131,7 @@ export default defineComponent({
     const store = usePlayersStore();
     const id: Ref<string> = ref('');
     const name: Ref<string> = ref('');
+    const color: Ref<Color> = ref('amber');
     const lastname: Ref<string> = ref('');
     const rating: Ref<string> = ref('');
     const nameEdit: Ref<string> = ref('');
@@ -195,6 +197,7 @@ export default defineComponent({
         lastname: lastname.value,
         rating: rating.value,
         column: 'unmatched',
+        color: color.value
       };
       id.value = playerForDB.id;
       await addNewPlayer(playerForDB, props.tournamentId);
@@ -266,12 +269,13 @@ export default defineComponent({
         nameEdit.value = parseString(nameEdit.value);
         lastnameEdit.value = parseString(lastnameEdit.value);
         const editedPlayer: Player = {
-          // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a, to ostaje isto
+          // ovo su nam novi podatci koje je korisnik unio prilikom editanja, osim id-a i boje, to ostaje isto
           id: playerToEditData.value.id,
           name: nameEdit.value,
           lastname: lastnameEdit.value,
           rating: ratingEdit.value,
           column: playerToEditData.value.column,
+          color: playerToEditData.value.color,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
         await removePlayer(playerToEditData.value, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
@@ -280,6 +284,7 @@ export default defineComponent({
       removeEditForm();
       showNotifEdit();
     }
+
 
     return {
       name,
@@ -301,7 +306,7 @@ export default defineComponent({
       playerToEditData,
       removeEditForm,
       onSubmitEdit,
-      resetEditPlayer
+      resetEditPlayer,
     };
   },
 });

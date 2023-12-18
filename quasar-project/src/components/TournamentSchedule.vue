@@ -14,7 +14,7 @@
         @end="handleDragChange('left')"
       >
         <template #item="{ element: player }">
-          <li @click="updateMatchups" :id="player.id">
+          <li @click="updateMatchups" :id="player.id" :style="{backgroundColor : player.color}">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               class="q-ml-sm q-mr-sm"
@@ -39,7 +39,7 @@
       </draggable>
     </div>
 
-    <div class="outcome-buttons">
+    <div class="outcome-buttons" >
       <ul>
         <li v-for="matchup in num_of_matchups" :key="matchup">
           <OutcomeButton
@@ -61,7 +61,7 @@
         @end="handleDragChange('right')"
       >
         <template #item="{ element: player }">
-          <li @click="updateMatchups" :id="player.id">
+          <li @click="updateMatchups" :id="player.id" :style="{backgroundColor : player.color}">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               class="q-ml-sm q-mr-sm"
@@ -98,7 +98,7 @@
         @end="handleDragChange('unmatched')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id">
+          <li :id="player.id" :style="{backgroundColor : player.color}">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               class="q-ml-sm q-mr-sm"
@@ -128,7 +128,6 @@
 <script lang="ts">
 import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import draggable from 'vuedraggable';
-import { DraggableEvent, DraggableChangeEvent } from 'vuedraggable';
 import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
@@ -139,6 +138,10 @@ export default defineComponent({
   components: { draggable: draggable, OutcomeButton: OutcomeButton },
   props: {
     tournamentId: {
+      type: String,
+      required: true,
+    },
+    roundId :{
       type: String,
       required: true,
     },
