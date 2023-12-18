@@ -204,8 +204,7 @@ export default defineComponent({
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       resetInputForm();
-      store.playerToAdd = playerForDB;
-      
+      store.players[store.players.length] = playerForDB;
     }
 
     function resetEditPlayer(): void {
