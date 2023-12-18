@@ -62,8 +62,11 @@ export default defineComponent({
                 parseInt(player.rating) > Math.abs(input.value)
               ) {
                 savePlayer('blue', player);
+                savePlayerLocal(player, 'blue');
+              
               } else {
                 savePlayer('green', player);
+                savePlayerLocal(player, 'green');
               }
             } else {
               if (
@@ -71,8 +74,10 @@ export default defineComponent({
                 parseInt(player.rating) > Math.abs(input.value)
               ) {
                 savePlayer('green', player);
+                savePlayerLocal(player, 'green');
               } else {
                 savePlayer('blue', player);
+                savePlayerLocal(player, 'blue');
               }
             }
           });
@@ -88,6 +93,13 @@ export default defineComponent({
         
       }
     };
+    function savePlayerLocal(player : Player, color : Color){
+      store.players.forEach(function (element){
+        if(element.id == player.id){
+          element.color = color;
+        }
+      })
+    }
     async function savePlayer(color: Color, player: Player) {
       const editedPlayer: Player = {
         id: player.id,
@@ -98,10 +110,9 @@ export default defineComponent({
         color: color,
       };
       store.editedPlayer = editedPlayer;
-   await removePlayer(player, props.tournamentId);
-   await addNewPlayer(editedPlayer, props.tournamentId);
-   
-      store.resetEditPlayer();
+      await removePlayer(player, props.tournamentId);
+      await addNewPlayer(editedPlayer, props.tournamentId);
+      
     }
     function showNotifAdd() {
       $q.notify({
