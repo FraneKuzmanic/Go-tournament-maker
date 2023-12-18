@@ -1,7 +1,8 @@
 <template>
   <meta charset="UTF8" />
   <div class = "button-container">
-  <q-btn push color="white" text-color="primary" label="Generiraj parove"  @click="getUnmatchedLiElements"/>
+  <q-btn push color="white" text-color="primary" label="Generiraj parove"  @click="generate" style="margin-right: 20px;"/>
+  <q-btn push color="red" text-color="white" label="Ponisti parove"  @click="removeElementsFromRightAndLeft"/>
   </div>  
 
   <div id="main-container">
@@ -232,6 +233,7 @@ export default defineComponent({
           if (draggedPlayerInd !== -1) changeUnmatchedColumn(draggedPlayerInd);
         }
       } else if (column === 'unmatched') {
+        console.log('tusam');
         const draggedPlayerInd = playersColumnLeft.value.findIndex(
           (player) => player.column !== 'left'
         );
@@ -240,6 +242,7 @@ export default defineComponent({
           const draggedPlayerInd = playersColumnRight.value.findIndex(
             (player) => player.column !== 'right'
           );
+          console.log('sad ovo');
           if (draggedPlayerInd !== -1) changeRightColumn(draggedPlayerInd);
         }
       }
@@ -346,21 +349,61 @@ export default defineComponent({
       await removePlayer(delPlayer, props.tournamentId);
     }
 
-     const getUnmatchedLiElements = () => {
-    // Get the div element with the ID 'unmatched-column'
-    const unmatchedDiv = document.getElementById('unmatched-column');
-    if (!unmatchedDiv) {
-      console.error("Element with ID 'unmatched-column' not found.");
-      return;
+  const generate = async () => {
+    // Calculate the midpoint of the array
+    const midpoint = Math.ceil(unmatchedPlayers.value.length / 2);
+
+    // Move the first half of the players to the 'right-column'
+    const rightPlayers = unmatchedPlayers.value.splice(0, midpoint);
+    for (let i = 0; i < rightPlayers.length; i++) {
+      console.log('Right player index:', i);
+      playersColumnRight.value.push(rightPlayers[i]);
+      const draggedPlayerInd = playersColumnRight.value.findIndex(
+            (player) => player.column !== 'right'
+          );
+      await changeRightColumn(draggedPlayerInd);
     }
 
-    // Get all the li elements within the 'unmatched-column' div
-    const liElements = unmatchedDiv.getElementsByTagName('li');
+    // Move the second half of the players to the 'left-column'
+    const leftPlayers = unmatchedPlayers.value.splice(0); // splice with no second argument removes all remaining elements
+    for (let i = 0; i < leftPlayers.length; i++) {
+      console.log('Left player index:', i);
+      playersColumnLeft.value.push(leftPlayers[i]);
+      const draggedPlayerInd = playersColumnLeft.value.findIndex(
+          (player) => player.column !== 'left'
+        );
+      await changeLeftColumn(draggedPlayerInd);
+    }
 
-    // Convert the HTMLCollection to an array and log it
-    const liArray = Array.from(liElements);
-    console.log(liArray);
-  };
+    // Clear the 'unmatched-column'
+    //unmatchedPlayers.value = [];
+    //console.log(playersColumnRight.value);
+    //console.log(playersColumnLeft.value);
+    //console.log(unmatchedPlayers.value);
+};
+
+const removeElementsFromRightAndLeft = async () => {
+    
+    for(let i = 0; i < playersColumnLeft.value.length; i++){
+        unmatchedPlayers.value.push(playersColumnLeft.value[i]);
+        const draggedPlayerInd = unmatchedPlayers.value.findIndex(
+            (player) => player.column !== 'unmatched'
+          );
+          await changeUnmatchedColumn(draggedPlayerInd);
+    }
+    playersColumnLeft.value = [];
+     for(let i = 0; i < playersColumnRight.value.length; i++){
+        unmatchedPlayers.value.push(playersColumnRight.value[i]);
+        const draggedPlayerInd = unmatchedPlayers.value.findIndex(
+            (player) => player.column !== 'unmatched'
+          );
+          await changeUnmatchedColumn(draggedPlayerInd);
+    }
+    playersColumnRight.value = [];
+    console.log(playersColumnRight.value);
+    console.log(playersColumnLeft.value);
+    console.log(unmatchedPlayers.value);
+};
 
     return {
       playersColumnLeft,
@@ -375,7 +418,8 @@ export default defineComponent({
       Draw,
       handleDeleteClick,
       handleDragChange,
-      getUnmatchedLiElements,
+      generate,
+      removeElementsFromRightAndLeft,
     };
   },
 });
