@@ -3,102 +3,93 @@
     class="q-mb-md"
     color="white"
     text-color="black"
-    @click="isInput=true"
+    @click="isInput = true"
     label="NOVI IGRAČ"
   />
   <q-dialog v-model="isInput">
     <q-card>
-      <q-form
-        class="form q-col-md-5 q-pa-sm"
-        @submit="onSubmit"
-      >
-    <q-input
-      filled
-      v-model.trim="name"
-      label="IME"
-      :rules="[(val) => !!val || 'Ime je obavezno']"
-    />
-    <q-input
-      filled
-      v-model.trim="lastname"
-      label="PREZIME"
-      :rules="[(val) => !!val || 'Prezime je obavezno']"
-    />
-    <q-input
-      v-if="notFound || found"
-      filled
-      v-model.trim="rating"
-      label="RATING"
-      :rules="ratingValidation"
-    />
-    <div class="center-buttons">
-      <q-btn @click="searchEGD" label="TRAŽI" />
-      <q-btn
-        label="DODAJ"
-        type="submit"
-        v-if="notFound || found"
-      />
-    </div>
-    <q-dialog v-model="notFound2">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Alert</div>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime i
-          prezime ili upišite rating i kliknite na gumb DODAJ
-        </q-card-section>
-        <q-card-actions>
-          <q-btn flat label="OK" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-  </q-form>
+      <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmit">
+        <q-input
+          filled
+          v-model.trim="name"
+          label="IME"
+          :rules="[(val) => !!val || 'Ime je obavezno']"
+        />
+        <q-input
+          filled
+          v-model.trim="lastname"
+          label="PREZIME"
+          :rules="[(val) => !!val || 'Prezime je obavezno']"
+        />
+        <q-input
+          v-if="notFound || found"
+          filled
+          v-model.trim="rating"
+          label="RATING"
+          :rules="ratingValidation"
+        />
+        <div class="center-buttons">
+          <q-btn @click="searchEGD" label="TRAŽI" />
+          <q-btn label="DODAJ" type="submit" v-if="notFound || found" />
+        </div>
+        <q-dialog v-model="notFound2">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">Alert</div>
+            </q-card-section>
+            <q-card-section class="q-pt-none">
+              Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime
+              i prezime ili upišite rating i kliknite na gumb DODAJ
+            </q-card-section>
+            <q-card-actions>
+              <q-btn flat label="OK" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </q-form>
     </q-card>
-    
   </q-dialog>
-  <q-dialog v-model="isEdit" @before-hide="resetEditPlayer" @hide="visible=false">
+  <q-dialog
+    v-model="isEdit"
+    @before-hide="resetEditPlayer"
+    @hide="visible = false"
+  >
     <q-card>
       <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmitEdit">
-    <!-- ovo je forma koja ce se prikazat ako izaberemo editanje igrača -->
-    <q-input
-      filled
-      v-model.trim="nameEdit"
-      :rules="[(val) => !!val || 'Ime je obavezno']"
-    />
-    <q-input
-      filled
-      v-model.trim="lastnameEdit"
-      :rules="[(val) => !!val || 'Prezime je obavezno']"
-    />
-    <q-input
-      filled
-      v-model.trim="ratingEdit"
-      :rules="ratingValidation"
-    />
-    <div class="center-buttons">
-      <q-btn @click="searchEGD" label="TRAŽI" />
-      <q-btn label="SPREMI" type="submit" />
-      <q-btn @click="removeEditForm" label="PONIŠTI" />
-    </div>
-    <q-dialog v-model="notFound2">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Alert</div>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime i
-          prezime ili upišite rating
-        </q-card-section>
-        <q-card-actions>
-          <q-btn flat label="OK" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    </q-form>
-  </q-card>  
+        <!-- ovo je forma koja ce se prikazat ako izaberemo editanje igrača -->
+        <q-input
+          filled
+          v-model.trim="nameEdit"
+          :rules="[(val) => !!val || 'Ime je obavezno']"
+        />
+        <q-input
+          filled
+          v-model.trim="lastnameEdit"
+          :rules="[(val) => !!val || 'Prezime je obavezno']"
+        />
+        <q-input filled v-model.trim="ratingEdit" :rules="ratingValidation" />
+        <div class="center-buttons">
+          <q-btn disable @click="searchEGD" label="TRAŽI" />
+          <q-btn label="SPREMI" type="submit" />
+          <q-btn @click="removeEditForm" label="PONIŠTI" />
+        </div>
+        <q-dialog v-model="notFound2">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6">Alert</div>
+            </q-card-section>
+            <q-card-section class="q-pt-none">
+              Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime
+              i prezime ili upišite rating
+            </q-card-section>
+            <q-card-actions>
+              <q-btn flat label="OK" color="primary" v-close-popup />
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
+      </q-form>
+    </q-card>
   </q-dialog>
-  
 </template>
 
 <style>
@@ -140,7 +131,7 @@ export default defineComponent({
     const found: Ref<boolean> = ref(false);
     const notFound: Ref<boolean> = ref(false);
     const notFound2: Ref<boolean> = ref(false);
-    
+
     const visible: Ref<boolean> = ref(false);
     const isEdit: Ref<boolean> = ref(false); // je li korisnik odabrao edit opciju forme
     const isInput: Ref<boolean> = ref(false);
@@ -164,10 +155,14 @@ export default defineComponent({
     }
     const ratingValidation = computed(() => {
       return [
-        (val: string) => /^(0?[1-9]|[12]\d|30)k$/.test(val) || /^(0?[1-7])d$/.test(val) ||
-                          /^(0?[1-9])p$/.test(val) ? true : 'Unesite rating u ispravnom formatu'
+        (val: string) =>
+          /^(0?[1-9]|[12]\d|30)k$/.test(val) ||
+          /^(0?[1-7])d$/.test(val) ||
+          /^(0?[1-9])p$/.test(val)
+            ? true
+            : 'Unesite rating u ispravnom formatu',
       ];
-    })
+    });
 
     async function searchEGD(): Promise<void> {
       name.value = parseString(name.value);
@@ -197,7 +192,7 @@ export default defineComponent({
         lastname: lastname.value,
         rating: rating.value,
         column: 'unmatched',
-        color: color.value
+        color: color.value,
       };
       id.value = playerForDB.id;
       await addNewPlayer(playerForDB, props.tournamentId);
@@ -244,7 +239,7 @@ export default defineComponent({
     }
 
     function addEditForm() {
-      if (!(visible.value)) {
+      if (!visible.value) {
         isEdit.value = true;
         visible.value = true;
         playerToEditData.value = store.playerToEdit;
@@ -256,7 +251,6 @@ export default defineComponent({
           ratingEdit.value = playerToEditData.value.rating;
         }
       }
-      
     }
 
     function removeEditForm() {
@@ -283,7 +277,6 @@ export default defineComponent({
       removeEditForm();
       showNotifEdit();
     }
-
 
     return {
       name,

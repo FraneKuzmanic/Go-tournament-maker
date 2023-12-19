@@ -1,13 +1,27 @@
 <template>
   <meta charset="UTF8" />
-  <div class = "button-container">
-  <q-btn push color="white" text-color="primary" label="Generiraj parove"  @click="generate" style="margin-right: 20px;"/>
-  <q-btn push color="red" text-color="white" label="Ponisti parove"  @click="removeElementsFromRightAndLeft"/>
-  </div>  
+  <div v-if="creatorId !== ''" class="button-container">
+    <q-btn
+      push
+      color="white"
+      text-color="primary"
+      label="Generiraj parove"
+      @click="generate"
+      style="margin-right: 20px"
+    />
+    <q-btn
+      push
+      color="red"
+      text-color="white"
+      label="Ponisti parove"
+      @click="removeElementsFromRightAndLeft"
+    />
+  </div>
 
   <div id="main-container">
     <div class="player-group" id="left-column">
       <draggable
+        :disabled="creatorId === ''"
         v-model="playersColumnLeft"
         tag="ul"
         group="players"
@@ -15,9 +29,14 @@
         @end="handleDragChange('left')"
       >
         <template #item="{ element: player }">
-          <li @click="updateMatchups" :id="player.id" :style="{backgroundColor : player.color}">
+          <li
+            :draggable="false"
+            :id="player.id"
+            :style="{ backgroundColor: player.color }"
+          >
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
+              v-if="creatorId !== ''"
               class="q-ml-sm q-mr-sm"
               @click.stop
               round
@@ -27,6 +46,7 @@
               @click="handleEditClick(player, 'left')"
             />
             <q-btn
+              v-if="creatorId !== ''"
               class="q-ml-sm q-mr-sm"
               @click.stop
               round
@@ -40,7 +60,7 @@
       </draggable>
     </div>
 
-    <div class="outcome-buttons" >
+    <div class="outcome-buttons">
       <ul>
         <li v-for="matchup in num_of_matchups" :key="matchup">
           <OutcomeButton
@@ -55,6 +75,7 @@
 
     <div class="player-group" id="right-column">
       <draggable
+        :disabled="creatorId === ''"
         v-model="playersColumnRight"
         tag="ul"
         group="players"
@@ -62,9 +83,10 @@
         @end="handleDragChange('right')"
       >
         <template #item="{ element: player }">
-          <li @click="updateMatchups" :id="player.id" :style="{backgroundColor : player.color}">
+          <li :id="player.id" :style="{ backgroundColor: player.color }">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
+              v-if="creatorId !== ''"
               class="q-ml-sm q-mr-sm"
               @click.stop
               round
@@ -74,6 +96,7 @@
               @click="handleEditClick(player, 'right')"
             />
             <q-btn
+              v-if="creatorId !== ''"
               class="q-ml-sm q-mr-sm"
               @click.stop
               round
@@ -88,10 +111,10 @@
     </div>
   </div>
 
-  <OutcomeButton />
   <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
       <draggable
+        :disabled="creatorId === ''"
         v-model="unmatchedPlayers"
         tag="ul"
         group="players"
@@ -99,7 +122,7 @@
         @end="handleDragChange('unmatched')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id" :style="{backgroundColor : player.color}">
+          <li :id="player.id" :style="{ backgroundColor: player.color }">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               class="q-ml-sm q-mr-sm"
@@ -142,7 +165,10 @@ export default defineComponent({
       type: String,
       required: true,
     },
-
+    creatorId: {
+      type: String,
+      required: true,
+    },
   },
   setup(props) {
     const store = usePlayersStore();
@@ -188,7 +214,6 @@ export default defineComponent({
       updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
     }
 
-
     async function changeRightColumn(ind: number): Promise<void> {
       console.log(ind);
       const oldPlayer: Player = { ...playersColumnRight.value[ind] };
@@ -206,7 +231,6 @@ export default defineComponent({
     }
 
     async function handleDragChange(column: string): Promise<void> {
-      console.log('handleam event change ' + column);
       if (column === 'left') {
         const draggedPlayerInd = playersColumnRight.value.findIndex(
           (player) => player.column !== 'right'
@@ -243,6 +267,8 @@ export default defineComponent({
           if (draggedPlayerInd !== -1) changeRightColumn(draggedPlayerInd);
         }
       }
+
+      updateMatchups();
     }
 
     const handleEditClick = (player: Player, column: string) => {
@@ -304,8 +330,6 @@ export default defineComponent({
         };
       }
 
-      console.log(_matchups);
-      console.log(num_of_matchups);
       matchups.value = _matchups;
     };
 
@@ -346,61 +370,64 @@ export default defineComponent({
       await removePlayer(delPlayer, props.tournamentId);
     }
 
-  const generate = async () => {
-    // Calculate the midpoint of the array
-    const midpoint = Math.ceil(unmatchedPlayers.value.length / 2);
+    const generate = async () => {
+      // Calculate the midpoint of the array
+      const midpoint = Math.ceil(unmatchedPlayers.value.length / 2);
 
-    // Move the first half of the players to the 'right-column'
-    const rightPlayers = unmatchedPlayers.value.splice(0, midpoint);
-    for (let i = 0; i < rightPlayers.length; i++) {
-      console.log('Right player index:', i);
-      playersColumnRight.value.push(rightPlayers[i]);
-      const draggedPlayerInd = playersColumnRight.value.findIndex(
-            (player) => player.column !== 'right'
-          );
-      await changeRightColumn(draggedPlayerInd);
-    }
+      // Move the first half of the players to the 'right-column'
+      const rightPlayers = unmatchedPlayers.value.splice(0, midpoint);
+      for (let i = 0; i < rightPlayers.length; i++) {
+        console.log('Right player index:', i);
+        playersColumnRight.value.push(rightPlayers[i]);
+        const draggedPlayerInd = playersColumnRight.value.findIndex(
+          (player) => player.column !== 'right'
+        );
+        await changeRightColumn(draggedPlayerInd);
+      }
 
-    // Move the second half of the players to the 'left-column'
-    const leftPlayers = unmatchedPlayers.value.splice(0); // splice with no second argument removes all remaining elements
-    for (let i = 0; i < leftPlayers.length; i++) {
-      console.log('Left player index:', i);
-      playersColumnLeft.value.push(leftPlayers[i]);
-      const draggedPlayerInd = playersColumnLeft.value.findIndex(
+      // Move the second half of the players to the 'left-column'
+      const leftPlayers = unmatchedPlayers.value.splice(0); // splice with no second argument removes all remaining elements
+      for (let i = 0; i < leftPlayers.length; i++) {
+        console.log('Left player index:', i);
+        playersColumnLeft.value.push(leftPlayers[i]);
+        const draggedPlayerInd = playersColumnLeft.value.findIndex(
           (player) => player.column !== 'left'
         );
-      await changeLeftColumn(draggedPlayerInd);
-    }
+        await changeLeftColumn(draggedPlayerInd);
+      }
 
-    // Clear the 'unmatched-column'
-    //unmatchedPlayers.value = [];
-    //console.log(playersColumnRight.value);
-    //console.log(playersColumnLeft.value);
-    //console.log(unmatchedPlayers.value);
-};
+      updateMatchups();
 
-const removeElementsFromRightAndLeft = async () => {
-    
-    for(let i = 0; i < playersColumnLeft.value.length; i++){
+      // Clear the 'unmatched-column'
+      //unmatchedPlayers.value = [];
+      //console.log(playersColumnRight.value);
+      //console.log(playersColumnLeft.value);
+      //console.log(unmatchedPlayers.value);
+    };
+
+    const removeElementsFromRightAndLeft = async () => {
+      console.log('removeElementsFromRightAndLeft');
+      for (let i = 0; i < playersColumnLeft.value.length; i++) {
         unmatchedPlayers.value.push(playersColumnLeft.value[i]);
         const draggedPlayerInd = unmatchedPlayers.value.findIndex(
-            (player) => player.column !== 'unmatched'
-          );
-          await changeUnmatchedColumn(draggedPlayerInd);
-    }
-    playersColumnLeft.value = [];
-     for(let i = 0; i < playersColumnRight.value.length; i++){
+          (player) => player.column !== 'unmatched'
+        );
+        await changeUnmatchedColumn(draggedPlayerInd);
+      }
+      playersColumnLeft.value = [];
+      for (let i = 0; i < playersColumnRight.value.length; i++) {
         unmatchedPlayers.value.push(playersColumnRight.value[i]);
         const draggedPlayerInd = unmatchedPlayers.value.findIndex(
-            (player) => player.column !== 'unmatched'
-          );
-          await changeUnmatchedColumn(draggedPlayerInd);
-    }
-    playersColumnRight.value = [];
-    console.log(playersColumnRight.value);
-    console.log(playersColumnLeft.value);
-    console.log(unmatchedPlayers.value);
-};
+          (player) => player.column !== 'unmatched'
+        );
+        await changeUnmatchedColumn(draggedPlayerInd);
+      }
+      playersColumnRight.value = [];
+      updateMatchups();
+      console.log(playersColumnRight.value);
+      console.log(playersColumnLeft.value);
+      console.log(unmatchedPlayers.value);
+    };
 
     return {
       playersColumnLeft,
