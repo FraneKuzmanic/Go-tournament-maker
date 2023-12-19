@@ -2,24 +2,22 @@
   <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
-  <RoundPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  <RoundPicker :tournamentId="tournamentId" :creatorId="creatorId" />
 </template>
 
 <style></style>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { Tournament, Player, AppState } from 'src/models/models';
+import { Player } from 'src/models/models';
 import { getTournamentPlayers } from 'src/firebase/init';
 import type { Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import InputScreen from '../components/InputScreen.vue';
-import TournamentSchedule from 'src/components/TournamentSchedule.vue';
 import { usePlayersStore } from 'app/utils/store';
 import Mail from '../components/SendMail.vue';
 import ColorPicker from 'src/components/ColorPicker.vue';
 import RoundPicker from 'src/components/RoundPicker.vue';
-import { store } from 'quasar/wrappers';
 
 export default defineComponent({
   name: 'TournamentPage',
@@ -41,6 +39,7 @@ export default defineComponent({
     onMounted(async (): Promise<void> => {
       //ova se funkcija poziva odmah pri učitavanju komponente
       tournamentId.value = route.params.tournamentId as string; //iz rute uzimamo id turnira
+
       if (route.params.creatorId) {
         creatorId.value = route.params.creatorId as string;
         localStorage.setItem('creatorId', creatorId.value);

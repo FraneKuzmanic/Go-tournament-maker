@@ -1,5 +1,12 @@
 <template>
-  <div class="q-pa-md" style="background-color: #303030">
+  <q-btn
+    class="q-ml-md"
+    color="white"
+    text-color="black"
+    @click="toggleMail"
+    label="POŠALJI MAIL"
+  />
+  <div v-if="isInput" class="q-pa-md" style="background-color: #303030">
     <div class="row justify-center">
       <div class="q-mr-md">
         <q-btn
@@ -60,7 +67,7 @@
 <script lang="ts">
 import emailjs from 'emailjs-com';
 import { useRoute } from 'vue-router';
-import { ref, defineComponent, onMounted } from 'vue';
+import { ref, Ref, defineComponent, onMounted } from 'vue';
 
 export default defineComponent({
   setup() {
@@ -69,6 +76,7 @@ export default defineComponent({
     const subject = ref('URL');
     const message = ref('');
     const openMailInput = ref(false);
+    const isInput: Ref<boolean> = ref(false);
 
     const closeForm = () => {
       openMailInput.value = false;
@@ -97,6 +105,10 @@ export default defineComponent({
       openMailInput.value = true;
     };
 
+    const toggleMail = () => {
+      isInput.value = !isInput.value;
+    };
+
     const sendEmail = () => {
       const templateParams = {
         to: to.value,
@@ -121,6 +133,7 @@ export default defineComponent({
         });
 
       to.value = '';
+      isInput.value = false;
     };
 
     return {
@@ -132,6 +145,8 @@ export default defineComponent({
       userURL,
       sendEmail,
       closeForm,
+      isInput,
+      toggleMail,
     };
   },
 });
