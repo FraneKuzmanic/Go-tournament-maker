@@ -43,7 +43,9 @@ export default defineComponent({
 
       const tournamentId: string = await addNewTournament({
         creatorId: creatorId,
-        players: players,
+        firstRound: { players: [] },
+        secondRound: { players: [] },
+        thirdRound: { players: [] },
       });
 
       this.$router.push({

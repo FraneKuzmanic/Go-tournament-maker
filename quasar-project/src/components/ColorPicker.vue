@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, watch} from 'vue';
+import { defineComponent, ref, Ref, watch } from 'vue';
 import { Player } from 'src/models/models';
 import {
   addNewPlayer,
@@ -32,7 +32,6 @@ import {
 } from 'src/firebase/init';
 import { Color, useQuasar } from 'quasar';
 import { usePlayersStore } from 'app/utils/store';
-
 
 export default defineComponent({
   name: 'colorPicker',
@@ -44,14 +43,16 @@ export default defineComponent({
     },
   },
   setup(props) {
-
     const store = usePlayersStore();
     const $q = useQuasar();
     const players: Ref<Player[]> = ref([]);
     const input: Ref<number> = ref(1);
     const changeColor = async () => {
       try {
-        const result = await getTournamentPlayers(props.tournamentId);
+        const result = await getTournamentPlayers(
+          props.tournamentId,
+          store.currentRound
+        );
 
         if (result !== undefined) {
           players.value = result;
@@ -63,7 +64,6 @@ export default defineComponent({
               ) {
                 savePlayer('blue', player);
                 savePlayerLocal(player, 'blue');
-              
               } else {
                 savePlayer('green', player);
                 savePlayerLocal(player, 'green');
@@ -90,15 +90,14 @@ export default defineComponent({
         console.error('Error fetching tournament players:', error);
       } finally {
         showNotifAdd();
-        
       }
     };
-    function savePlayerLocal(player : Player, color : Color){
-      store.players.forEach(function (element){
-        if(element.id == player.id){
+    function savePlayerLocal(player: Player, color: Color) {
+      store.players.forEach(function (element) {
+        if (element.id == player.id) {
           element.color = color;
         }
-      })
+      });
     }
     async function savePlayer(color: Color, player: Player) {
       const editedPlayer: Player = {
@@ -110,19 +109,15 @@ export default defineComponent({
         color: color,
       };
       store.editedPlayer = editedPlayer;
-      await removePlayer(player, props.tournamentId);
-      await addNewPlayer(editedPlayer, props.tournamentId);
-      
+      await removePlayer(player, props.tournamentId, store.currentRound);
+      await addNewPlayer(editedPlayer, props.tournamentId, store.currentRound);
     }
     function showNotifAdd() {
       $q.notify({
         message: 'Uspješno odabran rating',
         color: 'green',
       });
-      
     }
-    
-   
     return {
       standard: ref(input),
       changeColor,

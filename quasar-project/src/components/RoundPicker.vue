@@ -12,40 +12,26 @@
           narrow-indicator
         >
           <q-tab name="PrvoKolo" label="Prvo kolo" />
-          <q-tab disabled="true" name="DrugoKolo" label="Drugo kolo" />
-          <q-tab disabled="true" name="TrećeKolo" label="Treće kolo" />
+          <q-tab name="DrugoKolo" label="Drugo kolo" />
+          <q-tab name="TrećeKolo" label="Treće kolo" :disable="false" />
         </q-tabs>
         <q-separator />
-
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="PrvoKolo">
-            <tournament-schedule
-              :tournamentId="tournamentId"
-              :creatorId="creatorId"
-            />
-          </q-tab-panel>
-
-          <q-tab-panel name="DrugoKolo" disabled="true">
-            <tournament-schedule
-              :tournamentId="tournamentId"
-              :creatorId="creatorId"
-            />
-          </q-tab-panel>
-
-          <q-tab-panel name="TrećeKolo" disabled="true">
-            <tournament-schedule
-              :tournamentId="tournamentId"
-              :creatorId="creatorId"
-            />
-          </q-tab-panel>
-        </q-tab-panels>
+        <q-card class="q-pa-md">
+          <tournament-schedule
+            :tournamentId="tournamentId"
+            :creatorId="creatorId"
+          />
+        </q-card>
       </q-card>
     </div>
   </div>
 </template>
-<script>
-import { defineComponent, ref } from 'vue';
+<script lang="ts">
+import { Ref, defineComponent, ref, watch } from 'vue';
 import TournamentSchedule from './TournamentSchedule.vue';
+import { usePlayersStore } from 'app/utils/store';
+import { RoundNumber } from 'src/enums/rounds';
+
 export default defineComponent({
   name: 'RoundPicker',
   components: {
@@ -62,8 +48,25 @@ export default defineComponent({
     },
   },
   setup() {
+    const store = usePlayersStore();
+
+    const tab: Ref<string> = ref('PrvoKolo');
+
+    function updateRound() {
+      if (tab.value === 'PrvoKolo') store.setRound(RoundNumber.FIRST);
+      else if (tab.value === 'DrugoKolo') store.setRound(RoundNumber.SECOND);
+      else store.setRound(RoundNumber.THIRD);
+    }
+
+    watch(
+      () => tab.value,
+      () => {
+        updateRound();
+      }
+    );
+
     return {
-      tab: ref('PrvoKolo'),
+      tab,
     };
   },
 });

@@ -18,6 +18,7 @@ import { usePlayersStore } from 'app/utils/store';
 import Mail from '../components/SendMail.vue';
 import ColorPicker from 'src/components/ColorPicker.vue';
 import RoundPicker from 'src/components/RoundPicker.vue';
+import { RoundNumber } from 'src/enums/rounds';
 
 export default defineComponent({
   name: 'TournamentPage',
@@ -47,7 +48,10 @@ export default defineComponent({
       } else if (localStorage.getItem('creatorId') !== null)
         creatorId.value = localStorage.getItem('creatorId') as string;
       else creatorId.value = '';
-      tournamentPlayers = await getTournamentPlayers(tournamentId.value); //dohvati igrace turnira koji su pohranjeni na firestore-u
+      tournamentPlayers = await getTournamentPlayers(
+        tournamentId.value,
+        RoundNumber.FIRST
+      ); //dohvati igrace turnira prvog kola koji su pohranjeni na firestore-u, zašto prvog, pa zato što će se ono prvo pojaviti kad učitamo aplikaciju
       if (tournamentPlayers) store.setPlayers(tournamentPlayers); //pohrani igrace u globalni state igraca
     });
 

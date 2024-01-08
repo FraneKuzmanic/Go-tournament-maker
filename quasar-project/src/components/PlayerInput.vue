@@ -195,7 +195,7 @@ export default defineComponent({
         color: color.value,
       };
       id.value = playerForDB.id;
-      await addNewPlayer(playerForDB, props.tournamentId);
+      await addNewPlayer(playerForDB, props.tournamentId, store.currentRound);
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       resetInputForm();
@@ -271,8 +271,16 @@ export default defineComponent({
           color: playerToEditData.value.color,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
-        await removePlayer(playerToEditData.value, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
-        await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
+        await removePlayer(
+          playerToEditData.value,
+          props.tournamentId,
+          store.currentRound
+        ); //uklanjamo staru verziju igrača u firestoreu
+        await addNewPlayer(
+          editedPlayer,
+          props.tournamentId,
+          store.currentRound
+        ); // dodajemo ažuriranog igrača u firestore
       }
       removeEditForm();
       showNotifEdit();

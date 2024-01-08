@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import 'firebase/firestore';
 import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { Tournament, Player } from "src/models/models";
+import { Tournament, Player, Round } from "src/models/models";
+import { RoundNumber } from "src/enums/rounds";
 
 //konfiguracija za povezivanje s nasim firebaseom
 export const firebaseConfig = {
@@ -26,7 +27,9 @@ export const addNewTournament = async (tournament: Tournament): Promise<string> 
   try {
     const docRef = await addDoc(collection(db, "tournaments"), {
       creatorId: tournament.creatorId,
-      players: tournament.players,
+      firstRound: tournament.firstRound,
+      secondRound: tournament.secondRound,
+      thirdRound: tournament.thirdRound,
     });
     return docRef.id;
   } catch (e) {
@@ -37,7 +40,7 @@ export const addNewTournament = async (tournament: Tournament): Promise<string> 
 }
 
 //funkcija za dohvat igraca iz firestore-a
-export const getTournamentPlayers = async (tournamentId: string): Promise<Player[] | undefined> => {
+export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundNumber): Promise<Player[] | undefined> => {
 
   const docRef = doc(db, "tournaments", tournamentId);
   const docSnap = await getDoc(docRef);
@@ -50,43 +53,83 @@ export const getTournamentPlayers = async (tournamentId: string): Promise<Player
     console.log("Tournament doesn't exist!");
   }
 
-  return tournament?.players;
+  if (roundNo == RoundNumber.FIRST)
+  return tournament?.firstRound.players
+  else if (roundNo == RoundNumber.SECOND)
+  return tournament?.secondRound.players
+  else
+  return tournament?.thirdRound.players
+
+  
 }
 
-export const addNewPlayer = async(player: Player, tournamentId: string): Promise<void> => {
+export const addNewPlayer = async(player: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 
+  if (roundNo == RoundNumber.FIRST)
   await updateDoc(dbRef, {
-    players: arrayUnion(player)
+    'firstRound.players': arrayUnion(player),
+  });
+  else if (roundNo == RoundNumber.SECOND)
+  await updateDoc(dbRef, {
+    'secondRound.players': arrayUnion(player),
+  });
+  else
+  await updateDoc(dbRef, {
+    'thirdRound.players': arrayUnion(player),
   });
 
 }
 
-export const removePlayer = async(player: Player, tournamentId: string): Promise<void> => {
+export const removePlayer = async(player: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 
+  if (roundNo == RoundNumber.FIRST)
   await updateDoc(dbRef, {
-    players: arrayRemove(player)
+    'firstRound.players': arrayRemove(player),
+  });
+  else if (roundNo == RoundNumber.SECOND)
+  await updateDoc(dbRef, {
+    'secondRound.players': arrayRemove(player),
+  });
+  else
+  await updateDoc(dbRef, {
+    'thirdRound.players': arrayRemove(player),
   });
 
 }
 
-export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string): Promise<void> => {
+export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 
-  console.log(oldPlayer);
-  console.log(newPlayer);
+  if (roundNo == RoundNumber.FIRST){
+    await updateDoc(dbRef, {
+      'firstRound.players': arrayRemove(oldPlayer)
+    });
 
-  await updateDoc(dbRef, {
-    players: arrayRemove(oldPlayer)
-  });
-
-  await updateDoc(dbRef, {
-    players: arrayUnion(newPlayer)
-  });
+    await updateDoc(dbRef, {
+      'firstRound.players': arrayUnion(newPlayer)
+    });
+  }else if (roundNo == RoundNumber.SECOND){
+    await updateDoc(dbRef, {
+      'secondRound.players': arrayRemove(oldPlayer)
+    });
+  
+    await updateDoc(dbRef, {
+      'secondRound.players': arrayUnion(newPlayer)
+    });
+  }else{
+    await updateDoc(dbRef, {
+      'thirdRound.players': arrayRemove(oldPlayer)
+    });
+  
+    await updateDoc(dbRef, {
+      'thirdRound.players': arrayUnion(newPlayer)
+    });
+  }
 
 }
 

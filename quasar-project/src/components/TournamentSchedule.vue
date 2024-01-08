@@ -155,7 +155,11 @@ import draggable from 'vuedraggable';
 import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
-import { removePlayer, updatePlayerColumn } from '../firebase/init';
+import {
+  removePlayer,
+  updatePlayerColumn,
+  getTournamentPlayers,
+} from '../firebase/init';
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -206,12 +210,32 @@ export default defineComponent({
       }
     );
 
+    watch(
+      () => store.currentRound,
+      () => {
+        getRoundPlayers();
+      }
+    ); //kad god se promijeni runda, moramo pozvati funkciju koja dohva asve igrace za tu rundu
+
+    async function getRoundPlayers() {
+      const tournamentPlayers = await getTournamentPlayers(
+        props.tournamentId,
+        store.currentRound
+      ); //dohvati igrace za odredjeno kolo turnira koji su pohranjeni na firestore-u
+      if (tournamentPlayers) store.setPlayers(tournamentPlayers); //postavlja igrace te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za igrače
+    }
+
     async function changeLeftColumn(ind: number): Promise<void> {
       console.log(ind);
       const oldPlayer: Player = { ...playersColumnLeft.value[ind] };
       playersColumnLeft.value[ind].column = 'left';
       const newPlayer: Player = { ...playersColumnLeft.value[ind] };
-      updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
+      updatePlayerColumn(
+        oldPlayer,
+        newPlayer,
+        props.tournamentId,
+        store.currentRound
+      );
     }
 
     async function changeRightColumn(ind: number): Promise<void> {
@@ -219,7 +243,12 @@ export default defineComponent({
       const oldPlayer: Player = { ...playersColumnRight.value[ind] };
       playersColumnRight.value[ind].column = 'right';
       const newPlayer: Player = { ...playersColumnRight.value[ind] };
-      updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
+      updatePlayerColumn(
+        oldPlayer,
+        newPlayer,
+        props.tournamentId,
+        store.currentRound
+      );
     }
 
     async function changeUnmatchedColumn(ind: number): Promise<void> {
@@ -227,7 +256,12 @@ export default defineComponent({
       const oldPlayer: Player = { ...unmatchedPlayers.value[ind] };
       unmatchedPlayers.value[ind].column = 'unmatched';
       const newPlayer: Player = { ...unmatchedPlayers.value[ind] };
-      updatePlayerColumn(oldPlayer, newPlayer, props.tournamentId);
+      updatePlayerColumn(
+        oldPlayer,
+        newPlayer,
+        props.tournamentId,
+        store.currentRound
+      );
     }
 
     async function handleDragChange(column: string): Promise<void> {
@@ -277,6 +311,10 @@ export default defineComponent({
     };
 
     const updatePlayers = () => {
+      playersColumnLeft.value = []; //uvijek kada učitavam igrače iz baze u tablice prvo počistim svaku tablicu prije jer sam možda switchao između kola
+      playersColumnRight.value = [];
+      unmatchedPlayers.value = [];
+
       store.players.forEach((player) => {
         if (player.column === 'left') playersColumnLeft.value.push(player);
         else if (player.column === 'right')
@@ -367,7 +405,7 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1);
       }
-      await removePlayer(delPlayer, props.tournamentId);
+      await removePlayer(delPlayer, props.tournamentId, store.currentRound);
     }
 
     const generate = async () => {
@@ -424,9 +462,6 @@ export default defineComponent({
       }
       playersColumnRight.value = [];
       updateMatchups();
-      console.log(playersColumnRight.value);
-      console.log(playersColumnLeft.value);
-      console.log(unmatchedPlayers.value);
     };
 
     return {

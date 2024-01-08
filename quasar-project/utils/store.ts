@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { Ref, computed, ref } from 'vue'
 import { Player, AppState } from 'src/models/models'
+import { RoundNumber } from 'src/enums/rounds'
 
 //ovo nam je takozvani store, sluzi za globalni state managment, ako ne znate sta je to proucite malo
 //ugl buduci da sam kod organizirao tako da s podacima o igracima baratamo kroz nekoliko komponenti onda je
@@ -13,6 +14,7 @@ export const usePlayersStore = defineStore('players', {
           playerToAdd: undefined, //u ovoj varijabli pohranjujemo trenutnog igrača koji se želi dodati u turnir
           playerToEdit: undefined, //u ovoj varijabli pohranjujemo trenutnog igrača kojeg želimo ažurirati
           editedPlayer: undefined, //ovdje spremamo ažuriranog igrača
+          currentRound: RoundNumber.FIRST, //ovo je broj runde koja je trenutno prikazana korisniku u aplikaciji, inicijalno je prva runda jer će se ona prva prikazati kad učitamo aplikaciju
         }
     },
     actions: {
@@ -30,6 +32,9 @@ export const usePlayersStore = defineStore('players', {
         },
         resetEditPlayer() {
             this.playerToEdit = undefined; 
+        },
+        setRound(roundNo: RoundNumber){
+            this.currentRound = roundNo;
         }
     }
 })
