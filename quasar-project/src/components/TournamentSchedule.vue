@@ -18,6 +18,43 @@
     />
   </div>
 
+    <div id="unmatched-drawer">
+    <div class="player-group" id="unmatched-column">
+      <draggable
+        :disabled="creatorId === ''"
+        v-model="unmatchedPlayers"
+        tag="ul"
+        group="players"
+        item-key="id"
+        @end="handleDragChange('unmatched')"
+      >
+        <template #item="{ element: player }">
+          <li :id="player.id" :style="{ backgroundColor: player.color,  maxWidth: '200px' }">
+            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="edit"
+              dense
+              @click="handleEditClick(player, 'unmatched')"
+            />
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="delete"
+              dense
+              @click="handleDeleteClick(player, 'unmatched')"
+            />
+          </li>
+        </template>
+      </draggable>
+    </div>
+  </div>
+
   <div id="main-container">
     <div class="player-group" id="left-column">
       <draggable
@@ -32,7 +69,7 @@
           <li
             :draggable="false"
             :id="player.id"
-            :style="{ backgroundColor: player.color }"
+            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
           >
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
@@ -83,7 +120,7 @@
         @end="handleDragChange('right')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id" :style="{ backgroundColor: player.color }">
+          <li :id="player.id" :style="{ backgroundColor: player.color,  maxWidth: '200px' }">
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               v-if="creatorId !== ''"
@@ -111,42 +148,7 @@
     </div>
   </div>
 
-  <div id="unmatched-drawer">
-    <div class="player-group" id="unmatched-column">
-      <draggable
-        :disabled="creatorId === ''"
-        v-model="unmatchedPlayers"
-        tag="ul"
-        group="players"
-        item-key="id"
-        @end="handleDragChange('unmatched')"
-      >
-        <template #item="{ element: player }">
-          <li :id="player.id" :style="{ backgroundColor: player.color }">
-            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-            <q-btn
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="edit"
-              dense
-              @click="handleEditClick(player, 'unmatched')"
-            />
-            <q-btn
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="delete"
-              dense
-              @click="handleDeleteClick(player, 'unmatched')"
-            />
-          </li>
-        </template>
-      </draggable>
-    </div>
-  </div>
+
 </template>
 
 <script lang="ts">

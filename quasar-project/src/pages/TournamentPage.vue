@@ -1,7 +1,9 @@
 <template>
+<div class="button-container">
   <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
   <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
-  <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  </div>
+   <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <RoundPicker :tournamentId="tournamentId" :creatorId="creatorId" />
 </template>
 
@@ -62,3 +64,9 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+</style>
