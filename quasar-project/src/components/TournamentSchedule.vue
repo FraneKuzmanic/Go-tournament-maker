@@ -18,7 +18,7 @@
     />
   </div>
 
-    <div id="unmatched-drawer">
+  <div id="unmatched-drawer">
     <div class="player-group" id="unmatched-column">
       <draggable
         :disabled="creatorId === ''"
@@ -29,7 +29,10 @@
         @end="handleDragChange('unmatched')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id" :style="{ backgroundColor: player.color,  maxWidth: '200px' }">
+          <li
+            :id="player.id"
+            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+          >
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               class="q-ml-sm q-mr-sm"
@@ -120,7 +123,10 @@
         @end="handleDragChange('right')"
       >
         <template #item="{ element: player }">
-          <li :id="player.id" :style="{ backgroundColor: player.color,  maxWidth: '200px' }">
+          <li
+            :id="player.id"
+            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+          >
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
               v-if="creatorId !== ''"
@@ -147,8 +153,6 @@
       </draggable>
     </div>
   </div>
-
-
 </template>
 
 <script lang="ts">
@@ -324,12 +328,23 @@ export default defineComponent({
         else if (player.column === 'unmatched')
           unmatchedPlayers.value.push(player);
       });
-
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
       updateMatchups();
     };
 
     const addPlayer = () => {
       if (store.playerToAdd) unmatchedPlayers.value.push(store.playerToAdd);
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
     };
 
     const updateEditedPlayer = () => {
@@ -351,6 +366,12 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1, store.editedPlayer);
       }
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
     };
 
     const updateMatchups = () => {
@@ -407,6 +428,12 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1);
       }
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
       await removePlayer(delPlayer, props.tournamentId, store.currentRound);
     }
 

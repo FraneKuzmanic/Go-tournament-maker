@@ -1,10 +1,12 @@
 <template>
-<div class="button-container">
-  <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
-  <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  <div class="button-container">
+    <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
+    <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
   </div>
-   <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
   <RoundPicker :tournamentId="tournamentId" :creatorId="creatorId" />
+  <hr />
+  <tablica-stanja />
 </template>
 
 <style></style>
@@ -21,6 +23,7 @@ import Mail from '../components/SendMail.vue';
 import ColorPicker from 'src/components/ColorPicker.vue';
 import RoundPicker from 'src/components/RoundPicker.vue';
 import { RoundNumber } from 'src/enums/rounds';
+import TablicaStanja from '../components/TablicaStanja.vue';
 
 export default defineComponent({
   name: 'TournamentPage',
@@ -30,6 +33,7 @@ export default defineComponent({
     'send-mail': Mail,
     colorPicker: ColorPicker,
     RoundPicker: RoundPicker,
+    'tablica-stanja': TablicaStanja,
   },
   methods: {},
   setup() {
@@ -61,6 +65,7 @@ export default defineComponent({
       tournamentId,
       creatorId,
     };
+    
   },
 });
 </script>
