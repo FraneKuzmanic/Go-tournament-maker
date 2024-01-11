@@ -7,9 +7,9 @@
     </q-badge>
     <q-badge v-else color="blue">
       Current: {{ Math.abs(standard) }}d Choose the rating
-    </q-badge> -->
+    </q-badge> 
       Current: {{ Math.abs(inputVal) }}d Choose the rating
-    </q-badge>
+    </q-badge>-->
 
     <q-slider
       v-model="inputVal"
@@ -22,7 +22,7 @@
       color="blue"
       track-color="green"
       @change="changeColor"
-     style="width: 20%; margin-right: 10px;"
+      style="width: 20%; margin-right: 10px"
     />
   </div>
 </template>

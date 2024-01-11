@@ -116,46 +116,47 @@
         </ul>
       </div>
 
-    <div class="player-group" id="right-column">
-      <draggable
-        :disabled="creatorId === ''"
-        v-model="playersColumnRight"
-        tag="ul"
-        group="players"
-        item-key="id"
-        @end="handleDragChange('right')"
-      >
-        <template #item="{ element: player }">
-          <li
-            :id="player.id"
-            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
-          >
-            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-            <q-btn
-              v-if="creatorId !== ''"
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="edit"
-              dense
-              @click="handleEditClick(player, 'right')"
-            />
-            <q-btn
-              v-if="creatorId !== ''"
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="delete"
-              dense
-              @click="handleDeleteClick(player, 'right')"
-            />
-          </li>
-        </template>
-      </draggable>
+      <div class="player-group" id="right-column">
+        <draggable
+          :disabled="creatorId === ''"
+          v-model="playersColumnRight"
+          tag="ul"
+          group="players"
+          item-key="id"
+          @end="handleDragChange('right')"
+        >
+          <template #item="{ element: player }">
+            <li
+              :id="player.id"
+              :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+            >
+              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+              <q-btn
+                v-if="creatorId !== ''"
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="edit"
+                dense
+                @click="handleEditClick(player, 'right')"
+              />
+              <q-btn
+                v-if="creatorId !== ''"
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="delete"
+                dense
+                @click="handleDeleteClick(player, 'right')"
+              />
+            </li>
+          </template>
+        </draggable>
+      </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <script lang="ts">
