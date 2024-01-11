@@ -21,6 +21,7 @@
 
 .q-layout.form-container {
   min-height: auto !important;
+  width: fit-content;
 }
 
 .q-page.row {

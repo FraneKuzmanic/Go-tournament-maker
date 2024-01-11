@@ -1,9 +1,12 @@
 <template>
-  <div class="button-container">
-    <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
-    <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  <div class="top-container">
+    <div class="button-container" style="margin: 0;">
+      <send-mail v-if="creatorId !== ''" style="background-color: #303030" />
+      <input-screen v-if="creatorId !== ''" :tournamentId="tournamentId" /> 
+    </div>
+    <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
   </div>
-  <colorPicker v-if="creatorId !== ''" :tournamentId="tournamentId" />
+  
   <RoundPicker :tournamentId="tournamentId" :creatorId="creatorId" />
   <hr />
   <tablica-stanja />
@@ -72,6 +75,11 @@ export default defineComponent({
 <style scoped>
 .button-container {
   display: flex;
-  justify-content: space-between;
+}
+
+.top-container {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
 }
 </style>

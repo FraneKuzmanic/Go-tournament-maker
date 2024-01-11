@@ -10,6 +10,7 @@
     <q-card>
       <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmit">
         <q-input
+          autofocus
           filled
           v-model.trim="name"
           label="IME"
