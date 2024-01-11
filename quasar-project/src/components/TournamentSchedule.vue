@@ -21,7 +21,9 @@
   </div>
 
   <div id="unmatched-drawer">
-    <div class="player-group" id="unmatched-column">
+    <div class="player-group" id="unmatched-column"
+    style="overflow-y: scroll;
+    max-height: 6rem;">
       <draggable
         :disabled="creatorId === ''"
         v-model="unmatchedPlayers"
@@ -33,7 +35,8 @@
         <template #item="{ element: player }">
           <li
             :id="player.id"
-            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+            class="igrac"
+            :style="{ backgroundColor: player.color}"
           >
             {{ player.name }} {{ player.lastname }}, {{ player.rating }}
             <q-btn
@@ -103,20 +106,21 @@
         </draggable>
       </div>
 
-      <div class="outcome-buttons">
+      <div class="outcome-buttons" style="width:20%">
         <ul>
           <li v-for="matchup in num_of_matchups" :key="matchup">
             <OutcomeButton
               @playerOneWon="PlayerOneWon(matchup)"
               @player-two-won="PlayerTwoWon(matchup)"
               @draw="Draw(matchup)"
+              
             >
             </OutcomeButton>
           </li>
         </ul>
       </div>
 
-      <div class="player-group" id="right-column">
+      <div class="player-group" id="right-column" style="">
         <draggable
           :disabled="creatorId === ''"
           v-model="playersColumnRight"
@@ -585,11 +589,21 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
 }
+.igrac {
+  width: fit-content!important; /* Default width for larger screens */
+
+  /* Add media query for mobile screens */
+}
 
 @media (max-width: 500px) {
   .button {
     font-size: 1.2rem;
     min-width: 150px;
   }
+  
+  .igrac{
+    width: 100%!important;
+  }
+  
 }
 </style>
