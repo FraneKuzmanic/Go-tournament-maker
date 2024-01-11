@@ -1,9 +1,13 @@
 <template>
   <div class="q-pa-md">
+    <!-- <q-badge v-if="standard < 0" color="blue">
+      Current: {{ Math.abs(standard) }}k Choose the rating
     <q-badge v-if="inputVal < 0" color="blue">
       Current: {{ Math.abs(inputVal) }}k Choose the rating
     </q-badge>
     <q-badge v-else color="blue">
+      Current: {{ Math.abs(standard) }}d Choose the rating
+    </q-badge> -->
       Current: {{ Math.abs(inputVal) }}d Choose the rating
     </q-badge>
 
@@ -18,6 +22,7 @@
       color="blue"
       track-color="green"
       @change="changeColor"
+     style="width: 20%; margin-right: 10px;"
     />
   </div>
 </template>

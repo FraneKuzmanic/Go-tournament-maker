@@ -20,6 +20,46 @@
     />
   </div>
 
+  <div id="unmatched-drawer">
+    <div class="player-group" id="unmatched-column">
+      <draggable
+        :disabled="creatorId === ''"
+        v-model="unmatchedPlayers"
+        tag="ul"
+        group="players"
+        item-key="id"
+        @end="handleDragChange('unmatched')"
+      >
+        <template #item="{ element: player }">
+          <li
+            :id="player.id"
+            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+          >
+            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="edit"
+              dense
+              @click="handleEditClick(player, 'unmatched')"
+            />
+            <q-btn
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="delete"
+              dense
+              @click="handleDeleteClick(player, 'unmatched')"
+            />
+          </li>
+        </template>
+      </draggable>
+    </div>
+  </div>
+
   <main :class="{ 'disable-fields': isLoading }">
     <div id="main-container">
       <div class="player-group" id="left-column">
@@ -35,7 +75,7 @@
             <li
               :draggable="false"
               :id="player.id"
-              :style="{ backgroundColor: player.color }"
+              :style="{ backgroundColor: player.color, maxWidth: '200px' }"
             >
               {{ player.name }} {{ player.lastname }}, {{ player.rating }}
               <q-btn
@@ -76,81 +116,46 @@
         </ul>
       </div>
 
-      <div class="player-group" id="right-column">
-        <draggable
-          :disabled="creatorId === ''"
-          v-model="playersColumnRight"
-          tag="ul"
-          group="players"
-          item-key="id"
-          @end="handleDragChange('right')"
-        >
-          <template #item="{ element: player }">
-            <li :id="player.id" :style="{ backgroundColor: player.color }">
-              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-              <q-btn
-                v-if="creatorId !== ''"
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="edit"
-                dense
-                @click="handleEditClick(player, 'right')"
-              />
-              <q-btn
-                v-if="creatorId !== ''"
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="delete"
-                dense
-                @click="handleDeleteClick(player, 'right')"
-              />
-            </li>
-          </template>
-        </draggable>
-      </div>
+    <div class="player-group" id="right-column">
+      <draggable
+        :disabled="creatorId === ''"
+        v-model="playersColumnRight"
+        tag="ul"
+        group="players"
+        item-key="id"
+        @end="handleDragChange('right')"
+      >
+        <template #item="{ element: player }">
+          <li
+            :id="player.id"
+            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+          >
+            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+            <q-btn
+              v-if="creatorId !== ''"
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="edit"
+              dense
+              @click="handleEditClick(player, 'right')"
+            />
+            <q-btn
+              v-if="creatorId !== ''"
+              class="q-ml-sm q-mr-sm"
+              @click.stop
+              round
+              color="blue"
+              icon="delete"
+              dense
+              @click="handleDeleteClick(player, 'right')"
+            />
+          </li>
+        </template>
+      </draggable>
     </div>
-
-    <div id="unmatched-drawer">
-      <div class="player-group" id="unmatched-column">
-        <draggable
-          :disabled="creatorId === ''"
-          v-model="unmatchedPlayers"
-          tag="ul"
-          group="players"
-          item-key="id"
-          @end="handleDragChange('unmatched')"
-        >
-          <template #item="{ element: player }">
-            <li :id="player.id" :style="{ backgroundColor: player.color }">
-              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-              <q-btn
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="edit"
-                dense
-                @click="handleEditClick(player, 'unmatched')"
-              />
-              <q-btn
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="delete"
-                dense
-                @click="handleDeleteClick(player, 'unmatched')"
-              />
-            </li>
-          </template>
-        </draggable>
-      </div>
-    </div>
-  </main>
+  </div>
 </template>
 
 <script lang="ts">
@@ -336,12 +341,23 @@ export default defineComponent({
         else if (player.column === 'unmatched')
           unmatchedPlayers.value.push(player);
       });
-
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
       updateMatchups();
     };
 
     const addPlayer = () => {
       if (store.playerToAdd) unmatchedPlayers.value.push(store.playerToAdd);
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
     };
 
     const updateEditedPlayer = () => {
@@ -363,6 +379,12 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1, store.editedPlayer);
       }
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
     };
 
     const updateMatchups = () => {
@@ -419,6 +441,12 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1);
       }
+      const updatedPlayers = [
+        ...playersColumnLeft.value,
+        ...playersColumnRight.value,
+        ...unmatchedPlayers.value,
+      ];
+      store.setPlayers(updatedPlayers);
       await removePlayer(delPlayer, props.tournamentId);
 
       updateMatchups();
