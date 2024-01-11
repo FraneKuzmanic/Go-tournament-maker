@@ -101,8 +101,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, computed } from 'vue';
-import { addNewPlayer, removePlayer, editPlayer } from '../firebase/init';
-import { Color, colors, useQuasar } from 'quasar';
+import { addNewPlayer, editPlayer } from '../firebase/init';
+import { Color, useQuasar } from 'quasar';
 import type { Ref } from 'vue';
 import { Player } from '../models/models.ts';
 import { usePlayersStore } from 'app/utils/store';
@@ -187,6 +187,7 @@ export default defineComponent({
       }
     }
     async function onSubmit(): Promise<void> {
+      //ovo je funkcija koja se aktivira prilikom submitanja forme za dodavanje igrača
       const playerForDB: Player = {
         id: uuidv4(name.value + lastname.value + rating.value),
         name: name.value,
@@ -218,19 +219,9 @@ export default defineComponent({
       isInput.value = false;
     }
 
-    function remove(): void {
-      //pošto nećemo više uklanjati igrače preko forme, ne treba nam ova funkcija
-    }
-
     function showNotifAdd() {
       $q.notify({
         message: 'Igrač je uspješno dodan.',
-        color: 'green',
-      });
-    }
-    function showNotifDel() {
-      $q.notify({
-        message: 'Igrač je uspješno izbrisan.',
         color: 'green',
       });
     }
@@ -261,6 +252,7 @@ export default defineComponent({
     }
 
     async function onSubmitEdit() {
+      //funkcija koja se aktivira prilikom submitanja edit forme
       if (playerToEditData.value) {
         nameEdit.value = parseString(nameEdit.value);
         lastnameEdit.value = parseString(lastnameEdit.value);
@@ -298,7 +290,6 @@ export default defineComponent({
       ratingValidation,
       searchEGD,
       onSubmit,
-      remove,
       isEdit,
       isInput,
       playerToEditData,

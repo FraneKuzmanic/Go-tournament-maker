@@ -30,10 +30,10 @@ export default defineComponent({
   components: {
     'input-screen': InputScreen, //komponenta koja je container za forme za unose igraca
     //komponenta koja implementira sparivanje igraca
-    'send-mail': Mail,
-    colorPicker: ColorPicker,
-    RoundPicker: RoundPicker,
-    'tablica-stanja': TablicaStanja,
+    'send-mail': Mail, //komponenta za slanje mailova
+    colorPicker: ColorPicker, //komponenta za slider boja
+    RoundPicker: RoundPicker, //komponenta za biranje željenog kola od 3 ponuđenih
+    'tablica-stanja': TablicaStanja, //tablica koja prikazuje trenutno stanje bodova na turniru
   },
   methods: {},
   setup() {
@@ -41,7 +41,7 @@ export default defineComponent({
     const route = useRoute();
     let tournamentPlayers: Player[] | undefined;
     const tournamentId: Ref<string> = ref(''); //ref je najobicniji state, a ovo sta vidite npr Ref<string> to je samo radi typescripta radi prepoznavanja tipova podataka
-    const creatorId: Ref<string> = ref('');
+    const creatorId: Ref<string> = ref(''); //id kreatora turnira, služi za razlikovanje korisnika i admina
 
     onMounted(async (): Promise<void> => {
       //ova se funkcija poziva odmah pri učitavanju komponente
@@ -58,14 +58,13 @@ export default defineComponent({
         tournamentId.value,
         RoundNumber.FIRST
       ); //dohvati igrace turnira prvog kola koji su pohranjeni na firestore-u, zašto prvog, pa zato što će se ono prvo pojaviti kad učitamo aplikaciju
-      if (tournamentPlayers) store.setPlayers(tournamentPlayers); //pohrani igrace u globalni state igraca
+      if (tournamentPlayers) store.setPlayers(tournamentPlayers); //pohrani igrace u playerStore, to nam treba da bi ih učitali iz komponente tournament-schedule
     });
 
     return {
       tournamentId,
       creatorId,
     };
-    
   },
 });
 </script>

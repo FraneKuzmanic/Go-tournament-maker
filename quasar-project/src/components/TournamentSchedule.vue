@@ -20,47 +20,48 @@
     />
   </div>
 
-  <div id="unmatched-drawer">
-    <div class="player-group" id="unmatched-column">
-      <draggable
-        :disabled="creatorId === ''"
-        v-model="unmatchedPlayers"
-        tag="ul"
-        group="players"
-        item-key="id"
-        @end="handleDragChange('unmatched')"
-      >
-        <template #item="{ element: player }">
-          <li
-            :id="player.id"
-            :style="{ backgroundColor: player.color, maxWidth: '200px' }"
-          >
-            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-            <q-btn
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="edit"
-              dense
-              @click="handleEditClick(player, 'unmatched')"
-            />
-            <q-btn
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="delete"
-              dense
-              @click="handleDeleteClick(player, 'unmatched')"
-            />
-          </li>
-        </template>
-      </draggable>
-    </div>
-  </div>
-
   <main :class="{ 'disable-fields': isLoading }">
+    <!-- klasa 'disable-fields' onemogućuje bilo kakvu interakciju s komponentom kada je isLoading true-->
+    <div id="unmatched-drawer">
+      <div class="player-group" id="unmatched-column">
+        <draggable
+          :disabled="creatorId === ''"
+          v-model="unmatchedPlayers"
+          tag="ul"
+          group="players"
+          item-key="id"
+          @end="handleDragChange('unmatched')"
+        >
+          <template #item="{ element: player }">
+            <li
+              :id="player.id"
+              :style="{ backgroundColor: player.color, maxWidth: '200px' }"
+            >
+              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+              <q-btn
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="edit"
+                dense
+                @click="handleEditClick(player, 'unmatched')"
+              />
+              <q-btn
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="delete"
+                dense
+                @click="handleDeleteClick(player, 'unmatched')"
+              />
+            </li>
+          </template>
+        </draggable>
+      </div>
+    </div>
+
     <div id="main-container">
       <div class="player-group" id="left-column">
         <draggable
@@ -170,28 +171,32 @@ import {
   removePlayer,
   updatePlayerColumn,
   getTournamentPlayers,
-  updatePlayerInd,
 } from '../firebase/init';
 
 export default defineComponent({
   name: 'TournamentSchedule',
   components: { draggable: draggable, OutcomeButton: OutcomeButton },
+  emits: ['update-load'],
   props: {
     tournamentId: {
+      //prop za tournamentId
       type: String,
       required: true,
     },
     creatorId: {
+      //prop za id kreatora turnira
       type: String,
       required: true,
     },
     isLoading: {
+      //isLoading postaje true kada stisnemo gumb "generiraj parove" ili "poništi parove" te onemogućuje klikanje bilo čega na stupcima, razlog tomu je što prvo čekamo da se generiranje ili poništavanje obavi do kraja pa onda omogućujemo interakciju s tablicom jer inače je dolazilo do nepredviđenih dupliciranja igrača
       type: Boolean,
       required: true,
     },
   },
   setup(props, { emit }) {
-    const store = usePlayersStore();
+    //emit je povezan s isLoading prop-om i kada se isLoading vrijednost promijeni emit emitira taj događaj parent komponenti RoundPickeru kako bi komponenta znala da se to dogodilo i reagirala nekom funkcijom
+    const store = usePlayersStore(); //ovo nam je store varijbla preko koje pristupamo playerStore-u
 
     const editedPlayerColumn: Ref<string> = ref('');
 
@@ -210,47 +215,41 @@ export default defineComponent({
     watch(
       () => store.players,
       () => {
-        updatePlayers(); //ova watch funkcija dolazi iz samo vue-a i ona prati stanje igraca, kad god se promjeni stanje igraca, npr doda ili makne igrac, aktivirat ce funkcija updatePlayers()
+        PutPLayersInColumns(); //ova watch funkcija dolazi iz samog vue-a i ona prati promjenu players varijable u store-u. Players varijabla u storeu nam služi samo za učitavanje igrača iz baze kada se prebacujemo s kola na kolo ili učitavamo aplikaciju
       }
     );
 
     watch(
       () => store.editedPlayer,
       () => {
-        updateEditedPlayer();
+        updateEditedPlayer(); //pratimo promjenu editedPlayer varijable u koju se sprema ažurirana verzija nekog igrača i onda s funkcijom updateEditedPlayer lokalno ažuriramo tog igrača
       }
     );
 
     watch(
       () => store.playerToAdd,
       () => {
-        addPlayer();
+        addPlayer(); //pratimo promjenu playerToAdd varijable u koju se sprema igrač koji se želi dodati, te ga onda lokalno i dodamo.
       }
     );
 
     watch(
       () => store.currentRound,
       () => {
-        getRoundPlayers();
+        getRoundPlayers(); //pratimo promjenu currentRound varijable i kad se ona promijeni to nam je znak da trebamo dohvatiti igrače za to određeno kolo
       }
-    ); //kad god se promijeni runda, moramo pozvati funkciju koja dohva asve igrace za tu rundu
-
-    // watch(
-    //   () => playersColumnRight.value,
-    //   (newArr, oldArr) => {
-    //     //nije još implementirano
-    //   }
-    // );
+    );
 
     async function getRoundPlayers(): Promise<void> {
       const tournamentPlayers = await getTournamentPlayers(
         props.tournamentId,
         store.currentRound
       ); //dohvati igrace za odredjeno kolo turnira koji su pohranjeni na firestore-u
-      if (tournamentPlayers) store.setPlayers(tournamentPlayers); //postavlja igrace te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za igrače
+      if (tournamentPlayers) store.setPlayers(tournamentPlayers); //postavlja igrače u playerStore te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za store.players
     }
 
     async function changeLeftColumn(ind: number): Promise<void> {
+      //ova funkcija mijenja igraču njegov column atribut u 'left' i poziva funkciju koja će tu promjenu pohraniti u firestore
       const oldPlayer: Player = { ...playersColumnLeft.value[ind] };
       playersColumnLeft.value[ind].column = 'left';
       const newPlayer: Player = { ...playersColumnLeft.value[ind] };
@@ -263,6 +262,7 @@ export default defineComponent({
     }
 
     async function changeRightColumn(ind: number): Promise<void> {
+      //ova funkcija mijenja igraču njegov column atribut u 'right' i poziva funkciju koja će tu promjenu pohraniti u firestore
       const oldPlayer: Player = { ...playersColumnRight.value[ind] };
       playersColumnRight.value[ind].column = 'right';
       const newPlayer: Player = { ...playersColumnRight.value[ind] };
@@ -275,6 +275,7 @@ export default defineComponent({
     }
 
     async function changeUnmatchedColumn(ind: number): Promise<void> {
+      //ova funkcija mijenja igraču njegov column atribut u 'unmatched' i poziva funkciju koja će tu promjenu pohraniti u firestore
       const oldPlayer: Player = { ...unmatchedPlayers.value[ind] };
       unmatchedPlayers.value[ind].column = 'unmatched';
       const newPlayer: Player = { ...unmatchedPlayers.value[ind] };
@@ -287,6 +288,8 @@ export default defineComponent({
     }
 
     async function handleDragChange(column: string): Promise<void> {
+      //ova funkcija se aktivira kad god mišem pomaknemo nekog igrača iz jednog stupca u drugi ili kad mu promjenimo poredak unutar stupca
+      //unutar funkcije detektiramo ukoliko je došlo do promjene iz jednog stupca u drugi da tu istu promjenu i spremimo
       if (column === 'left') {
         const draggedPlayerInd = playersColumnRight.value.findIndex(
           (player) => player.column !== 'right'
@@ -322,15 +325,17 @@ export default defineComponent({
         }
       }
 
-      updateMatchups();
+      updateMatchups(); //nakon svake promjene kod stupaca moramo ažurirati i matchupove jer su se možda ispremještali i neki parovi
     }
 
     const handleEditClick = (player: Player, column: string) => {
+      //kad kliknemo na ikonicu za edit aktivira se ova funkcija
       editedPlayerColumn.value = column;
       store.editPlayer(player);
     };
 
-    const updatePlayers = () => {
+    const PutPLayersInColumns = () => {
+      //prilikom učitavanja apliakcije ili kola uvijek prvo učitavamo igrače u stupce
       playersColumnLeft.value = []; //uvijek kada učitavam igrače iz baze u tablice prvo počistim svaku tablicu prije jer sam možda switchao između kola
       playersColumnRight.value = [];
       unmatchedPlayers.value = [];
@@ -342,26 +347,30 @@ export default defineComponent({
         else if (player.column === 'unmatched')
           unmatchedPlayers.value.push(player);
       });
-      const updatedPlayers = [
+
+      const currentPlayers = [
         ...playersColumnLeft.value,
         ...playersColumnRight.value,
         ...unmatchedPlayers.value,
       ];
-      store.setPlayers(updatedPlayers);
-      updateMatchups();
+      store.setTablePlayers(currentPlayers); //postavljamo sve trenutne igrače u kolu u tablicu stanja igrača
+      updateMatchups(); //ažuriramo i matchupove jer smo učitali igrače u stupce
     };
 
     const addPlayer = () => {
+      //funkcija za lokalno dodavanje igrača u stupce i u tablicu stanja
       if (store.playerToAdd) unmatchedPlayers.value.push(store.playerToAdd);
-      const updatedPlayers = [
+
+      const currentPlayers = [
         ...playersColumnLeft.value,
         ...playersColumnRight.value,
         ...unmatchedPlayers.value,
       ];
-      store.setPlayers(updatedPlayers);
+      store.setTablePlayers(currentPlayers); //postavljamo opet igrače u tablicu stanja s novim igračem ovaj put
     };
 
     const updateEditedPlayer = () => {
+      //funkcija za lokalno ažuriranje nekog igrača
       if (editedPlayerColumn.value === 'right' && store.editedPlayer) {
         const index = playersColumnRight.value.findIndex(
           (player) => player.id === store.editedPlayer?.id
@@ -380,20 +389,22 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1, store.editedPlayer);
       }
-      const updatedPlayers = [
+      const currentPlayers = [
         ...playersColumnLeft.value,
         ...playersColumnRight.value,
         ...unmatchedPlayers.value,
       ];
-      store.setPlayers(updatedPlayers);
+      store.setTablePlayers(currentPlayers); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
     };
 
     const updateMatchups = () => {
+      //funkcija za stvaranje matchupova, gleda koji od dva stupca ima manje igrača i onda redom spaja igrača iz jednog s igračem iz
+      //drugog stupca, ova funkcija će se morati doraditi kad budemo matchupove detaljnije radili
       const _matchups: Matchup[] = [];
       const leftColumnLength = playersColumnLeft.value.length;
       const rightColumnLength = playersColumnRight.value.length;
       let shorterArray;
-      //iterate over the shorter array
+
       if (leftColumnLength < rightColumnLength) shorterArray = leftColumnLength;
       else shorterArray = rightColumnLength;
 
@@ -424,6 +435,7 @@ export default defineComponent({
     }
 
     async function handleDeleteClick(delPlayer: Player, column: string) {
+      //ova funkcija se aktivira kad stisnemo na ikonicu za brisanje, briše lokalno igrača i onda poziva funkciju za brisanje igrača u bazi
       if (column === 'right') {
         const index = playersColumnRight.value.findIndex(
           (player) => player.id === delPlayer.id
@@ -442,18 +454,21 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1);
       }
-      const updatedPlayers = [
+      const currentPlayers = [
         ...playersColumnLeft.value,
         ...playersColumnRight.value,
         ...unmatchedPlayers.value,
       ];
-      store.setPlayers(updatedPlayers);
-      await removePlayer(delPlayer, props.tournamentId);
+      store.setPlayers(currentPlayers);
 
-      updateMatchups();
+      await removePlayer(delPlayer, props.tournamentId); //ažuriramo tablicu stanja ovaj put s izbrisanim igračem manje
+
+      updateMatchups(); //dogodila se promjena u stupcima jer smo makli igrača pa treba ažurirat i parove
     }
 
     const generate = async (): Promise<void> => {
+      //generate je funkcija koja bi trebala provoditi algoritam kad ga implementiramo
+      //trenutno uzima pola igrača iz unamtched stupca i grupira parove s drugom polovicom
       if (unmatchedPlayers.value.length > 0) {
         // Calculate the midpoint of the array
         const midpoint = Math.ceil(unmatchedPlayers.value.length / 2);
@@ -461,19 +476,18 @@ export default defineComponent({
         // Move the first half of the players to the 'right-column'
         const rightPlayers = unmatchedPlayers.value.splice(0, midpoint);
         for (let i = 0; i < rightPlayers.length; i++) {
-          console.log('Right player index:', i);
           playersColumnRight.value.push(rightPlayers[i]);
         }
 
         // Move the second half of the players to the 'left-column'
         const leftPlayers = unmatchedPlayers.value.splice(0); // splice with no second argument removes all remaining elements
         for (let i = 0; i < leftPlayers.length; i++) {
-          console.log('Left player index:', i);
           playersColumnLeft.value.push(leftPlayers[i]);
         }
 
-        updateMatchups();
+        updateMatchups(); //budući da smo premjestili igrače u stupce lijevo ili desno sljedeći korak je pravljenje parova
 
+        //promjenu u stupcima moramo pohraniti i u bazi, međutim taj proces može potrajati i možda ne završi a mi smo krenuli nešto drugo raditi, zato koristimo isLoading varijablu koja će onemogućiti bilo kakvu interakciju sa stupcima dok spremanje generiranih parova ne završi
         emit('update-load', !props.isLoading);
         for (const [ind, player] of playersColumnLeft.value.entries()) {
           if (player.column !== 'left') await changeLeftColumn(ind);
@@ -483,13 +497,15 @@ export default defineComponent({
           if (player.column !== 'right') await changeRightColumn(ind);
         }
         emit('update-load', !props.isLoading);
+        //kad ažuriranje završi onda isLoading postaje opet false
+        //emit funkcija se koristi kako bi tu promjenu isLoading emitirali i parent komponenti RoundPicker tako da onemogući da switchamo između kola dok ne završi operacija generiranja parova
 
         showNotifGenerate();
       }
     };
 
     const removeElementsFromRightAndLeft = async (): Promise<void> => {
-      console.log('removeElementsFromRightAndLeft');
+      //ova funkcija služi za poništavanje parova, sve parove prebacuje u unmatched column
       if (
         playersColumnLeft.value.length > 0 ||
         playersColumnRight.value.length > 0
@@ -503,13 +519,14 @@ export default defineComponent({
         }
         playersColumnRight.value = [];
 
-        updateMatchups();
+        updateMatchups(); //ažuriranje matchupova mora slijediti budući da smo poništili igrače iz stupaca
 
         emit('update-load', !props.isLoading);
         for (const [ind, player] of unmatchedPlayers.value.entries()) {
           if (player.column !== 'unmatched') await changeUnmatchedColumn(ind);
         }
         emit('update-load', !props.isLoading);
+        //isto kao i kod funkcije generate, koristimo emitiranje i koristimo isLoading prop pa pogledajte kako sam to tamo objasnio
 
         showNotifCancel();
       }
@@ -551,7 +568,7 @@ export default defineComponent({
 
 <style>
 .disable-fields {
-  opacity: 0.7;
+  opacity: 0.8;
   pointer-events: none;
 }
 

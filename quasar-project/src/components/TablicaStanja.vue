@@ -24,7 +24,7 @@ export default defineComponent({
   name: 'TablicaStanja',
   setup() {
     const store = usePlayersStore();
-    const rows = ref<Player[]>(store.players);
+    const rows = ref<Player[]>(store.tablePlayers);
     // Kreiranje kopije polja igrača s dodanim rednim brojem
     const rowsWithIndex = ref<Player[]>([]);
     const columns = ref<
@@ -51,7 +51,7 @@ export default defineComponent({
         required: true,
         label: 'Name',
         align: 'left',
-        field: (row: Player) => row.name + " " + row.lastname,
+        field: (row: Player) => row.name + ' ' + row.lastname,
         sortable: true,
       },
       {
@@ -64,9 +64,9 @@ export default defineComponent({
     ]);
 
     watch(
-      () => store.players,
+      () => store.tablePlayers,
       () => {
-        (rows.value = store.players), updateRowsWithIndex();
+        (rows.value = store.tablePlayers), updateRowsWithIndex();
       }
     );
     function updateRowsWithIndex() {

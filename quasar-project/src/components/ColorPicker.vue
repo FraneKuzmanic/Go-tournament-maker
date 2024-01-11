@@ -29,20 +29,18 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref, onMounted } from 'vue';
-import { Player } from 'src/models/models';
 import {
   getTournamentPlayers,
   putColorSliderValue,
   getColorSliderValue,
   changePlayersColor,
 } from 'src/firebase/init';
-import { Color, useQuasar } from 'quasar';
+import { useQuasar } from 'quasar';
 import { usePlayersStore } from 'app/utils/store';
-import { getColor, savePlayerColor } from '../../utils/helpers';
+import { savePlayerColor } from '../../utils/helpers';
 
 export default defineComponent({
   name: 'colorPicker',
-
   props: {
     tournamentId: {
       type: String,
@@ -55,18 +53,19 @@ export default defineComponent({
     const inputVal: Ref<number> = ref(0);
 
     const changeColor = async () => {
+      //kad god slideamo color slider i stanemo na neku vrijednost aktivira se ova funkcija
       try {
         const players = await getTournamentPlayers(
           props.tournamentId,
           store.currentRound
         );
 
-        await putColorSliderValue(inputVal.value, props.tournamentId);
-        store.setColorValue(inputVal.value);
+        await putColorSliderValue(inputVal.value, props.tournamentId); //spremamo trenutnu vrijednost slidera na firestore
+        store.setColorValue(inputVal.value); //spremamo vrijednost slidera u store kako bi dali signal drugim komponentama da se vrijednost promijenila
 
         if (players) {
-          const coloredPlayers = savePlayerColor(players, inputVal.value); // lokalno ažuriranje boja
-          store.setPlayers(coloredPlayers);
+          const coloredPlayers = savePlayerColor(players, inputVal.value); // funkcija nam vraća obojane igrače
+          store.setPlayers(coloredPlayers); //postavljamo obojane igrače
           await changePlayersColor(inputVal.value, props.tournamentId); //ažuriranje boja na firebaseu
         } else {
           console.error('getTournamentPlayers returned undefined');
@@ -85,6 +84,7 @@ export default defineComponent({
     }
 
     onMounted(async (): Promise<void> => {
+      //ova funkcija se aktivira prilikom učitavanja slidera i služi za dohvat trenutne vrijednosti slidera iz baze
       const val = await getColorSliderValue(props.tournamentId);
 
       if (val) {

@@ -29,6 +29,7 @@ export const addNewTournament = async (tournament: Tournament): Promise<string> 
   try {
     const docRef = await addDoc(collection(db, "tournaments"), {
       creatorId: tournament.creatorId,
+      colorValue: tournament.colorValue,
       firstRound: tournament.firstRound,
       secondRound: tournament.secondRound,
       thirdRound: tournament.thirdRound,
@@ -41,7 +42,7 @@ export const addNewTournament = async (tournament: Tournament): Promise<string> 
   return "";
 }
 
-//funkcija za dohvat igraca iz firestore-a
+//funkcija za dohvat igraca iz firestore-a, dohvaćamo igrače iz točno određenog kola, zato nam i informacija o kolu treba kao parametar
 export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundNumber): Promise<Player[] | undefined> => {
 
   const docRef = doc(db, "tournaments", tournamentId);
@@ -59,12 +60,13 @@ export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundN
   return tournament?.firstRound.players
   else if (roundNo == RoundNumber.SECOND)
   return tournament?.secondRound.players
-  else
+  else //inače je sigurno treća runda
   return tournament?.thirdRound.players
 
   
 }
 
+//funkcija za dodavanje novog igrača u firestore, isto tako dodajemo igrača za točno određeno kolo
 export const addNewPlayer = async(player: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -84,6 +86,7 @@ export const addNewPlayer = async(player: Player, tournamentId: string, roundNo:
 
 }
 
+//funkcija za uklananje igrača, za razliku od dodavanja gdje dodajemo za točno određeno kolo, kod uklananja igrača uklanjamo ga iz svih kola
 export const removePlayer = async(delPlayer: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -91,14 +94,17 @@ export const removePlayer = async(delPlayer: Player, tournamentId: string): Prom
 
   const tournament: Tournament = docSnap.data() as Tournament;
 
+  //prvo getamo sve igrače iz svakog kola
   const playersFirstRound = tournament.firstRound.players;
   const playersSecondRound = tournament.secondRound.players;
   const playersThirdRound = tournament.thirdRound.players;
 
+  //onda pokušavamo pronaći igrača kojeg brišemo u svakom kolu
   const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating );
   const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
   const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
 
+  //provjeravamo u kojim kolima je igrač i brišemo ga iz svakog kola u kojem se nalazi
   if (playerFR)
   await updateDoc(dbRef, {
     'firstRound.players': arrayRemove(playerFR),
@@ -114,6 +120,9 @@ export const removePlayer = async(delPlayer: Player, tournamentId: string): Prom
 
 }
 
+//kod uređivanja igrača prosljeđujemo neuređenog igrača kao parametar kako bi ga prvo pronašli u bazi
+//onda ga uklonimo i dodamo njegovu uređenu verziju
+//kao kod uklananja, kad uređujemo igrača uređujemo ga u svim kolima
 export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -146,7 +155,8 @@ export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournament
 
 }
 
-
+//ova funkcija je slična editu samo što se ovdje uređuje podatak o tome u kojem stupcu se igrač nalazi
+//za razliku od edita ovdje uređujemo podatak samo za određeno kolo
 export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -179,6 +189,7 @@ export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, to
 
 }
 
+//ova funkcija nam služi da bi spremili u bazu podatak o vrijednosti color slidera
 export const putColorSliderValue = async(value: number, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -189,6 +200,7 @@ export const putColorSliderValue = async(value: number, tournamentId: string): P
 
 }
 
+//ova funkcija nam služi za dohvaćanje podatka o color slideru, i to koristimo prilikom učitavanja aplikacije
 export const getColorSliderValue = async(tournamentId: string): Promise<number> => {
 
   const docRef = doc(db, "tournaments", tournamentId);
@@ -200,6 +212,8 @@ export const getColorSliderValue = async(tournamentId: string): Promise<number> 
 
 }
 
+//ovo je funkcija kojoj prosljeđujemo vrijednost color slidera, nakon toga za svakog igrača provjeravamo
+//u koju boju ćemo ga obojati, ova operacija se događa prilikom slideanja color slidera
 export const changePlayersColor = async (value: number, tournamentId: string) : Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -222,10 +236,6 @@ export const changePlayersColor = async (value: number, tournamentId: string) : 
   });
 }
 
-export const updatePlayerInd = async (tournamentId: string, playerId: string, index: number): Promise<void> => {
-
- //nije jos implementirano
-};
 
 //OVDJE PISEMO SVE FUNKCIJE KOJE KOMUNICIRAJU S FIREBASEOM, PUNO JE ELEGANTNIJE I LAKSE ODE IH NAPISAT 
 //JER ONDA SAMO JEDAN PUT MORAMO INICIJALIZIRAT FIRESTORE I OSTALE STVARI ZA FB

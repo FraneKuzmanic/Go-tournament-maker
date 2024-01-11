@@ -1,7 +1,11 @@
 import { Color } from "quasar";
 import { Player } from "src/models/models";
 
-export function getColor(value: number, player: Player) : Color{
+//helpers je datoteka u koju stavljamo neke funkcije koje nam pomažu a ne želimo ih staviti u neku drugu
+//datoteku da nebi prenatrpali kod
+//helpers funkcije mogu biti i neke koje koriste više komponenti pa ih želimo vući s jednog mjesta
+
+export function getColor(value: number, player: Player) : Color{ //funkcija koja procjenjuje u koju boju treba obojati igrača
     if (value < 0) {
         if (
           player.rating.includes('k') &&
@@ -23,7 +27,7 @@ export function getColor(value: number, player: Player) : Color{
       }
 }
 
-export function savePlayerColor(players: Player[], value: number) : Player[]{
+export function savePlayerColor(players: Player[], value: number) : Player[]{ //funkcija koja uzima polje igrača i svakog igrača oboji te vrati polje obojanih igrača
     players.forEach((player: Player) => {
         player.color = getColor(value, player);
     });

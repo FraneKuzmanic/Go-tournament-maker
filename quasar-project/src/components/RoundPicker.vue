@@ -56,6 +56,7 @@ export default defineComponent({
     const isLoading: Ref<boolean> = ref(false);
 
     function updateRound() {
+      //ovom funkcijom dajemo ažuriramo trenutnu vrijednost runde u store-u i onda to daje znak komponenti tournament-schedule da se kolo promijenilo i da učita igrače za to kolo
       if (tab.value === 'PrvoKolo') store.setRound(RoundNumber.FIRST);
       else if (tab.value === 'DrugoKolo') store.setRound(RoundNumber.SECOND);
       else store.setRound(RoundNumber.THIRD);
@@ -63,12 +64,12 @@ export default defineComponent({
 
     const handleLoadProp = (newValue: boolean) => {
       isLoading.value = newValue;
-    };
+    }; //ova funkcija je odgovor na emit signal od komponente tournament-schedule kada se promijeni isLoading varijabla, služi za trenutno onemogućavanje izmjene između kola
 
     watch(
       () => tab.value,
       () => {
-        updateRound();
+        updateRound(); //kad kliknemo na tab za promjenu kola aktivira se funkcija updateRound koja ažurira tu novu vrijednost
       }
     );
 
