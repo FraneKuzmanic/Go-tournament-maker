@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="color-picker">
     <!-- <q-badge v-if="standard < 0" color="blue">
       Current: {{ Math.abs(standard) }}k Choose the rating
     <q-badge v-if="inputVal < 0" color="blue">
@@ -22,7 +22,7 @@
       color="blue"
       track-color="green"
       @change="changeColor"
-      style="width: 20%; margin-right: 10px"
+      style="width: 300px; margin-right: 10px"
     />
   </div>
 </template>
@@ -101,3 +101,11 @@ export default defineComponent({
   methods: {},
 });
 </script>
+<style>
+.color-picker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+</style>
