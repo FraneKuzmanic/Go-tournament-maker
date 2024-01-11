@@ -15,12 +15,12 @@ export const usePlayersStore = defineStore('players', {
           playerToEdit: undefined, //u ovoj varijabli pohranjujemo trenutnog igrača kojeg želimo ažurirati
           editedPlayer: undefined, //ovdje spremamo ažuriranog igrača
           currentRound: RoundNumber.FIRST, //ovo je broj runde koja je trenutno prikazana korisniku u aplikaciji, inicijalno je prva runda jer će se ona prva prikazati kad učitamo aplikaciju
+          colorValue: undefined,
         }
     },
     actions: {
         addNewPlayer(newPlayer: Player) {
             this.playerToAdd = newPlayer;
-            this.players[this.players.length] = newPlayer;
         },
 
         setPlayers(initPlayers: Player[]){
@@ -35,6 +35,9 @@ export const usePlayersStore = defineStore('players', {
         },
         setRound(roundNo: RoundNumber){
             this.currentRound = roundNo;
-        }
+        },
+        setColorValue(val: number){
+            this.colorValue = val;
+        },
     }
 })

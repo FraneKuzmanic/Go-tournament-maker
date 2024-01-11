@@ -8,6 +8,7 @@
       label="Generiraj parove"
       @click="generate"
       style="margin-right: 20px"
+      :disable="isLoading"
     />
     <q-btn
       push
@@ -15,143 +16,147 @@
       text-color="white"
       label="Ponisti parove"
       @click="removeElementsFromRightAndLeft"
+      :disable="isLoading"
     />
   </div>
 
-  <div id="main-container">
-    <div class="player-group" id="left-column">
-      <draggable
-        :disabled="creatorId === ''"
-        v-model="playersColumnLeft"
-        tag="ul"
-        group="players"
-        item-key="id"
-        @end="handleDragChange('left')"
-      >
-        <template #item="{ element: player }">
-          <li
-            :draggable="false"
-            :id="player.id"
-            :style="{ backgroundColor: player.color }"
-          >
-            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-            <q-btn
-              v-if="creatorId !== ''"
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="edit"
-              dense
-              @click="handleEditClick(player, 'left')"
-            />
-            <q-btn
-              v-if="creatorId !== ''"
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="delete"
-              dense
-              @click="handleDeleteClick(player, 'left')"
-            />
+  <main :class="{ 'disable-fields': isLoading }">
+    <div id="main-container">
+      <div class="player-group" id="left-column">
+        <draggable
+          :disabled="creatorId === ''"
+          v-model="playersColumnLeft"
+          tag="ul"
+          group="players"
+          item-key="id"
+          @end="handleDragChange('left')"
+        >
+          <template #item="{ element: player }">
+            <li
+              :draggable="false"
+              :id="player.id"
+              :style="{ backgroundColor: player.color }"
+            >
+              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+              <q-btn
+                v-if="creatorId !== ''"
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="edit"
+                dense
+                @click="handleEditClick(player, 'left')"
+              />
+              <q-btn
+                v-if="creatorId !== ''"
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="delete"
+                dense
+                @click="handleDeleteClick(player, 'left')"
+              />
+            </li>
+          </template>
+        </draggable>
+      </div>
+
+      <div class="outcome-buttons">
+        <ul>
+          <li v-for="matchup in num_of_matchups" :key="matchup">
+            <OutcomeButton
+              @playerOneWon="PlayerOneWon(matchup)"
+              @player-two-won="PlayerTwoWon(matchup)"
+              @draw="Draw(matchup)"
+            >
+            </OutcomeButton>
           </li>
-        </template>
-      </draggable>
+        </ul>
+      </div>
+
+      <div class="player-group" id="right-column">
+        <draggable
+          :disabled="creatorId === ''"
+          v-model="playersColumnRight"
+          tag="ul"
+          group="players"
+          item-key="id"
+          @end="handleDragChange('right')"
+        >
+          <template #item="{ element: player }">
+            <li :id="player.id" :style="{ backgroundColor: player.color }">
+              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+              <q-btn
+                v-if="creatorId !== ''"
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="edit"
+                dense
+                @click="handleEditClick(player, 'right')"
+              />
+              <q-btn
+                v-if="creatorId !== ''"
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="delete"
+                dense
+                @click="handleDeleteClick(player, 'right')"
+              />
+            </li>
+          </template>
+        </draggable>
+      </div>
     </div>
 
-    <div class="outcome-buttons">
-      <ul>
-        <li v-for="matchup in num_of_matchups" :key="matchup">
-          <OutcomeButton
-            @playerOneWon="PlayerOneWon(matchup)"
-            @player-two-won="PlayerTwoWon(matchup)"
-            @draw="Draw(matchup)"
-          >
-          </OutcomeButton>
-        </li>
-      </ul>
+    <div id="unmatched-drawer">
+      <div class="player-group" id="unmatched-column">
+        <draggable
+          :disabled="creatorId === ''"
+          v-model="unmatchedPlayers"
+          tag="ul"
+          group="players"
+          item-key="id"
+          @end="handleDragChange('unmatched')"
+        >
+          <template #item="{ element: player }">
+            <li :id="player.id" :style="{ backgroundColor: player.color }">
+              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+              <q-btn
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="edit"
+                dense
+                @click="handleEditClick(player, 'unmatched')"
+              />
+              <q-btn
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="delete"
+                dense
+                @click="handleDeleteClick(player, 'unmatched')"
+              />
+            </li>
+          </template>
+        </draggable>
+      </div>
     </div>
-
-    <div class="player-group" id="right-column">
-      <draggable
-        :disabled="creatorId === ''"
-        v-model="playersColumnRight"
-        tag="ul"
-        group="players"
-        item-key="id"
-        @end="handleDragChange('right')"
-      >
-        <template #item="{ element: player }">
-          <li :id="player.id" :style="{ backgroundColor: player.color }">
-            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-            <q-btn
-              v-if="creatorId !== ''"
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="edit"
-              dense
-              @click="handleEditClick(player, 'right')"
-            />
-            <q-btn
-              v-if="creatorId !== ''"
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="delete"
-              dense
-              @click="handleDeleteClick(player, 'right')"
-            />
-          </li>
-        </template>
-      </draggable>
-    </div>
-  </div>
-
-  <div id="unmatched-drawer">
-    <div class="player-group" id="unmatched-column">
-      <draggable
-        :disabled="creatorId === ''"
-        v-model="unmatchedPlayers"
-        tag="ul"
-        group="players"
-        item-key="id"
-        @end="handleDragChange('unmatched')"
-      >
-        <template #item="{ element: player }">
-          <li :id="player.id" :style="{ backgroundColor: player.color }">
-            {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-            <q-btn
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="edit"
-              dense
-              @click="handleEditClick(player, 'unmatched')"
-            />
-            <q-btn
-              class="q-ml-sm q-mr-sm"
-              @click.stop
-              round
-              color="blue"
-              icon="delete"
-              dense
-              @click="handleDeleteClick(player, 'unmatched')"
-            />
-          </li>
-        </template>
-      </draggable>
-    </div>
-  </div>
+  </main>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, Ref, watch, computed } from 'vue';
 import draggable from 'vuedraggable';
+import { useQuasar } from 'quasar';
 import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
@@ -159,6 +164,7 @@ import {
   removePlayer,
   updatePlayerColumn,
   getTournamentPlayers,
+  updatePlayerInd,
 } from '../firebase/init';
 
 export default defineComponent({
@@ -173,8 +179,12 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    isLoading: {
+      type: Boolean,
+      required: true,
+    },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const store = usePlayersStore();
 
     const editedPlayerColumn: Ref<string> = ref('');
@@ -186,6 +196,8 @@ export default defineComponent({
     const unmatchedPlayers: Ref<Player[]> = ref([]);
 
     const matchups: Ref<Matchup[]> = ref([]);
+
+    const $q = useQuasar();
 
     let num_of_matchups = computed(() => matchups.value.length);
 
@@ -217,7 +229,14 @@ export default defineComponent({
       }
     ); //kad god se promijeni runda, moramo pozvati funkciju koja dohva asve igrace za tu rundu
 
-    async function getRoundPlayers() {
+    // watch(
+    //   () => playersColumnRight.value,
+    //   (newArr, oldArr) => {
+    //     //nije još implementirano
+    //   }
+    // );
+
+    async function getRoundPlayers(): Promise<void> {
       const tournamentPlayers = await getTournamentPlayers(
         props.tournamentId,
         store.currentRound
@@ -226,11 +245,10 @@ export default defineComponent({
     }
 
     async function changeLeftColumn(ind: number): Promise<void> {
-      console.log(ind);
       const oldPlayer: Player = { ...playersColumnLeft.value[ind] };
       playersColumnLeft.value[ind].column = 'left';
       const newPlayer: Player = { ...playersColumnLeft.value[ind] };
-      updatePlayerColumn(
+      await updatePlayerColumn(
         oldPlayer,
         newPlayer,
         props.tournamentId,
@@ -239,11 +257,10 @@ export default defineComponent({
     }
 
     async function changeRightColumn(ind: number): Promise<void> {
-      console.log(ind);
       const oldPlayer: Player = { ...playersColumnRight.value[ind] };
       playersColumnRight.value[ind].column = 'right';
       const newPlayer: Player = { ...playersColumnRight.value[ind] };
-      updatePlayerColumn(
+      await updatePlayerColumn(
         oldPlayer,
         newPlayer,
         props.tournamentId,
@@ -252,11 +269,10 @@ export default defineComponent({
     }
 
     async function changeUnmatchedColumn(ind: number): Promise<void> {
-      console.log(ind);
       const oldPlayer: Player = { ...unmatchedPlayers.value[ind] };
       unmatchedPlayers.value[ind].column = 'unmatched';
       const newPlayer: Player = { ...unmatchedPlayers.value[ind] };
-      updatePlayerColumn(
+      await updatePlayerColumn(
         oldPlayer,
         newPlayer,
         props.tournamentId,
@@ -288,7 +304,6 @@ export default defineComponent({
           if (draggedPlayerInd !== -1) changeUnmatchedColumn(draggedPlayerInd);
         }
       } else if (column === 'unmatched') {
-        console.log('tusam');
         const draggedPlayerInd = playersColumnLeft.value.findIndex(
           (player) => player.column !== 'left'
         );
@@ -297,7 +312,6 @@ export default defineComponent({
           const draggedPlayerInd = playersColumnRight.value.findIndex(
             (player) => player.column !== 'right'
           );
-          console.log('sad ovo');
           if (draggedPlayerInd !== -1) changeRightColumn(draggedPlayerInd);
         }
       }
@@ -405,64 +419,86 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1);
       }
-      await removePlayer(delPlayer, props.tournamentId, store.currentRound);
+      await removePlayer(delPlayer, props.tournamentId);
+
+      updateMatchups();
     }
 
-    const generate = async () => {
-      // Calculate the midpoint of the array
-      const midpoint = Math.ceil(unmatchedPlayers.value.length / 2);
+    const generate = async (): Promise<void> => {
+      if (unmatchedPlayers.value.length > 0) {
+        // Calculate the midpoint of the array
+        const midpoint = Math.ceil(unmatchedPlayers.value.length / 2);
 
-      // Move the first half of the players to the 'right-column'
-      const rightPlayers = unmatchedPlayers.value.splice(0, midpoint);
-      for (let i = 0; i < rightPlayers.length; i++) {
-        console.log('Right player index:', i);
-        playersColumnRight.value.push(rightPlayers[i]);
-        const draggedPlayerInd = playersColumnRight.value.findIndex(
-          (player) => player.column !== 'right'
-        );
-        await changeRightColumn(draggedPlayerInd);
+        // Move the first half of the players to the 'right-column'
+        const rightPlayers = unmatchedPlayers.value.splice(0, midpoint);
+        for (let i = 0; i < rightPlayers.length; i++) {
+          console.log('Right player index:', i);
+          playersColumnRight.value.push(rightPlayers[i]);
+        }
+
+        // Move the second half of the players to the 'left-column'
+        const leftPlayers = unmatchedPlayers.value.splice(0); // splice with no second argument removes all remaining elements
+        for (let i = 0; i < leftPlayers.length; i++) {
+          console.log('Left player index:', i);
+          playersColumnLeft.value.push(leftPlayers[i]);
+        }
+
+        updateMatchups();
+
+        emit('update-load', !props.isLoading);
+        for (const [ind, player] of playersColumnLeft.value.entries()) {
+          if (player.column !== 'left') await changeLeftColumn(ind);
+        }
+
+        for (const [ind, player] of playersColumnRight.value.entries()) {
+          if (player.column !== 'right') await changeRightColumn(ind);
+        }
+        emit('update-load', !props.isLoading);
+
+        showNotifGenerate();
       }
-
-      // Move the second half of the players to the 'left-column'
-      const leftPlayers = unmatchedPlayers.value.splice(0); // splice with no second argument removes all remaining elements
-      for (let i = 0; i < leftPlayers.length; i++) {
-        console.log('Left player index:', i);
-        playersColumnLeft.value.push(leftPlayers[i]);
-        const draggedPlayerInd = playersColumnLeft.value.findIndex(
-          (player) => player.column !== 'left'
-        );
-        await changeLeftColumn(draggedPlayerInd);
-      }
-
-      updateMatchups();
-
-      // Clear the 'unmatched-column'
-      //unmatchedPlayers.value = [];
-      //console.log(playersColumnRight.value);
-      //console.log(playersColumnLeft.value);
-      //console.log(unmatchedPlayers.value);
     };
 
-    const removeElementsFromRightAndLeft = async () => {
+    const removeElementsFromRightAndLeft = async (): Promise<void> => {
       console.log('removeElementsFromRightAndLeft');
-      for (let i = 0; i < playersColumnLeft.value.length; i++) {
-        unmatchedPlayers.value.push(playersColumnLeft.value[i]);
-        const draggedPlayerInd = unmatchedPlayers.value.findIndex(
-          (player) => player.column !== 'unmatched'
-        );
-        await changeUnmatchedColumn(draggedPlayerInd);
+      if (
+        playersColumnLeft.value.length > 0 ||
+        playersColumnRight.value.length > 0
+      ) {
+        for (let i = 0; i < playersColumnLeft.value.length; i++) {
+          unmatchedPlayers.value.push(playersColumnLeft.value[i]);
+        }
+        playersColumnLeft.value = [];
+        for (let i = 0; i < playersColumnRight.value.length; i++) {
+          unmatchedPlayers.value.push(playersColumnRight.value[i]);
+        }
+        playersColumnRight.value = [];
+
+        updateMatchups();
+
+        emit('update-load', !props.isLoading);
+        for (const [ind, player] of unmatchedPlayers.value.entries()) {
+          if (player.column !== 'unmatched') await changeUnmatchedColumn(ind);
+        }
+        emit('update-load', !props.isLoading);
+
+        showNotifCancel();
       }
-      playersColumnLeft.value = [];
-      for (let i = 0; i < playersColumnRight.value.length; i++) {
-        unmatchedPlayers.value.push(playersColumnRight.value[i]);
-        const draggedPlayerInd = unmatchedPlayers.value.findIndex(
-          (player) => player.column !== 'unmatched'
-        );
-        await changeUnmatchedColumn(draggedPlayerInd);
-      }
-      playersColumnRight.value = [];
-      updateMatchups();
     };
+
+    function showNotifGenerate() {
+      $q.notify({
+        message: 'Uspješno izgenerirani parovi',
+        color: 'green',
+      });
+    }
+
+    function showNotifCancel() {
+      $q.notify({
+        message: 'Parovi poništeni',
+        color: 'red',
+      });
+    }
 
     return {
       playersColumnLeft,
@@ -485,6 +521,11 @@ export default defineComponent({
 </script>
 
 <style>
+.disable-fields {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .edit-icon {
   width: 20px;
   height: 80%;

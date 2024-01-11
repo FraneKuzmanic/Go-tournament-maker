@@ -101,12 +101,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, computed } from 'vue';
-import { addNewPlayer, removePlayer } from '../firebase/init';
+import { addNewPlayer, removePlayer, editPlayer } from '../firebase/init';
 import { Color, colors, useQuasar } from 'quasar';
 import type { Ref } from 'vue';
 import { Player } from '../models/models.ts';
 import { usePlayersStore } from 'app/utils/store';
 import { v4 as uuidv4 } from 'uuid';
+import { getColor } from '../../utils/helpers';
 
 export default defineComponent({
   name: 'PlayerInput',
@@ -195,11 +196,13 @@ export default defineComponent({
         color: color.value,
       };
       id.value = playerForDB.id;
+      if (store.colorValue)
+        playerForDB.color = getColor(store.colorValue, playerForDB);
+
       await addNewPlayer(playerForDB, props.tournamentId, store.currentRound);
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       resetInputForm();
-      store.players[store.players.length] = playerForDB;
     }
 
     function resetEditPlayer(): void {
@@ -271,16 +274,11 @@ export default defineComponent({
           color: playerToEditData.value.color,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
-        await removePlayer(
+        await editPlayer(
           playerToEditData.value,
-          props.tournamentId,
-          store.currentRound
-        ); //uklanjamo staru verziju igrača u firestoreu
-        await addNewPlayer(
           editedPlayer,
-          props.tournamentId,
-          store.currentRound
-        ); // dodajemo ažuriranog igrača u firestore
+          props.tournamentId
+        );
       }
       removeEditForm();
       showNotifEdit();

@@ -11,15 +11,17 @@
           align="justify"
           narrow-indicator
         >
-          <q-tab name="PrvoKolo" label="Prvo kolo" />
-          <q-tab name="DrugoKolo" label="Drugo kolo" />
-          <q-tab name="TrećeKolo" label="Treće kolo" :disable="false" />
+          <q-tab name="PrvoKolo" label="Prvo kolo" :disable="isLoading" />
+          <q-tab name="DrugoKolo" label="Drugo kolo" :disable="isLoading" />
+          <q-tab name="TrećeKolo" label="Treće kolo" :disable="isLoading" />
         </q-tabs>
         <q-separator />
         <q-card class="q-pa-md">
           <tournament-schedule
             :tournamentId="tournamentId"
             :creatorId="creatorId"
+            :isLoading="isLoading"
+            @update-load="handleLoadProp"
           />
         </q-card>
       </q-card>
@@ -51,12 +53,17 @@ export default defineComponent({
     const store = usePlayersStore();
 
     const tab: Ref<string> = ref('PrvoKolo');
+    const isLoading: Ref<boolean> = ref(false);
 
     function updateRound() {
       if (tab.value === 'PrvoKolo') store.setRound(RoundNumber.FIRST);
       else if (tab.value === 'DrugoKolo') store.setRound(RoundNumber.SECOND);
       else store.setRound(RoundNumber.THIRD);
     }
+
+    const handleLoadProp = (newValue: boolean) => {
+      isLoading.value = newValue;
+    };
 
     watch(
       () => tab.value,
@@ -67,6 +74,8 @@ export default defineComponent({
 
     return {
       tab,
+      isLoading,
+      handleLoadProp,
     };
   },
 });

@@ -6,6 +6,7 @@ import { RoundNumber } from "src/enums/rounds";
 //ove "interfaceove" koristimo cesto u typescriptu da bi odredili kojeg tipa moraju biti neki nasi podatci, tj modeliramo nase objekte
 export interface Tournament{
     creatorId: string;
+    colorValue: number;
     firstRound: Round;
     secondRound: Round;
     thirdRound: Round;
@@ -36,4 +37,5 @@ export interface AppState{
     playerToEdit: Player | undefined,
     editedPlayer: Player |undefined,
     currentRound: RoundNumber,
+    colorValue: number | undefined,
 }

@@ -3,6 +3,8 @@ import 'firebase/firestore';
 import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Tournament, Player, Round } from "src/models/models";
 import { RoundNumber } from "src/enums/rounds";
+import { Color } from "quasar";
+import { getColor, savePlayerColor } from "app/utils/helpers";
 
 //konfiguracija za povezivanje s nasim firebaseom
 export const firebaseConfig = {
@@ -82,24 +84,68 @@ export const addNewPlayer = async(player: Player, tournamentId: string, roundNo:
 
 }
 
-export const removePlayer = async(player: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+export const removePlayer = async(delPlayer: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(dbRef);
 
-  if (roundNo == RoundNumber.FIRST)
+  const tournament: Tournament = docSnap.data() as Tournament;
+
+  const playersFirstRound = tournament.firstRound.players;
+  const playersSecondRound = tournament.secondRound.players;
+  const playersThirdRound = tournament.thirdRound.players;
+
+  const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating );
+  const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
+  const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
+
+  if (playerFR)
   await updateDoc(dbRef, {
-    'firstRound.players': arrayRemove(player),
+    'firstRound.players': arrayRemove(playerFR),
   });
-  else if (roundNo == RoundNumber.SECOND)
+  if (playerSR)
   await updateDoc(dbRef, {
-    'secondRound.players': arrayRemove(player),
+    'secondRound.players': arrayRemove(playerSR),
   });
-  else
+  if (playerTR)
   await updateDoc(dbRef, {
-    'thirdRound.players': arrayRemove(player),
+    'thirdRound.players': arrayRemove(playerTR),
   });
 
 }
+
+export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(dbRef);
+
+  const tournament: Tournament = docSnap.data() as Tournament;
+
+  const playersFirstRound = tournament.firstRound.players;
+  const playersSecondRound = tournament.secondRound.players;
+  const playersThirdRound = tournament.thirdRound.players;
+
+  const playerFR = playersFirstRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname && player.rating === oldPlayer.rating );
+  const playerSR = playersSecondRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname  && player.rating === oldPlayer.rating);
+  const playerTR = playersThirdRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname  && player.rating === oldPlayer.rating);
+
+  await removePlayer(oldPlayer, tournamentId);
+
+  if (playerFR)
+  await updateDoc(dbRef, {
+    'firstRound.players': arrayUnion({...newPlayer, column: playerFR.column}),
+  });
+  if (playerSR)
+  await updateDoc(dbRef, {
+    'secondRound.players': arrayUnion({...newPlayer, column: playerSR.column}),
+  });
+  if (playerTR)
+  await updateDoc(dbRef, {
+    'thirdRound.players': arrayUnion({...newPlayer, column: playerTR.column}),
+  });
+
+}
+
 
 export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
@@ -132,6 +178,54 @@ export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, to
   }
 
 }
+
+export const putColorSliderValue = async(value: number, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  await updateDoc(dbRef, {
+    colorValue: value,
+  });
+
+}
+
+export const getColorSliderValue = async(tournamentId: string): Promise<number> => {
+
+  const docRef = doc(db, "tournaments", tournamentId);
+  const docSnap = await getDoc(docRef);
+
+  const tournament: Tournament = docSnap.data() as Tournament;
+
+  return tournament.colorValue;
+
+}
+
+export const changePlayersColor = async (value: number, tournamentId: string) : Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(dbRef);
+
+  const tournament: Tournament = docSnap.data() as Tournament;
+
+  const playersFirstRound = tournament.firstRound.players;
+  const playersSecondRound = tournament.secondRound.players;
+  const playersThirdRound = tournament.thirdRound.players;
+
+  await updateDoc(dbRef, {
+    'firstRound.players': savePlayerColor(playersFirstRound, value),
+  });
+  await updateDoc(dbRef, {
+    'secondRound.players': savePlayerColor(playersSecondRound, value),
+  });
+  await updateDoc(dbRef, {
+    'thirdRound.players': savePlayerColor(playersThirdRound, value),
+  });
+}
+
+export const updatePlayerInd = async (tournamentId: string, playerId: string, index: number): Promise<void> => {
+
+ //nije jos implementirano
+};
 
 //OVDJE PISEMO SVE FUNKCIJE KOJE KOMUNICIRAJU S FIREBASEOM, PUNO JE ELEGANTNIJE I LAKSE ODE IH NAPISAT 
 //JER ONDA SAMO JEDAN PUT MORAMO INICIJALIZIRAT FIRESTORE I OSTALE STVARI ZA FB
