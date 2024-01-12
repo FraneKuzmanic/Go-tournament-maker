@@ -27,7 +27,7 @@ export interface Player{
     color: Color;   
     played_against: Player[];           // info o tome protiv koga je igrao
     last_playerd_color: Color | null;   // info o tome koju je boju igrac yadnju igrao, radi algoritma potrebno
-    num_of_wins: Number;                // informacije potrebne za konacnu tablicu
+    num_of_wins: number;                // informacije potrebne za konacnu tablicu
 }
 
 //Matchup će morati imati i informaciju o indexu u polju matchupova, i ishod matchupova pa to treba dodati kasnije

@@ -13,8 +13,8 @@
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
 $primary   : #1976D2;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+$secondary : #7c90f3;
+$accent    : #f87c08;
 
 $dark      : #1D1D1D;
 $dark-page : #121212;
@@ -86,7 +86,8 @@ body {
 
 .player-group li {
   background-color: rgb(37, 124, 159);
-  margin: 10px;
+  margin-top: 2em;
+  margin-bottom: 2em;
   padding: 3%;
   border-radius: 10px;
   color: white;
@@ -121,10 +122,13 @@ body {
 
 .outcome-buttons {
   position: relative ;
-  background-color: rgb(68, 167, 159);
-  margin: auto;
+  background-color: rgb(37, 124, 159);
   width: 30%;
   height: 100%;
+  margin-top: 30px;         // Ovdje pogledati za outcome buttons alignment sa igracim karticama
+  margin-right: auto;
+  margin-bottom: 0; 
+  margin-left: auto;
 }
 
 .outcome-buttons ul {

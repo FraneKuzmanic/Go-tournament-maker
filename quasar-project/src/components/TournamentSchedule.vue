@@ -141,7 +141,7 @@
               <li
                 :id="player.id"
                 :style="{ backgroundColor: player.color }"
-              >
+            >
                 <div class="player-info">
                   <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
                 </div>
@@ -434,14 +434,29 @@ export default defineComponent({
 
       matchups.value = _matchups;
     };
-
+    // --------------------------------------------- VAZNO ------------------------------------------------
+    // potrebno je inicijalizirati vrijednosti played_against na prazan niz i num_of_wins na 0 pri samom dodavanju igraca. Kod sam 
+    // napisao, samo ga treba odkomentirati kada se to napravi, zakomentirao sam jer inace ne radi vizualni aspekt botuna
     function PlayerOneWon(matchup_id: number) {
       var id = matchup_id-1;
+      const P1 = matchups.value[id].playerOne
+      const P2 = matchups.value[id].playerTwo
+
+      // P1.num_of_wins += 1                   // Pobjedniku azuriramo broj pobjeda
+      // P1.played_against.push(P2)            // Obojici igraca azuriramo protiv koga je igrao
+      // P2.played_against.push(P1)
       console.log(matchups.value[id].playerOne.name + 'won!');
     }
 
     function PlayerTwoWon(matchup_id: number) {
       var id = matchup_id-1;
+      const P1 = matchups.value[id].playerOne
+      const P2 = matchups.value[id].playerTwo
+
+      // P2.num_of_wins += 1
+      // P1.played_against.push(P2)            
+      // P2.played_against.push(P1)
+
       console.log(matchups.value[id].playerTwo.name + 'won!');
     }
 
@@ -463,6 +478,7 @@ export default defineComponent({
         }
       }
 
+      // Ovi console logs su samo za debugging, mozemo ih maknuti poslije
       console.log("This is the left column after the switch: " + playersColumnLeft.value[0].name)
       console.log("This is the right column after the switch: " + playersColumnRight.value[0].name)
       updateMatchups()
