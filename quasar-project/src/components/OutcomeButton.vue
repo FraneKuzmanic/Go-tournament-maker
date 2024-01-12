@@ -5,24 +5,24 @@
       id="outcome-left"
       @click="$emit('playerOneWon')"
     >
-      +1
+      <i class="fa-solid fa-trophy fa-2xl"></i>
     </div>
-    <div class="outcome-button" id="outcome-middle" @click="$emit('draw')">
-      +0.5/+0.5
+    <div class="outcome-button" id="outcome-middle" @click="$emit('switchColumns')">
+      <i class="fa-solid fa-rotate fa-2xl"></i>
     </div>
     <div
       class="outcome-button"
       id="outcome-right"
       @click="$emit('playerTwoWon')"
     >
-      +1
+      <i class="fa-solid fa-trophy fa-2xl"></i>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  emits: ['playerOneWon', 'playerTwoWon', 'draw'],
+  emits: ['playerOneWon', 'playerTwoWon', 'switchColumns'],
   return: {},
 };
 </script>

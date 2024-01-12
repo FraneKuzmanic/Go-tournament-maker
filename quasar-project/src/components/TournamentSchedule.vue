@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <div id="main-container">
+    <div id="main-columns-container">
       <div class="player-group" id="left-column">
         <draggable
           :disabled="creatorId === ''"
@@ -78,44 +78,49 @@
           @end="handleDragChange('left')"
         >
           <template #item="{ element: player }">
-            <li
-              :draggable="false"
-              :id="player.id"
-              :style="{ backgroundColor: player.color, maxWidth: '200px' }"
-            >
-              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-              <q-btn
-                v-if="creatorId !== ''"
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="edit"
-                dense
-                @click="handleEditClick(player, 'left')"
-              />
-              <q-btn
-                v-if="creatorId !== ''"
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="delete"
-                dense
-                @click="handleDeleteClick(player, 'left')"
-              />
-            </li>
+            <div class="player-card">
+              <li
+                :draggable="false"
+                :id="player.id"
+                :style="{ backgroundColor: player.color }"
+              >
+                <div class="player-info">
+                  <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
+                </div>
+                  
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="edit"
+                  dense
+                  @click="handleEditClick(player, 'left')"
+                />
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="delete"
+                  dense
+                  @click="handleDeleteClick(player, 'left')"
+                />
+              </li>
+            </div>
           </template>
         </draggable>
       </div>
 
-      <div class="outcome-buttons" style="width: 20%">
+      <div class="outcome-buttons">
         <ul>
-          <li v-for="matchup in num_of_matchups" :key="matchup">
+          <li v-for="matchupId in num_of_matchups" :key="matchupId">
             <OutcomeButton
-              @playerOneWon="PlayerOneWon(matchup)"
-              @player-two-won="PlayerTwoWon(matchup)"
-              @draw="Draw(matchup)"
+              @playerOneWon="PlayerOneWon(matchupId)"
+              @player-two-won="PlayerTwoWon(matchupId)"
+              @switch-columns="SwitchColumns(matchupId)"
             >
             </OutcomeButton>
           </li>
@@ -132,32 +137,36 @@
           @end="handleDragChange('right')"
         >
           <template #item="{ element: player }">
-            <li
-              :id="player.id"
-              :style="{ backgroundColor: player.color, maxWidth: '200px' }"
-            >
-              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
-              <q-btn
-                v-if="creatorId !== ''"
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="edit"
-                dense
-                @click="handleEditClick(player, 'right')"
-              />
-              <q-btn
-                v-if="creatorId !== ''"
-                class="q-ml-sm q-mr-sm"
-                @click.stop
-                round
-                color="blue"
-                icon="delete"
-                dense
-                @click="handleDeleteClick(player, 'right')"
-              />
-            </li>
+            <div class="player-card">
+              <li
+                :id="player.id"
+                :style="{ backgroundColor: player.color }"
+              >
+                <div class="player-info">
+                  <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
+                </div>
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="edit"
+                  dense
+                  @click="handleEditClick(player, 'right')"
+                />
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="delete"
+                  dense
+                  @click="handleDeleteClick(player, 'right')"
+                />
+              </li>
+            </div>
           </template>
         </draggable>
       </div>
@@ -178,9 +187,11 @@ import {
   getTournamentPlayers,
 } from '../firebase/init';
 
+// import PlayerCard from './PlayerCard.vue'
+
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, OutcomeButton: OutcomeButton },
+  components: { draggable: draggable, OutcomeButton: OutcomeButton},
   emits: ['update-load'],
   props: {
     tournamentId: {
@@ -425,18 +436,37 @@ export default defineComponent({
     };
 
     function PlayerOneWon(matchup_id: number) {
-      matchup_id--;
-      console.log(matchups.value[matchup_id].playerOne.name + 'won!');
+      var id = matchup_id-1;
+      console.log(matchups.value[id].playerOne.name + 'won!');
     }
 
     function PlayerTwoWon(matchup_id: number) {
-      matchup_id--;
-      console.log(matchups.value[matchup_id].playerTwo.name + 'won!');
+      var id = matchup_id-1;
+      console.log(matchups.value[id].playerTwo.name + 'won!');
     }
 
-    function Draw(matchup_id: number) {
-      matchup_id--;
-      console.log("it's a draw!, both players get half a point!");
+    function SwitchColumns(matchup_id: number) {
+      var P1: Player = matchups.value[matchup_id-1].playerOne
+      var P2: Player = matchups.value[matchup_id-1].playerTwo
+      
+      for(var i=0; i< playersColumnLeft.value.length; i++){
+        if(playersColumnLeft.value[i] === P1){
+          playersColumnLeft.value[i] = P2
+          break
+        }
+      }
+
+      for(var i=0; i< playersColumnRight.value.length; i++){
+        if(playersColumnRight.value[i] === P2){
+          playersColumnRight.value[i] = P1
+          break
+        }
+      }
+
+      console.log("This is the left column after the switch: " + playersColumnLeft.value[0].name)
+      console.log("This is the right column after the switch: " + playersColumnRight.value[0].name)
+      updateMatchups()
+      console.log("Switched Columns!");
     }
 
     async function handleDeleteClick(delPlayer: Player, column: string) {
@@ -561,7 +591,7 @@ export default defineComponent({
       num_of_matchups,
       PlayerOneWon,
       PlayerTwoWon,
-      Draw,
+      SwitchColumns,
       handleDeleteClick,
       handleDragChange,
       generate,

@@ -47,15 +47,13 @@ body {
 }
 
 #left-column {
-  position: absolute;
-  top: 0;
-  left: 1%;
+  background-color: whitesmoke;
+  border-radius: 10px;
 }
 
 #right-column {
-  position: absolute;
-  top: 0;
-  right: 1%;
+  background-color: #1D1D1D;
+  border-radius: 10px;
 }
 
 #left-column li {
@@ -70,7 +68,7 @@ body {
   align-items: center;
 }
 
-#main-container {
+#main-columns-container {
   width: 100%;
   height: 400px;
   background-color: rgb(60, 120, 144);
@@ -89,7 +87,7 @@ body {
 .player-group li {
   background-color: rgb(37, 124, 159);
   margin: 10px;
-  padding: 10px;
+  padding: 3%;
   border-radius: 10px;
   color: white;
   height: 50px;
