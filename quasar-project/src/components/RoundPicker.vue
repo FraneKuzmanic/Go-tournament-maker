@@ -10,6 +10,7 @@
           indicator-color="secondary"
           align="justify"
           narrow-indicator
+          style="height: 50px;"
         >
           <q-tab name="PrvoKolo" label="Prvo kolo" :disable="isLoading" />
           <q-tab name="DrugoKolo" label="Drugo kolo" :disable="isLoading" />
@@ -91,4 +92,5 @@ export default defineComponent({
   padding-left: 0px;
   padding-right: 0px;
 }
+
 </style>
