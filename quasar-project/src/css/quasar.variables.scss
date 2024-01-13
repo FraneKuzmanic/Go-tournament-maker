@@ -71,7 +71,6 @@ body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: fit-content;
 }
 
 #main-columns-container {
@@ -106,7 +105,7 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: fit-content;
+  width: 95%;
 }
 
 #unmatched-column {
@@ -144,12 +143,24 @@ body {
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
   #unmatched-column ul li{
   width: 100% ;
   margin-right: 3%;
   margin-top: 2%;
   margin-bottom: 5%;
 }
+
+#right-column {
+  font-size: 0.75rem;
+
 }
 
+#left-column {
+  font-size: 0.75rem;
+}
+
+p{
+  margin:  0px 0px 0px 0px;
+}
+}
