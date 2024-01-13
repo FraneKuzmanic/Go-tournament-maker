@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-md" id="main-contanier">
     <div class="q-gutter-y-md">
       <q-card>
         <q-tabs
@@ -85,5 +85,10 @@ export default defineComponent({
 <style scoped>
 .q-pa-md{
   background-color: whitesmoke;
+}
+
+#main-contanier {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 </style>
