@@ -97,7 +97,26 @@
                 <div class="player-info">
                   <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
                 </div>
-              
+              <!-- <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="edit"
+                  dense
+                  @click="handleEditClick(player, 'left')"
+                />
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="delete"
+                  dense
+                  @click="handleDeleteClick(player, 'left')"
+                /> -->
               </li>
             </div>
           </template>
@@ -135,7 +154,26 @@
                 <div class="player-info">
                   <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
                 </div>
-              
+               <!-- <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="edit"
+                  dense
+                  @click="handleEditClick(player, 'right')"
+                />
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="delete"
+                  dense
+                  @click="handleDeleteClick(player, 'right')"
+                /> -->
               </li>
             </div>
           </template>
