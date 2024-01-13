@@ -3,8 +3,8 @@
   <div v-if="creatorId !== ''" class="button-container">
     <q-btn
       push
-      color="white"
-      text-color="primary"
+      color="primary"
+      text-color="accent"
       label="Generiraj parove"
       @click="generate"
       style="margin-right: 20px"
@@ -12,8 +12,8 @@
     />
     <q-btn
       push
-      color="red"
-      text-color="white"
+      color="negative"
+      text-color="accent"
       label="Ponisti parove"
       @click="removeElementsFromRightAndLeft"
       :disable="isLoading"

@@ -12,9 +12,9 @@
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
-$primary   : #1976D2;
-$secondary : #7c90f3;
-$accent    : #f87c08;
+$primary   : rgb(37, 124, 159);
+$secondary : rgb(44, 51, 66);
+$accent    : whitesmoke;
 
 $dark      : #1D1D1D;
 $dark-page : #121212;
@@ -24,8 +24,14 @@ $negative  : #C10015;
 $info      : #31CCEC;
 $warning   : #F2C037;
 
+$green     : rgb(63, 185, 69);
+$blue      : rgb(37, 124, 159);
+$red       : rgb(168, 33, 48);
+$purple    : rgb(146, 45, 166);
+
 body {
   margin: 0;
+  background-color: rgb(44, 51, 66);
 }
 
 // #app {
@@ -40,6 +46,7 @@ body {
 
 .player-group {
   background-color: rgb(185, 187, 187);
+  background-color: rgb(28, 33, 42);
   padding: 10px;
   margin: 20px;
   justify-content: center;
@@ -48,12 +55,12 @@ body {
 
 #left-column {
   background-color: whitesmoke;
-  border-radius: 10px;
+  border-radius: 20px;
 }
 
 #right-column {
   background-color: #1D1D1D;
-  border-radius: 10px;
+  border-radius: 20px;
 }
 
 #left-column li {
@@ -70,8 +77,10 @@ body {
 
 #main-columns-container {
   width: 100%;
-  height: 400px;
-  background-color: rgb(60, 120, 144);
+  min-height: 500px;
+  background-color: rgb(44, 51, 66);
+  padding-top: 1em;
+  padding-bottom: 1em;
   position: relative;
   display: flex;
   flex-direction: row;
@@ -98,13 +107,12 @@ body {
   align-items: center;
 }
 
-#unmatched-drawer {
-  background-color: blue;
-}
-
 #unmatched-column {
   width: 100%;
+  min-height: 120px;
   margin: 0;
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
 }
 
 #unmatched-column ul{
@@ -125,10 +133,9 @@ body {
   background-color: rgb(37, 124, 159);
   width: 30%;
   height: 100%;
-  padding-top: 30px;         // Ovdje pogledati za outcome buttons alignment sa igracim karticama
-  margin-right: auto;
-  margin-bottom: 0; 
-  margin-left: auto;
+  padding: 10px;
+  margin: 20px;         // Ovdje pogledati za outcome buttons alignment sa igracim karticama
+  border-radius: 20px;
 }
 
 .outcome-buttons ul {
