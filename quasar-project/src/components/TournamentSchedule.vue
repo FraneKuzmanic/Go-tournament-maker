@@ -79,6 +79,16 @@
         >
           <template #item="{ element: player }">
             <div class="player-card">
+              <!-- Ovo je samo dok development traje, za sada nije spremno -->
+              <!-- <PlayerCardLeft 
+                :player_name="player.name"
+                :player_lastname="player.lastname"
+                :player_rating="player.rating"
+                :points="player.num_of_wins"
+                :stone_advantage="player.num_of_wins"
+                @editPlayer="handleEditClick(player, 'left')"
+                @deletePlayer="handleDeleteClick(player, 'left')"
+              /> -->
               <li
                 :draggable="false"
                 :id="player.id"
@@ -187,7 +197,7 @@ import {
   getTournamentPlayers,
 } from '../firebase/init';
 
-// import PlayerCard from './PlayerCard.vue'
+// import PlayerCardLeft from './PlayerCardLeft.vue'
 
 export default defineComponent({
   name: 'TournamentSchedule',

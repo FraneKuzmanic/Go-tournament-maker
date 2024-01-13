@@ -26,8 +26,9 @@ export interface Player{
     column: string | undefined;         //ovo je informacija u kojem se trenutno stupcu igrač nalazi
     color: Color;   
     played_against: Player[];           // info o tome protiv koga je igrao
-    last_playerd_color: Color | null;   // info o tome koju je boju igrac yadnju igrao, radi algoritma potrebno
+    last_playerd_color: Color | null;   // info o tome koju je boju igrac zadnju igrao, radi algoritma potrebno
     num_of_wins: number;                // informacije potrebne za konacnu tablicu
+    stone_advantage: number
 }
 
 //Matchup će morati imati i informaciju o indexu u polju matchupova, i ishod matchupova pa to treba dodati kasnije

@@ -41,7 +41,7 @@ export default {
     return {
       leftButtonPressed: false,
       middleButtonPressed: false,
-      rightButtonPressed: false
+      rightButtonPressed: false,
     }
   },
   methods: {
