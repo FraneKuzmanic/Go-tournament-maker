@@ -27,24 +27,22 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { firebaseConfig, addNewTournament } from '../firebase/init';
-import { doc, getDoc } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { Player } from 'src/models/models';
+import { addNewTournament } from '../firebase/init';
 
 export default defineComponent({
   name: 'CreateButton',
   methods: {
-    async createTournament(event: Event) {
+    async createTournament() {
       const creatorId: string =
         Date.now().toString(36) + Math.random().toString(36).substring(2); //stvaranje jedinstvenog identifikatora za kreatora turnira, inace to nije dobro na frontendu radit, al nez kako to napravit iz firebase-a, citaj "nije mi se dalo saznat kako"
-      const players: Player[] = [];
 
       const tournamentId: string = await addNewTournament({
         creatorId: creatorId,
-        players: players,
-      });
+        colorValue: 0,
+        firstRound: { players: [], matchups: [] },
+        secondRound: { players: [], matchups: [] },
+        thirdRound: { players: [], matchups: [] },
+      }); //početna inicijalizacija podataka turnira
 
       this.$router.push({
         name: 'TournamentPage',

@@ -12,20 +12,26 @@
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
-$primary   : #1976D2;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+$primary   : rgb(37, 124, 159);
+$secondary : rgb(44, 51, 66);
+$accent    : whitesmoke;
 
 $dark      : #1D1D1D;
 $dark-page : #121212;
 
-$positive  : #21BA45;
-$negative  : #C10015;
+$positive  : #3FB945;
+$negative  : #A82130;
 $info      : #31CCEC;
 $warning   : #F2C037;
 
+$green     : rgb(63, 185, 69);
+$blue      : rgb(37, 124, 159);
+$red       : rgb(168, 33, 48);
+$purple    : rgb(146, 45, 166);
+
 body {
   margin: 0;
+  background-color: rgb(44, 51, 66);
 }
 
 // #app {
@@ -40,22 +46,19 @@ body {
 
 .player-group {
   background-color: rgb(185, 187, 187);
-  padding: 10px;
-  margin: 20px;
+  background-color: rgb(28, 33, 42);
   justify-content: center;
   width: 30%;
 }
 
 #left-column {
-  position: absolute;
-  top: 0;
-  left: 1%;
+  background-color: whitesmoke;
+  border-radius: 20px;
 }
 
 #right-column {
-  position: absolute;
-  top: 0;
-  right: 1%;
+  background-color: #1D1D1D;
+  border-radius: 20px;
 }
 
 #left-column li {
@@ -70,14 +73,16 @@ body {
   align-items: center;
 }
 
-#main-container {
+#main-columns-container {
   width: 100%;
-  height: 400px;
-  background-color: rgb(60, 120, 144);
-  position: relative;
+  min-height: 500px;
+  background-color: rgb(44, 51, 66);
+  padding-top: 2em;
+  padding-bottom: 2em;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  justify-content: space-evenly;
   top: 0;
 }
 
@@ -88,8 +93,11 @@ body {
 
 .player-group li {
   background-color: rgb(37, 124, 159);
-  margin: 10px;
-  padding: 10px;
+  margin-left: 3%;
+  //margin-right: 3%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  padding: 20px 25px;
   border-radius: 10px;
   color: white;
   height: 50px;
@@ -97,15 +105,15 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-}
-
-#unmatched-drawer {
-  background-color: blue;
+  width: 95%;
 }
 
 #unmatched-column {
   width: 100%;
+  min-height: 120px;
   margin: 0;
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
 }
 
 #unmatched-column ul{
@@ -115,7 +123,7 @@ body {
 }
 
 #unmatched-column ul li{
-  width: 30%;
+  width: fit-content;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -123,13 +131,37 @@ body {
 
 .outcome-buttons {
   position: relative ;
-  background-color: rgb(68, 167, 159);
-  margin: auto;
+  background-color: rgb(37, 124, 159);
   width: 30%;
   height: 100%;
+  border-radius: 20px;
 }
 
 .outcome-buttons ul {
   list-style: none;
   padding: 0;
 }
+
+
+@media (max-width: 550px) {
+  #unmatched-column ul li{
+  width: 100% ;
+  margin-right: 3%;
+  margin-top: 2%;
+  margin-bottom: 5%;
+}
+
+#right-column {
+  font-size: 0.75rem;
+
+}
+
+#left-column {
+  font-size: 0.75rem;
+}
+
+p{
+  margin:  0px 0px 0px 0px;
+}
+}
+

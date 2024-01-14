@@ -1,51 +1,40 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-md" id="main-contanier">
     <div class="q-gutter-y-md">
       <q-card>
         <q-tabs
           v-model="tab"
           dense
           class="text-grey"
-          active-color="primary"
-          indicator-color="primary"
+          active-color="secondary"
+          indicator-color="secondary"
           align="justify"
           narrow-indicator
+          style="height: 50px"
         >
-          <q-tab name="PrvoKolo" label="Prvo kolo" />
-          <q-tab disabled="true" name="DrugoKolo" label="Drugo kolo" />
-          <q-tab disabled="true" name="TrećeKolo" label="Treće kolo" />
+          <q-tab name="PrvoKolo" label="Prvo kolo" :disable="isLoading" />
+          <q-tab name="DrugoKolo" label="Drugo kolo" :disable="isLoading" />
+          <q-tab name="TrećeKolo" label="Treće kolo" :disable="isLoading" />
         </q-tabs>
         <q-separator />
-
-        <q-tab-panels v-model="tab" animated>
-          <q-tab-panel name="PrvoKolo">
-            <tournament-schedule
-              :tournamentId="tournamentId"
-              :creatorId="creatorId"
-            />
-          </q-tab-panel>
-
-          <q-tab-panel name="DrugoKolo" disabled="true">
-            <tournament-schedule
-              :tournamentId="tournamentId"
-              :creatorId="creatorId"
-            />
-          </q-tab-panel>
-
-          <q-tab-panel name="TrećeKolo" disabled="true">
-            <tournament-schedule
-              :tournamentId="tournamentId"
-              :creatorId="creatorId"
-            />
-          </q-tab-panel>
-        </q-tab-panels>
+        <q-card class="q-pa-md">
+          <tournament-schedule
+            :tournamentId="tournamentId"
+            :creatorId="creatorId"
+            :isLoading="isLoading"
+            @update-load="handleLoadProp"
+          />
+        </q-card>
       </q-card>
     </div>
   </div>
 </template>
-<script>
-import { defineComponent, ref } from 'vue';
+<script lang="ts">
+import { Ref, defineComponent, ref, watch } from 'vue';
 import TournamentSchedule from './TournamentSchedule.vue';
+import { usePlayersStore } from 'app/utils/store';
+import { RoundNumber } from 'src/enums/rounds';
+
 export default defineComponent({
   name: 'RoundPicker',
   components: {
@@ -62,9 +51,55 @@ export default defineComponent({
     },
   },
   setup() {
+    const store = usePlayersStore();
+
+    const tab: Ref<string> = ref('PrvoKolo');
+    const isLoading: Ref<boolean> = ref(false); //ova varijabla nam služi za praćenje je li generiranje i poništavanje parova završilo
+    // const firstRoundsPlayed: Ref<number> = ref(0); //ova varijabla nam služi za brojanje koliko partija je odigrano u prvom kolu nego dopustimo korisniku da prijeđe u drugo kolo
+    // const secondRoundsPlayed: Ref<number> = ref(0); //ova varijabla nam služi za brojanje koliko partija je odigrano u drugom kolu nego dopustimo korisniku da prijeđe u treće kolo
+
+    function updateRound() {
+      //ovom funkcijom dajemo ažuriramo trenutnu vrijednost runde u store-u i onda to daje znak komponenti tournament-schedule da se kolo promijenilo i da učita igrače za to kolo
+      if (tab.value === 'PrvoKolo') store.setRound(RoundNumber.FIRST);
+      else if (tab.value === 'DrugoKolo') store.setRound(RoundNumber.SECOND);
+      else store.setRound(RoundNumber.THIRD);
+    }
+
+    const handleLoadProp = (newValue: boolean) => {
+      isLoading.value = newValue;
+    }; //ova funkcija je odgovor na emit signal od komponente tournament-schedule kada se promijeni isLoading varijabla, služi za trenutno onemogućavanje izmjene između kola
+
+    // const updateFRoundsPlayed = (newValue: number) => {
+    //   firstRoundsPlayed.value = newValue;
+    // };
+
+    // const updateSRoundsPlayed = (newValue: number) => {
+    //   secondRoundsPlayed.value = newValue;
+    // };
+
+    watch(
+      () => tab.value,
+      () => {
+        updateRound(); //kad kliknemo na tab za promjenu kola aktivira se funkcija updateRound koja ažurira tu novu vrijednost
+      }
+    );
+
     return {
-      tab: ref('PrvoKolo'),
+      tab,
+      isLoading,
+      handleLoadProp,
     };
   },
 });
 </script>
+
+<style scoped>
+.q-pa-md {
+  background-color: whitesmoke;
+}
+
+#main-contanier {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+</style>

@@ -6,50 +6,59 @@
     @click="toggleMail"
     label="POŠALJI MAIL"
   />
-  <div v-if="isInput" class="q-pa-md" style="background-color: #303030">
-    <div class="row justify-center">
-      <div class="q-mr-md">
-        <q-btn
-          @click="adminURL"
-          class="glossy"
-          id="buttons"
-          v-if="!openMailInput"
-          label="Email for admin"
-        />
+  <q-dialog v-model="isInput">
+    <div v-if="isInput" class="q-pa-md" style="background-color: white">
+      <div
+        class=""
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        "
+      >
+        <div class="">
+          <q-btn
+            @click="adminURL"
+            id="buttons"
+            v-if="!openMailInput"
+            label="Email for admin"
+            style="margin-right: 10px"
+          />
+        </div>
+        <div class="">
+          <q-btn
+            @click="userURL"
+            id="buttons"
+            v-if="!openMailInput"
+            label="Email for user"
+            style="margin-left: 10px"
+          />
+        </div>
       </div>
-      <div class="q-ml-md">
-        <q-btn
-          @click="userURL"
-          class="glossy"
-          id="buttons"
-          v-if="!openMailInput"
-          label="Email for user"
+      <q-form
+        class="q-gutter-md"
+        v-if="openMailInput"
+        @submit.prevent="sendEmail"
+        style="text-align: center"
+      >
+        <q-input
+          label="Your email"
+          filled
+          type="email"
+          v-model="to"
+          required
+          lazy-rules
+          style="background-color: white; width: 80%; margin: 20px auto 0"
         />
-      </div>
+        <q-btn type="submit" style="background-color: white">Send Email</q-btn>
+        <q-btn @click="closeForm" style="background-color: white">Close</q-btn>
+      </q-form>
     </div>
-    <q-form
-      class="q-gutter-md"
-      v-if="openMailInput"
-      @submit.prevent="sendEmail"
-      style="text-align: center"
-    >
-      <q-input
-        label="Your email"
-        filled
-        type="email"
-        v-model="to"
-        required
-        lazy-rules
-        style="background-color: white; width: 50%; margin: 20px auto 0"
-      />
-      <q-btn type="submit" style="background-color: white">Send Email</q-btn>
-      <q-btn @click="closeForm" style="background-color: white">Close</q-btn>
-    </q-form>
-  </div>
+  </q-dialog>
 </template>
 
 <style>
-#buttons {
+/* #buttons {
   background-color: rgba(246, 122, 21, 0.92);
   font-size: 1rem;
   color: white;
@@ -61,7 +70,7 @@
   padding: 0.7rem 1.2rem;
   max-width: 250px;
   cursor: pointer;
-}
+} */
 </style>
 
 <script lang="ts">
@@ -124,7 +133,6 @@ export default defineComponent({
           'VV9vJMN1YIRQDseRH'
         )
         .then((response: any) => {
-          console.log('Email sent:', response);
           alert('Email sent successfully!');
         })
         .catch((error: Error) => {

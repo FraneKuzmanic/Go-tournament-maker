@@ -10,6 +10,7 @@
     <q-card>
       <q-form class="form q-col-md-5 q-pa-sm" @submit="onSubmit">
         <q-input
+          autofocus
           filled
           v-model.trim="name"
           label="IME"
@@ -69,7 +70,7 @@
         />
         <q-input filled v-model.trim="ratingEdit" :rules="ratingValidation" />
         <div class="center-buttons">
-          <q-btn disable @click="searchEGD" label="TRAŽI" />
+          <q-btn @click="searchEGD" label="TRAŽI" />
           <q-btn label="SPREMI" type="submit" />
           <q-btn @click="removeEditForm" label="PONIŠTI" />
         </div>
@@ -101,12 +102,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, computed } from 'vue';
-import { addNewPlayer, removePlayer } from '../firebase/init';
-import { Color, colors, useQuasar } from 'quasar';
+import { addNewPlayer, editPlayer } from '../firebase/init';
+import { Color, useQuasar } from 'quasar';
 import type { Ref } from 'vue';
 import { Player } from '../models/models.ts';
 import { usePlayersStore } from 'app/utils/store';
 import { v4 as uuidv4 } from 'uuid';
+import { getColor } from '../../utils/helpers';
 
 export default defineComponent({
   name: 'PlayerInput',
@@ -165,27 +167,49 @@ export default defineComponent({
     });
 
     async function searchEGD(): Promise<void> {
-      name.value = parseString(name.value);
-      lastname.value = parseString(lastname.value);
-      const res = await fetch(
-        'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
-          lastname.value +
-          '&name=' +
-          name.value,
-        {
-          method: 'GET',
-        }
-      );
+      let res;
+      if (isInput.value) {
+        name.value = parseString(name.value);
+        lastname.value = parseString(lastname.value);
+        res = await fetch(
+          'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
+            lastname.value +
+            '&name=' +
+            name.value,
+          {
+            method: 'GET',
+          }
+        );
+      } else {
+        nameEdit.value = parseString(nameEdit.value);
+        lastnameEdit.value = parseString(lastnameEdit.value);
+        res = await fetch(
+          'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
+            lastnameEdit.value +
+            '&name=' +
+            nameEdit.value,
+          {
+            method: 'GET',
+          }
+        );
+      }
       const data = await res.json();
       if (data.players === undefined || data.players.length > 1) {
         notFound.value = true;
         notFound2.value = true;
       } else {
-        rating.value = data.players[0].Grade;
         found.value = true;
+        if (isInput.value) {
+          rating.value = data.players[0].Grade;
+          onSubmit();
+        } else {
+          ratingEdit.value = data.players[0].Grade;
+          onSubmitEdit();
+        }
       }
     }
     async function onSubmit(): Promise<void> {
+      //ovo je funkcija koja se aktivira prilikom submitanja forme za dodavanje igrača
       const playerForDB: Player = {
         id: uuidv4(name.value + lastname.value + rating.value),
         name: name.value,
@@ -193,13 +217,19 @@ export default defineComponent({
         rating: rating.value,
         column: 'unmatched',
         color: color.value,
+        played_against: [],
+        last_playerd_color: null,
+        num_of_wins: 0,
+        stone_advantage: 0,
       };
       id.value = playerForDB.id;
-      await addNewPlayer(playerForDB, props.tournamentId);
+      if (store.colorValue)
+        playerForDB.color = getColor(store.colorValue, playerForDB);
+
+      await addNewPlayer(playerForDB, props.tournamentId, store.currentRound);
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       resetInputForm();
-      store.players[store.players.length] = playerForDB;
     }
 
     function resetEditPlayer(): void {
@@ -215,19 +245,9 @@ export default defineComponent({
       isInput.value = false;
     }
 
-    function remove(): void {
-      //pošto nećemo više uklanjati igrače preko forme, ne treba nam ova funkcija
-    }
-
     function showNotifAdd() {
       $q.notify({
         message: 'Igrač je uspješno dodan.',
-        color: 'green',
-      });
-    }
-    function showNotifDel() {
-      $q.notify({
-        message: 'Igrač je uspješno izbrisan.',
         color: 'green',
       });
     }
@@ -258,6 +278,7 @@ export default defineComponent({
     }
 
     async function onSubmitEdit() {
+      //funkcija koja se aktivira prilikom submitanja edit forme
       if (playerToEditData.value) {
         nameEdit.value = parseString(nameEdit.value);
         lastnameEdit.value = parseString(lastnameEdit.value);
@@ -269,10 +290,17 @@ export default defineComponent({
           rating: ratingEdit.value,
           column: playerToEditData.value.column,
           color: playerToEditData.value.color,
+          played_against: playerToEditData.value.played_against,
+          last_playerd_color: playerToEditData.value.last_playerd_color,
+          num_of_wins: playerToEditData.value.num_of_wins,
+          stone_advantage: playerToEditData.value.stone_advantage,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
-        await removePlayer(playerToEditData.value, props.tournamentId); //uklanjamo staru verziju igrača u firestoreu
-        await addNewPlayer(editedPlayer, props.tournamentId); // dodajemo ažuriranog igrača u firestore
+        await editPlayer(
+          playerToEditData.value,
+          editedPlayer,
+          props.tournamentId
+        );
       }
       removeEditForm();
       showNotifEdit();
@@ -292,7 +320,6 @@ export default defineComponent({
       ratingValidation,
       searchEGD,
       onSubmit,
-      remove,
       isEdit,
       isInput,
       playerToEditData,
