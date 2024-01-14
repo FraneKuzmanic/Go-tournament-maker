@@ -70,7 +70,7 @@
         />
         <q-input filled v-model.trim="ratingEdit" :rules="ratingValidation" />
         <div class="center-buttons">
-          <q-btn disable @click="searchEGD" label="TRAŽI" />
+          <q-btn @click="searchEGD" label="TRAŽI" />
           <q-btn label="SPREMI" type="submit" />
           <q-btn @click="removeEditForm" label="PONIŠTI" />
         </div>
@@ -167,23 +167,41 @@ export default defineComponent({
     });
 
     async function searchEGD(): Promise<void> {
-      name.value = parseString(name.value);
-      lastname.value = parseString(lastname.value);
-      const res = await fetch(
-        'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
-          lastname.value +
-          '&name=' +
-          name.value,
-        {
-          method: 'GET',
-        }
-      );
+      let res;
+      if (isInput.value) {
+        console.log(name.value);
+        console.log(lastname.value);
+        name.value = parseString(name.value);
+        lastname.value = parseString(lastname.value);
+        res = await fetch(
+          'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
+            lastname.value +
+            '&name=' +
+            name.value,
+          {
+            method: 'GET',
+          }
+        );
+      } else {
+        nameEdit.value = parseString(nameEdit.value);
+        lastnameEdit.value = parseString(lastnameEdit.value);
+        res = await fetch(
+          'https://www.europeangodatabase.eu/EGD/GetPlayerDataByData.php?lastname=' +
+            lastnameEdit.value +
+            '&name=' +
+            nameEdit.value,
+          {
+            method: 'GET',
+          }
+        );
+      }
       const data = await res.json();
       if (data.players === undefined || data.players.length > 1) {
         notFound.value = true;
         notFound2.value = true;
       } else {
-        rating.value = data.players[0].Grade;
+        if (isInput.value) rating.value = data.players[0].Grade;
+        else ratingEdit.value = data.players[0].Grade;
         found.value = true;
       }
     }
