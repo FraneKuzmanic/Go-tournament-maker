@@ -169,8 +169,6 @@ export default defineComponent({
     async function searchEGD(): Promise<void> {
       let res;
       if (isInput.value) {
-        console.log(name.value);
-        console.log(lastname.value);
         name.value = parseString(name.value);
         lastname.value = parseString(lastname.value);
         res = await fetch(
@@ -200,9 +198,14 @@ export default defineComponent({
         notFound.value = true;
         notFound2.value = true;
       } else {
-        if (isInput.value) rating.value = data.players[0].Grade;
-        else ratingEdit.value = data.players[0].Grade;
         found.value = true;
+        if (isInput.value) {
+          rating.value = data.players[0].Grade;
+          onSubmit();
+        } else {
+          ratingEdit.value = data.players[0].Grade;
+          onSubmitEdit();
+        }
       }
     }
     async function onSubmit(): Promise<void> {
