@@ -95,9 +95,11 @@
                 :style="{ backgroundColor:   player.color}"
               >
                 <div class="player-info">
-                  <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
+                  <p>
+                    {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+                  </p>
                 </div>
-              <!-- <q-btn
+                <!-- <q-btn
                   v-if="creatorId !== ''"
                   class="q-ml-sm q-mr-sm"
                   @click.stop
@@ -147,14 +149,13 @@
         >
           <template #item="{ element: player }">
             <div class="player-card">
-              <li
-                :id="player.id"
-                :style="{ backgroundColor: player.color }"
-            >
+              <li :id="player.id" :style="{ backgroundColor: player.color }">
                 <div class="player-info">
-                  <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>
+                  <p>
+                    {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+                  </p>
                 </div>
-               <!-- <q-btn
+                <!-- <q-btn
                   v-if="creatorId !== ''"
                   class="q-ml-sm q-mr-sm"
                   @click.stop
@@ -194,13 +195,16 @@ import {
   removePlayer,
   updatePlayerColumn,
   getTournamentPlayers,
+  getTournamentMatchups,
+  addMatchups,
+  removeMatchups,
 } from '../firebase/init';
 
 // import PlayerCardLeft from './PlayerCardLeft.vue'
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, OutcomeButton: OutcomeButton},
+  components: { draggable: draggable, OutcomeButton: OutcomeButton },
   emits: ['update-load'],
   props: {
     tournamentId: {
@@ -266,6 +270,7 @@ export default defineComponent({
     );
 
     async function getRoundPlayers(): Promise<void> {
+      console.log('dohvati igrace');
       const tournamentPlayers = await getTournamentPlayers(
         props.tournamentId,
         store.currentRound
@@ -313,6 +318,7 @@ export default defineComponent({
     }
 
     async function handleDragChange(column: string): Promise<void> {
+      console.log('handleam drag change');
       //ova funkcija se aktivira kad god mišem pomaknemo nekog igrača iz jednog stupca u drugi ili kad mu promjenimo poredak unutar stupca
       //unutar funkcije detektiramo ukoliko je došlo do promjene iz jednog stupca u drugi da tu istu promjenu i spremimo
       if (column === 'left') {
@@ -350,7 +356,7 @@ export default defineComponent({
         }
       }
 
-      updateMatchups(); //nakon svake promjene kod stupaca moramo ažurirati i matchupove jer su se možda ispremještali i neki parovi
+      await createMatchups();
     }
 
     const handleEditClick = (player: Player, column: string) => {
@@ -359,27 +365,17 @@ export default defineComponent({
       store.editPlayer(player);
     };
 
-    const PutPLayersInColumns = () => {
+    const PutPLayersInColumns = async (): Promise<void> => {
       //prilikom učitavanja apliakcije ili kola uvijek prvo učitavamo igrače u stupce
       playersColumnLeft.value = []; //uvijek kada učitavam igrače iz baze u tablice prvo počistim svaku tablicu prije jer sam možda switchao između kola
       playersColumnRight.value = [];
       unmatchedPlayers.value = [];
 
-      store.players.forEach((player) => {
-        if (player.column === 'left') playersColumnLeft.value.push(player);
-        else if (player.column === 'right')
-          playersColumnRight.value.push(player);
-        else if (player.column === 'unmatched')
-          unmatchedPlayers.value.push(player);
-      });
+      const currentPlayers = store.players;
 
-      const currentPlayers = [
-        ...playersColumnLeft.value,
-        ...playersColumnRight.value,
-        ...unmatchedPlayers.value,
-      ];
+      await getMatchups(); //dohvaćamo matchupove i raspoređujemo ih po indexima skupa s igračima
+
       store.setTablePlayers(currentPlayers); //postavljamo sve trenutne igrače u kolu u tablicu stanja igrača
-      updateMatchups(); //ažuriramo i matchupove jer smo učitali igrače u stupce
     };
 
     const addPlayer = () => {
@@ -421,77 +417,61 @@ export default defineComponent({
       ];
       store.setTablePlayers(currentPlayers); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
     };
-
-    const updateMatchups = () => {
-      //funkcija za stvaranje matchupova, gleda koji od dva stupca ima manje igrača i onda redom spaja igrača iz jednog s igračem iz
-      //drugog stupca, ova funkcija će se morati doraditi kad budemo matchupove detaljnije radili
-      const _matchups: Matchup[] = [];
-      const leftColumnLength = playersColumnLeft.value.length;
-      const rightColumnLength = playersColumnRight.value.length;
-      let shorterArray;
-
-      if (leftColumnLength < rightColumnLength) shorterArray = leftColumnLength;
-      else shorterArray = rightColumnLength;
-
-      for (let i = 0; i < shorterArray; i++) {
-        _matchups[i] = {
-          id: i,
-          playerOne: playersColumnLeft.value[i],
-          playerTwo: playersColumnRight.value[i],
-        };
-      }
-
-      matchups.value = _matchups;
-    };
     // --------------------------------------------- VAZNO ------------------------------------------------
-    // potrebno je inicijalizirati vrijednosti played_against na prazan niz i num_of_wins na 0 pri samom dodavanju igraca. Kod sam 
+    // potrebno je inicijalizirati vrijednosti played_against na prazan niz i num_of_wins na 0 pri samom dodavanju igraca. Kod sam
     // napisao, samo ga treba odkomentirati kada se to napravi, zakomentirao sam jer inace ne radi vizualni aspekt botuna
     function PlayerOneWon(matchup_id: number) {
-      var id = matchup_id-1;
-      const P1 = matchups.value[id].playerOne
-      const P2 = matchups.value[id].playerTwo
+      var id = matchup_id - 1;
+      const P1 = matchups.value[id].playerOneId;
+      const P2 = matchups.value[id].playerTwoId;
 
       // P1.num_of_wins += 1                   // Pobjedniku azuriramo broj pobjeda
       // P1.played_against.push(P2)            // Obojici igraca azuriramo protiv koga je igrao
       // P2.played_against.push(P1)
-      console.log(matchups.value[id].playerOne.name + 'won!');
+      console.log(matchups.value[id].playerOneId + 'won!');
     }
 
     function PlayerTwoWon(matchup_id: number) {
-      var id = matchup_id-1;
-      const P1 = matchups.value[id].playerOne
-      const P2 = matchups.value[id].playerTwo
+      var id = matchup_id - 1;
+      const P1 = matchups.value[id].playerOneId;
+      const P2 = matchups.value[id].playerTwoId;
 
       // P2.num_of_wins += 1
-      // P1.played_against.push(P2)            
+      // P1.played_against.push(P2)
       // P2.played_against.push(P1)
 
-      console.log(matchups.value[id].playerTwo.name + 'won!');
+      console.log(matchups.value[id].playerTwoId + 'won!');
     }
 
     function SwitchColumns(matchup_id: number) {
-      var P1: Player = matchups.value[matchup_id-1].playerOne
-      var P2: Player = matchups.value[matchup_id-1].playerTwo
-      
-      for(var i=0; i< playersColumnLeft.value.length; i++){
-        if(playersColumnLeft.value[i] === P1){
-          playersColumnLeft.value[i] = P2
-          break
-        }
-      }
+      // var P1: Player = matchups.value[matchup_id - 1].playerOneId;
+      // var P2: Player = matchups.value[matchup_id - 1].playerTwoId;
 
-      for(var i=0; i< playersColumnRight.value.length; i++){
-        if(playersColumnRight.value[i] === P2){
-          playersColumnRight.value[i] = P1
-          break
-        }
-      }
+      // for (var i = 0; i < playersColumnLeft.value.length; i++) {
+      //   if (playersColumnLeft.value[i] === P1) {
+      //     playersColumnLeft.value[i] = P2;
+      //     break;
+      //   }
+      // }
+
+      // for (var i = 0; i < playersColumnRight.value.length; i++) {
+      //   if (playersColumnRight.value[i] === P2) {
+      //     playersColumnRight.value[i] = P1;
+      //     break;
+      //   }
+      // }
 
       // Ovi console logs su samo za debugging, mozemo ih maknuti poslije
-      console.log("This is the left column after the switch: " + playersColumnLeft.value[0].name)
-      console.log("This is the right column after the switch: " + playersColumnRight.value[0].name)
-      updateMatchups()
-      console.log("Switched Columns!");
+      console.log(
+        'This is the left column after the switch: ' +
+          playersColumnLeft.value[0].name
+      );
+      console.log(
+        'This is the right column after the switch: ' +
+          playersColumnRight.value[0].name
+      );
+      createMatchups();
+      console.log('Switched Columns!');
     }
 
     async function handleDeleteClick(delPlayer: Player, column: string) {
@@ -522,8 +502,6 @@ export default defineComponent({
       store.setPlayers(currentPlayers);
 
       await removePlayer(delPlayer, props.tournamentId); //ažuriramo tablicu stanja ovaj put s izbrisanim igračem manje
-
-      updateMatchups(); //dogodila se promjena u stupcima jer smo makli igrača pa treba ažurirat i parove
     }
 
     const generate = async (): Promise<void> => {
@@ -545,8 +523,6 @@ export default defineComponent({
           playersColumnLeft.value.push(leftPlayers[i]);
         }
 
-        updateMatchups(); //budući da smo premjestili igrače u stupce lijevo ili desno sljedeći korak je pravljenje parova
-
         //promjenu u stupcima moramo pohraniti i u bazi, međutim taj proces može potrajati i možda ne završi a mi smo krenuli nešto drugo raditi, zato koristimo isLoading varijablu koja će onemogućiti bilo kakvu interakciju sa stupcima dok spremanje generiranih parova ne završi
         emit('update-load', !props.isLoading);
         for (const [ind, player] of playersColumnLeft.value.entries()) {
@@ -559,6 +535,8 @@ export default defineComponent({
         emit('update-load', !props.isLoading);
         //kad ažuriranje završi onda isLoading postaje opet false
         //emit funkcija se koristi kako bi tu promjenu isLoading emitirali i parent komponenti RoundPicker tako da onemogući da switchamo između kola dok ne završi operacija generiranja parova
+
+        await createMatchups(); //budući da smo premjestili igrače u stupce lijevo ili desno sljedeći korak je pravljenje parova
 
         showNotifGenerate();
       }
@@ -579,7 +557,7 @@ export default defineComponent({
         }
         playersColumnRight.value = [];
 
-        updateMatchups(); //ažuriranje matchupova mora slijediti budući da smo poništili igrače iz stupaca
+        matchups.value = [];
 
         emit('update-load', !props.isLoading);
         for (const [ind, player] of unmatchedPlayers.value.entries()) {
@@ -587,6 +565,8 @@ export default defineComponent({
         }
         emit('update-load', !props.isLoading);
         //isto kao i kod funkcije generate, koristimo emitiranje i koristimo isLoading prop pa pogledajte kako sam to tamo objasnio
+
+        removeMatchups(props.tournamentId, store.currentRound); //uklanjanje matchupova mora slijediti budući da smo poništili igrače iz stupaca
 
         showNotifCancel();
       }
@@ -606,11 +586,94 @@ export default defineComponent({
       });
     }
 
+    //MATCHUP FUNKCIJE:
+
+    const createMatchups = async (): Promise<void> => {
+      //funkcija za stvaranje matchupova, gleda koji od dva stupca ima manje igrača i onda redom spaja igrača iz jednog s igračem iz
+      //drugog stupca
+      const _matchups: Matchup[] = [];
+      const leftColumnLength = playersColumnLeft.value.length;
+      const rightColumnLength = playersColumnRight.value.length;
+      let shorterArray;
+
+      if (leftColumnLength < rightColumnLength) shorterArray = leftColumnLength;
+      else shorterArray = rightColumnLength;
+
+      for (let i = 0; i < shorterArray; i++) {
+        _matchups[i] = {
+          matchupId: Math.random().toString(36).substring(7),
+          tableIndex: i,
+          playerOneId: playersColumnLeft.value[i].id,
+          playerTwoId: playersColumnRight.value[i].id,
+          playerWonId: null,
+        };
+      }
+
+      matchups.value = _matchups;
+
+      await addMatchups(props.tournamentId, store.currentRound, _matchups);
+    };
+
+    const getMatchups = async (): Promise<void> => {
+      const _matchups = await getTournamentMatchups(
+        props.tournamentId,
+        store.currentRound
+      );
+
+      const left: Player[] = [];
+      const right: Player[] = [];
+      const unmatched: Player[] = [];
+
+      store.players.forEach((player) => {
+        if (player.column === 'left') left.push(player);
+        else if (player.column === 'right') right.push(player);
+        else if (player.column === 'unmatched') unmatched.push(player);
+      });
+
+      if (_matchups) matchups.value = _matchups;
+
+      let leftColumnSorted: Player[] = [];
+      let rightColumnSorted: Player[] = [];
+
+      for (let i = 0; i < matchups.value.length; i++) {
+        const playerLeft = left.find(
+          (player) => player.id === matchups.value[i].playerOneId
+        );
+        const playerRight = right.find(
+          (player) => player.id === matchups.value[i].playerTwoId
+        );
+
+        if (playerLeft) leftColumnSorted.push(playerLeft);
+
+        if (playerRight) rightColumnSorted.push(playerRight);
+      }
+
+      leftColumnSorted = [
+        ...leftColumnSorted,
+        ...left.filter(
+          (unpairPlayer) =>
+            !leftColumnSorted.some((player) => player.id === unpairPlayer.id)
+        ),
+      ];
+
+      rightColumnSorted = [
+        ...rightColumnSorted,
+        ...right.filter(
+          (unpairPlayer) =>
+            !rightColumnSorted.some((player) => player.id === unpairPlayer.id)
+        ),
+      ];
+
+      playersColumnLeft.value = leftColumnSorted;
+      playersColumnRight.value = rightColumnSorted;
+      unmatchedPlayers.value = unmatched;
+    };
+
     return {
       playersColumnLeft,
       playersColumnRight,
       unmatchedPlayers,
-      updateMatchups,
+      createMatchups,
       handleEditClick,
       matchups,
       num_of_matchups,
@@ -668,7 +731,5 @@ export default defineComponent({
     font-size: 1.2rem;
     min-width: 150px;
   }
-
-
 }
 </style>

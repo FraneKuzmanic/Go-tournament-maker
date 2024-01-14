@@ -33,9 +33,11 @@ export interface Player{
 
 //Matchup će morati imati i informaciju o indexu u polju matchupova, i ishod matchupova pa to treba dodati kasnije
 export interface Matchup{
-    id: number,
-    playerOne: Player,
-    playerTwo: Player,
+    matchupId: string,
+    tableIndex: number,
+    playerOneId: string,
+    playerTwoId: string,
+    playerWonId: string | null,
 }
 
 //U AppState pohranjujemo sve varijable koje čuvamo u store-u, kako bismo im mogli lako pristupati iz bilo koje komponente

@@ -10,7 +10,7 @@
           indicator-color="secondary"
           align="justify"
           narrow-indicator
-          style="height: 50px;"
+          style="height: 50px"
         >
           <q-tab name="PrvoKolo" label="Prvo kolo" :disable="isLoading" />
           <q-tab name="DrugoKolo" label="Drugo kolo" :disable="isLoading" />
@@ -54,7 +54,9 @@ export default defineComponent({
     const store = usePlayersStore();
 
     const tab: Ref<string> = ref('PrvoKolo');
-    const isLoading: Ref<boolean> = ref(false);
+    const isLoading: Ref<boolean> = ref(false); //ova varijabla nam služi za praćenje je li generiranje i poništavanje parova završilo
+    // const firstRoundsPlayed: Ref<number> = ref(0); //ova varijabla nam služi za brojanje koliko partija je odigrano u prvom kolu nego dopustimo korisniku da prijeđe u drugo kolo
+    // const secondRoundsPlayed: Ref<number> = ref(0); //ova varijabla nam služi za brojanje koliko partija je odigrano u drugom kolu nego dopustimo korisniku da prijeđe u treće kolo
 
     function updateRound() {
       //ovom funkcijom dajemo ažuriramo trenutnu vrijednost runde u store-u i onda to daje znak komponenti tournament-schedule da se kolo promijenilo i da učita igrače za to kolo
@@ -66,6 +68,14 @@ export default defineComponent({
     const handleLoadProp = (newValue: boolean) => {
       isLoading.value = newValue;
     }; //ova funkcija je odgovor na emit signal od komponente tournament-schedule kada se promijeni isLoading varijabla, služi za trenutno onemogućavanje izmjene između kola
+
+    // const updateFRoundsPlayed = (newValue: number) => {
+    //   firstRoundsPlayed.value = newValue;
+    // };
+
+    // const updateSRoundsPlayed = (newValue: number) => {
+    //   secondRoundsPlayed.value = newValue;
+    // };
 
     watch(
       () => tab.value,
@@ -84,7 +94,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.q-pa-md{
+.q-pa-md {
   background-color: whitesmoke;
 }
 
@@ -92,5 +102,4 @@ export default defineComponent({
   padding-left: 0px;
   padding-right: 0px;
 }
-
 </style>

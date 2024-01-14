@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import 'firebase/firestore';
 import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { Tournament, Player, Round } from "src/models/models";
+import { Tournament, Player, Round, Matchup } from "src/models/models";
 import { RoundNumber } from "src/enums/rounds";
 import { Color } from "quasar";
 import { getColor, savePlayerColor } from "app/utils/helpers";
@@ -235,6 +235,70 @@ export const changePlayersColor = async (value: number, tournamentId: string) : 
     'thirdRound.players': savePlayerColor(playersThirdRound, value),
   });
 }
+
+//ODAVDE KREĆU SVE FUNKCIJE VEZANE ZA MATCHUPOVE
+//funkcija za dohvat generiranih parova u određenoj rundi
+export const getTournamentMatchups = async (tournamentId: string, roundNo: RoundNumber): Promise<Matchup[] | undefined> => {
+
+  const docRef = doc(db, "tournaments", tournamentId);
+  const docSnap = await getDoc(docRef);
+
+  let tournament: Tournament | undefined;
+
+  if (docSnap.exists()) {
+    tournament = docSnap.data() as Tournament;
+  } else {
+    console.log("Tournament doesn't exist!");
+  }
+
+  if (roundNo == RoundNumber.FIRST)
+  return tournament?.firstRound.matchups
+  else if (roundNo == RoundNumber.SECOND)
+  return tournament?.secondRound.matchups
+  else //inače je sigurno treća runda
+  return tournament?.thirdRound.matchups
+ 
+}
+
+export const removeMatchups = async (tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  if (roundNo == RoundNumber.FIRST)
+  await updateDoc(dbRef, {
+    'firstRound.matchups': [],
+  });
+  else if (roundNo == RoundNumber.SECOND)
+  await updateDoc(dbRef, {
+    'secondRound.matchups': [],
+  });
+  else
+  await updateDoc(dbRef, {
+    'thirdRound.matchups': [],
+  });
+  
+}
+
+export const addMatchups = async (tournamentId: string, roundNo: RoundNumber, matchups: Matchup[]): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  if (roundNo == RoundNumber.FIRST)
+  await updateDoc(dbRef, {
+    'firstRound.matchups': matchups,
+  });
+  else if (roundNo == RoundNumber.SECOND)
+  await updateDoc(dbRef, {
+    'secondRound.matchups': matchups,
+  });
+  else
+  await updateDoc(dbRef, {
+    'thirdRound.matchups': matchups,
+  });
+  
+}
+
+
 
 
 //OVDJE PISEMO SVE FUNKCIJE KOJE KOMUNICIRAJU S FIREBASEOM, PUNO JE ELEGANTNIJE I LAKSE ODE IH NAPISAT 

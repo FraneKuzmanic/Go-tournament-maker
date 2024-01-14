@@ -196,6 +196,10 @@ export default defineComponent({
         rating: rating.value,
         column: 'unmatched',
         color: color.value,
+        played_against: [],
+        last_playerd_color: null,
+        num_of_wins: 0,
+        stone_advantage: 0,
       };
       id.value = playerForDB.id;
       if (store.colorValue)
@@ -265,6 +269,10 @@ export default defineComponent({
           rating: ratingEdit.value,
           column: playerToEditData.value.column,
           color: playerToEditData.value.color,
+          played_against: playerToEditData.value.played_against,
+          last_playerd_color: playerToEditData.value.last_playerd_color,
+          num_of_wins: playerToEditData.value.num_of_wins,
+          stone_advantage: playerToEditData.value.stone_advantage,
         };
         store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
         await editPlayer(
