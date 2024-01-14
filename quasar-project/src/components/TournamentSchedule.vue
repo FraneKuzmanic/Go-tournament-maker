@@ -92,7 +92,7 @@
               <li
                 :draggable="false"
                 :id="player.id"
-                :style="{ backgroundColor: player.color }"
+                :style="{ backgroundColor:   player.color}"
               >
                 <div class="player-info">
                   <p> {{ player.name }} {{ player.lastname }}, {{ player.rating }}</p>

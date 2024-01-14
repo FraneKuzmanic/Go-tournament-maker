@@ -1,6 +1,6 @@
 //ovo su blueprintovi za ovjekte ,svi atributi koje moraju imati, ovo su kao klase, samo nisu instance klasa već blueprintovi
 
-import { Color, colorsRgba } from "quasar";
+import { Color, NamedColor, colorsRgba } from "quasar";
 import { RoundNumber } from "src/enums/rounds";
 
 //ove "interfaceove" koristimo cesto u typescriptu da bi odredili kojeg tipa moraju biti neki nasi podatci, tj modeliramo nase objekte
@@ -24,7 +24,7 @@ export interface Player{
     lastname: string;
     rating: string ;
     column: string | undefined;         //ovo je informacija u kojem se trenutno stupcu igrač nalazi
-    color: Color;   
+    color: string;   
     played_against: Player[];           // info o tome protiv koga je igrao
     last_playerd_color: Color | null;   // info o tome koju je boju igrac zadnju igrao, radi algoritma potrebno
     num_of_wins: number;                // informacije potrebne za konacnu tablicu
