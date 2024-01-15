@@ -6,58 +6,132 @@
       buton ostaju u stanju u kojem su bili dok se ne kliknu opet, srednji buton samo bljesne da se zna da se
       kliknuo.-->
   <div class="outcome-buttons-container">
-    <div v-if="!leftButtonPressed" class="inactive-outcome-button" id="outcome-left"
-      @click="$emit('playerOneWon'); rightButtonPressed ? console.log('No') : leftButtonPressed = !leftButtonPressed">
+    <div
+      v-if="!leftButtonPressed"
+      class="inactive-outcome-button"
+      id="outcome-left"
+      @click="handleLeftClickActive()"
+    >
       <i class="fa-solid fa-trophy fa-2xl"></i>
     </div>
-    <div v-if="leftButtonPressed" class="active-outcome-button" id="outcome-left" @click="leftButtonPressed = !leftButtonPressed">
+    <div
+      v-if="leftButtonPressed"
+      class="active-outcome-button"
+      id="outcome-left"
+      @click="handleLeftClickInactive()"
+    >
       <i class="fa-solid fa-trophy fa-2xl"></i>
     </div>
 
-    <div v-if="!middleButtonPressed" class="inactive-outcome-button" id="outcome-middle" 
-    @click="!(leftButtonPressed || rightButtonPressed) ? $emit('switchColumns') : console.log('Nope.');
-    handleMiddleButtonClick()"
+    <div
+      v-if="!middleButtonPressed"
+      class="inactive-outcome-button"
+      id="outcome-middle"
+      @click="handleMiddleButtonClick()"
     >
       <i class="fa-solid fa-rotate fa-2xl"></i>
     </div>
-    <div v-if="middleButtonPressed" class="active-outcome-button" id="outcome-middle">
+    <div
+      v-if="middleButtonPressed"
+      class="active-outcome-button"
+      id="outcome-middle"
+    >
       <i class="fa-solid fa-rotate fa-2xl"></i>
     </div>
 
-    <div v-if="!rightButtonPressed" class="inactive-outcome-button" id="outcome-right" 
-      @click="$emit('playerTwoWon'); leftButtonPressed ? console.log('No') : rightButtonPressed = !rightButtonPressed;">
+    <div
+      v-if="!rightButtonPressed"
+      class="inactive-outcome-button"
+      id="outcome-right"
+      @click="handleRightClickActive()"
+    >
       <i class="fa-solid fa-trophy fa-2xl"></i>
     </div>
-    <div v-if="rightButtonPressed" class="active-outcome-button" id="outcome-right" @click="rightButtonPressed = !rightButtonPressed">
+    <div
+      v-if="rightButtonPressed"
+      class="active-outcome-button"
+      id="outcome-right"
+      @click="handleRightClickInactive()"
+    >
       <i class="fa-solid fa-trophy fa-2xl"></i>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  emits: ['playerOneWon', 'playerTwoWon', 'switchColumns'],
-  data(){
-    return {
-      leftButtonPressed: false,
-      middleButtonPressed: false,
-      rightButtonPressed: false,
-    }
+<script lang="ts">
+import { defineComponent, ref, Ref } from 'vue';
+
+export default defineComponent({
+  name: 'OutcomeButton',
+  props: {
+    leftPlayerWon: {
+      type: Boolean,
+      required: true,
+    },
+    rightPlayerWon: {
+      type: Boolean,
+      required: true,
+    },
   },
-  methods: {
-    middleButtonClickEffect(){
-      this.middleButtonPressed = true
+  emits: ['playerOneWon', 'playerTwoWon', 'switchColumns', 'cancelWin'],
+  setup(props, context) {
+    const middleButtonPressed: Ref<boolean> = ref(false);
+    const leftButtonPressed: Ref<boolean> = ref(props.leftPlayerWon);
+    const rightButtonPressed: Ref<boolean> = ref(props.rightPlayerWon);
+
+    function handleMiddleButtonClick() {
+      if (!(leftButtonPressed.value || rightButtonPressed.value)) {
+        context.emit('switchColumns');
+        middleButtonClickEffect();
+      }
+    }
+
+    function middleButtonClickEffect() {
+      middleButtonPressed.value = true;
 
       setTimeout(() => {
-        this.middleButtonPressed = false
+        middleButtonPressed.value = false;
       }, 100);
-    },
-    handleMiddleButtonClick(){
-      !(this.leftButtonPressed || this.rightButtonPressed) ? this.middleButtonClickEffect(): console.log('nah')  
     }
+
+    function handleLeftClickActive() {
+      context.emit('playerOneWon');
+      leftButtonPressed.value = !leftButtonPressed.value;
+      rightButtonPressed.value
+        ? (rightButtonPressed.value = !rightButtonPressed.value)
+        : '';
+    }
+
+    function handleRightClickActive() {
+      context.emit('playerTwoWon');
+      rightButtonPressed.value = !rightButtonPressed.value;
+      leftButtonPressed.value
+        ? (leftButtonPressed.value = !leftButtonPressed.value)
+        : '';
+    }
+
+    function handleLeftClickInactive() {
+      leftButtonPressed.value = !leftButtonPressed.value;
+      context.emit('cancelWin');
+    }
+
+    function handleRightClickInactive() {
+      rightButtonPressed.value = !rightButtonPressed.value;
+      context.emit('cancelWin');
+    }
+
+    return {
+      middleButtonPressed,
+      leftButtonPressed,
+      rightButtonPressed,
+      handleMiddleButtonClick,
+      handleLeftClickActive,
+      handleRightClickActive,
+      handleLeftClickInactive,
+      handleRightClickInactive,
+    };
   },
-  return: {},
-};
+});
 </script>
 
 <style scoped>
@@ -99,7 +173,6 @@ i {
 .active-outcome-button i {
   color: whitesmoke;
 }
-
 
 #outcome-left {
   border-top-left-radius: 15px;

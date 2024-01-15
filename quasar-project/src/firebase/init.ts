@@ -298,6 +298,40 @@ export const addMatchups = async (tournamentId: string, roundNo: RoundNumber, ma
   
 }
 
+export const updateSingleMatchup = async(tournamentId: string, roundNo:RoundNumber, oldMatchup: Matchup, newMatchup: Matchup) : Promise<void> => {
+
+  console.log(oldMatchup);
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  if (roundNo == RoundNumber.FIRST){
+    await updateDoc(dbRef, {
+      'firstRound.matchups': arrayRemove(oldMatchup)
+    });
+
+    await updateDoc(dbRef, {
+      'firstRound.matchups': arrayUnion(newMatchup)
+    });
+  }else if (roundNo == RoundNumber.SECOND){
+    await updateDoc(dbRef, {
+      'secondRound.matchups': arrayRemove(oldMatchup)
+    });
+  
+    await updateDoc(dbRef, {
+      'secondRound.matchups': arrayUnion(newMatchup)
+    });
+  }else{
+    await updateDoc(dbRef, {
+      'thirdRound.matchups': arrayRemove(oldMatchup)
+    });
+  
+    await updateDoc(dbRef, {
+      'thirdRound.matchups': arrayUnion(newMatchup)
+    });
+  }
+
+}
+
 
 
 
