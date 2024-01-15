@@ -1,5 +1,5 @@
 import { Color, colorsRgba ,NamedColor} from "quasar";
-import { Player } from "src/models/models";
+import { Matchup, Player } from "src/models/models";
 import { setCssVar } from 'quasar'
 
 
@@ -36,4 +36,12 @@ export function savePlayerColor(players: Player[], value: number) : Player[]{ //
         player.color = getColor(value, player);
     });
     return players;
+}
+
+export function getWinner(playerWonId: string | null, playerId: string) : boolean{
+
+  if (!playerWonId)
+  return false;
+
+  return playerWonId === playerId;
 }

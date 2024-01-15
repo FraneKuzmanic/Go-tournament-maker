@@ -92,7 +92,7 @@
               <li
                 :draggable="false"
                 :id="player.id"
-                :style="{ backgroundColor:   player.color}"
+                :style="{ backgroundColor: player.color }"
               >
                 <div class="player-info">
                   <p>
@@ -127,11 +127,18 @@
 
       <div class="outcome-buttons">
         <ul>
-          <li v-for="matchupId in num_of_matchups" :key="matchupId">
+          <li v-for="matchup in matchups" :key="matchup.matchupId">
             <OutcomeButton
-              @playerOneWon="PlayerOneWon(matchupId)"
-              @player-two-won="PlayerTwoWon(matchupId)"
-              @switch-columns="SwitchColumns(matchupId)"
+              @playerOneWon="PlayerOneWon(matchup)"
+              @player-two-won="PlayerTwoWon(matchup)"
+              @switch-columns="SwitchColumns(matchup)"
+              @cancelWin="CancelWin(matchup)"
+              :leftPlayerWon="
+                getWinner(matchup.playerWonId, matchup.playerOneId)
+              "
+              :rightPlayerWon="
+                getWinner(matchup.playerWonId, matchup.playerTwoId)
+              "
             >
             </OutcomeButton>
           </li>
@@ -185,12 +192,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref, watch, computed } from 'vue';
+import { defineComponent, ref, Ref, watch } from 'vue';
 import draggable from 'vuedraggable';
 import { useQuasar } from 'quasar';
 import OutcomeButton from './OutcomeButton.vue';
 import { Player, Matchup } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
+import { getWinner } from 'app/utils/helpers';
 import {
   removePlayer,
   updatePlayerColumn,
@@ -198,6 +206,8 @@ import {
   getTournamentMatchups,
   addMatchups,
   removeMatchups,
+  updateSingleMatchup,
+  editPlayer,
 } from '../firebase/init';
 
 // import PlayerCardLeft from './PlayerCardLeft.vue'
@@ -238,8 +248,6 @@ export default defineComponent({
     const matchups: Ref<Matchup[]> = ref([]);
 
     const $q = useQuasar();
-
-    let num_of_matchups = computed(() => matchups.value.length);
 
     watch(
       () => store.players,
@@ -420,58 +428,114 @@ export default defineComponent({
     // --------------------------------------------- VAZNO ------------------------------------------------
     // potrebno je inicijalizirati vrijednosti played_against na prazan niz i num_of_wins na 0 pri samom dodavanju igraca. Kod sam
     // napisao, samo ga treba odkomentirati kada se to napravi, zakomentirao sam jer inace ne radi vizualni aspekt botuna
-    function PlayerOneWon(matchup_id: number) {
-      var id = matchup_id - 1;
-      const P1 = matchups.value[id].playerOneId;
-      const P2 = matchups.value[id].playerTwoId;
+    function PlayerOneWon(matchup: Matchup) {
+      const ind = matchup.tableIndex;
 
-      // P1.num_of_wins += 1                   // Pobjedniku azuriramo broj pobjeda
-      // P1.played_against.push(P2)            // Obojici igraca azuriramo protiv koga je igrao
-      // P2.played_against.push(P1)
-      console.log(matchups.value[id].playerOneId + 'won!');
+      const oldPlayerLeft = playersColumnLeft.value[ind];
+      const oldPlayerRight = playersColumnRight.value[ind];
+      const oldMatchup = { ...matchup };
+
+      playersColumnLeft.value[ind].num_of_wins++;
+
+      playersColumnLeft.value[ind].played_against.push(matchup.playerTwoId);
+      playersColumnRight.value[ind].played_against.push(matchup.playerOneId);
+
+      matchups.value[ind].playerWonId = matchup.playerOneId;
+
+      const winner = playersColumnLeft.value[ind];
+      const loser = playersColumnRight.value[ind];
+      const editedMatchup = matchups.value[ind];
+
+      updateSingleMatchup(
+        props.tournamentId,
+        store.currentRound,
+        oldMatchup,
+        editedMatchup
+      );
+
+      console.log('player one won');
+      console.log(winner);
+      console.log(loser);
     }
 
-    function PlayerTwoWon(matchup_id: number) {
-      var id = matchup_id - 1;
-      const P1 = matchups.value[id].playerOneId;
-      const P2 = matchups.value[id].playerTwoId;
+    function PlayerTwoWon(matchup: Matchup) {
+      const ind = matchup.tableIndex;
 
-      // P2.num_of_wins += 1
-      // P1.played_against.push(P2)
-      // P2.played_against.push(P1)
+      const oldPlayerLeft = playersColumnLeft.value[ind];
+      const oldPlayerRight = playersColumnRight.value[ind];
+      const oldMatchup = { ...matchup };
 
-      console.log(matchups.value[id].playerTwoId + 'won!');
+      playersColumnRight.value[ind].num_of_wins++;
+
+      playersColumnLeft.value[ind].played_against.push(matchup.playerTwoId);
+      playersColumnRight.value[ind].played_against.push(matchup.playerOneId);
+
+      matchups.value[ind].playerWonId = matchup.playerTwoId;
+
+      const winner = playersColumnRight.value[ind];
+      const loser = playersColumnLeft.value[ind];
+      const editedMatchup = matchups.value[ind];
+
+      updateSingleMatchup(
+        props.tournamentId,
+        store.currentRound,
+        oldMatchup,
+        editedMatchup
+      );
+
+      console.log('player Two won');
+      console.log(winner);
+      console.log(loser);
     }
 
-    function SwitchColumns(matchup_id: number) {
-      // var P1: Player = matchups.value[matchup_id - 1].playerOneId;
-      // var P2: Player = matchups.value[matchup_id - 1].playerTwoId;
-
-      // for (var i = 0; i < playersColumnLeft.value.length; i++) {
-      //   if (playersColumnLeft.value[i] === P1) {
-      //     playersColumnLeft.value[i] = P2;
-      //     break;
-      //   }
-      // }
-
-      // for (var i = 0; i < playersColumnRight.value.length; i++) {
-      //   if (playersColumnRight.value[i] === P2) {
-      //     playersColumnRight.value[i] = P1;
-      //     break;
-      //   }
-      // }
-
-      // Ovi console logs su samo za debugging, mozemo ih maknuti poslije
-      console.log(
-        'This is the left column after the switch: ' +
-          playersColumnLeft.value[0].name
+    function SwitchColumns(oldMatchup: Matchup) {
+      const playerLeft = playersColumnLeft.value.find(
+        (player) => player.id === oldMatchup.playerOneId
       );
-      console.log(
-        'This is the right column after the switch: ' +
-          playersColumnRight.value[0].name
+      const playerRight = playersColumnRight.value.find(
+        (player) => player.id === oldMatchup.playerTwoId
       );
-      createMatchups();
-      console.log('Switched Columns!');
+
+      const newMatchup = {
+        ...oldMatchup,
+        playerOneId: oldMatchup.playerTwoId,
+        playerTwoId: oldMatchup.playerOneId,
+      };
+
+      matchups.value.splice(oldMatchup.tableIndex, 1, newMatchup);
+
+      if (playerLeft && playerRight) {
+        playersColumnLeft.value.splice(oldMatchup.tableIndex, 1, playerRight);
+        playersColumnRight.value.splice(oldMatchup.tableIndex, 1, playerLeft);
+
+        changeRightColumn(oldMatchup.tableIndex);
+        changeLeftColumn(oldMatchup.tableIndex);
+      }
+
+      updateSingleMatchup(
+        props.tournamentId,
+        store.currentRound,
+        oldMatchup,
+        newMatchup
+      );
+    }
+
+    function CancelWin(matchup: Matchup) {
+      const ind = matchup.tableIndex;
+      const oldMatchup = { ...matchup };
+
+      matchups.value[ind].playerWonId = null;
+
+      const editedMatchup = matchups.value[ind];
+
+      updateSingleMatchup(
+        props.tournamentId,
+        store.currentRound,
+        oldMatchup,
+        editedMatchup
+      );
+
+      console.log('Nobody won');
     }
 
     async function handleDeleteClick(delPlayer: Player, column: string) {
@@ -630,7 +694,10 @@ export default defineComponent({
         else if (player.column === 'unmatched') unmatched.push(player);
       });
 
-      if (_matchups) matchups.value = _matchups;
+      if (_matchups) {
+        _matchups.sort((a, b) => a.tableIndex - b.tableIndex);
+        matchups.value = _matchups;
+      }
 
       let leftColumnSorted: Player[] = [];
       let rightColumnSorted: Player[] = [];
@@ -676,7 +743,6 @@ export default defineComponent({
       createMatchups,
       handleEditClick,
       matchups,
-      num_of_matchups,
       PlayerOneWon,
       PlayerTwoWon,
       SwitchColumns,
@@ -684,6 +750,8 @@ export default defineComponent({
       handleDragChange,
       generate,
       removeElementsFromRightAndLeft,
+      CancelWin,
+      getWinner,
     };
   },
 });
