@@ -95,19 +95,23 @@ export default defineComponent({
     }
 
     function handleLeftClickActive() {
-      context.emit('playerOneWon');
-      leftButtonPressed.value = !leftButtonPressed.value;
-      rightButtonPressed.value
-        ? (rightButtonPressed.value = !rightButtonPressed.value)
-        : '';
+      if (!rightButtonPressed.value) {
+        context.emit('playerOneWon');
+        leftButtonPressed.value = !leftButtonPressed.value;
+        rightButtonPressed.value
+          ? (rightButtonPressed.value = !rightButtonPressed.value)
+          : '';
+      }
     }
 
     function handleRightClickActive() {
-      context.emit('playerTwoWon');
-      rightButtonPressed.value = !rightButtonPressed.value;
-      leftButtonPressed.value
-        ? (leftButtonPressed.value = !leftButtonPressed.value)
-        : '';
+      if (!leftButtonPressed.value) {
+        context.emit('playerTwoWon');
+        rightButtonPressed.value = !rightButtonPressed.value;
+        leftButtonPressed.value
+          ? (leftButtonPressed.value = !leftButtonPressed.value)
+          : '';
+      }
     }
 
     function handleLeftClickInactive() {

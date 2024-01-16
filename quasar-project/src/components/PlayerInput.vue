@@ -217,7 +217,7 @@ export default defineComponent({
         rating: rating.value,
         column: 'unmatched',
         color: color.value,
-        played_against: [],
+        played_against: null,
         last_playerd_color: null,
         num_of_wins: 0,
         stone_advantage: 0,
@@ -226,7 +226,7 @@ export default defineComponent({
       if (store.colorValue)
         playerForDB.color = getColor(store.colorValue, playerForDB);
 
-      await addNewPlayer(playerForDB, props.tournamentId, store.currentRound);
+      await addNewPlayer(playerForDB, props.tournamentId);
       showNotifAdd();
       store.addNewPlayer(playerForDB); //osim na firestore, nove igrace pohranjujemo i u globalni state da bi se odmah azurirali njihovi prikazi na turniru
       resetInputForm();
