@@ -13,6 +13,7 @@
 
     <q-slider
       v-model="inputVal"
+      :disable="isLoading"
       :min="-30"
       :max="5"
       :step="1"
@@ -51,10 +52,12 @@ export default defineComponent({
     const store = usePlayersStore();
     const $q = useQuasar();
     const inputVal: Ref<number> = ref(0);
+    const isLoading: Ref<boolean> = ref(false);
 
     const changeColor = async () => {
       //kad god slideamo color slider i stanemo na neku vrijednost aktivira se ova funkcija
       try {
+        isLoading.value = true;
         const players = await getTournamentPlayers(
           props.tournamentId,
           store.currentRound
@@ -70,6 +73,7 @@ export default defineComponent({
         } else {
           console.error('getTournamentPlayers returned undefined');
         }
+        isLoading.value = false;
       } catch (error) {
         console.error('Error fetching tournament players:', error);
       } finally {
@@ -96,6 +100,7 @@ export default defineComponent({
     return {
       inputVal,
       changeColor,
+      isLoading,
     };
   },
   methods: {},
@@ -107,5 +112,4 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
 }
-
 </style>

@@ -66,20 +66,53 @@ export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundN
   
 }
 
-//funkcija za dodavanje novog igrača u firestore, isto tako dodajemo igrača za točno određeno kolo
-export const addNewPlayer = async(player: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+export const addPlayers = async(players: Player[], tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 
   if (roundNo == RoundNumber.FIRST)
   await updateDoc(dbRef, {
-    'firstRound.players': arrayUnion(player),
+    'firstRound.players': players,
   });
   else if (roundNo == RoundNumber.SECOND)
   await updateDoc(dbRef, {
-    'secondRound.players': arrayUnion(player),
+    'secondRound.players': players,
   });
   else
+  await updateDoc(dbRef, {
+    'thirdRound.players': players,
+  });
+}
+
+export const removePlayers = async(tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  if (roundNo == RoundNumber.FIRST)
+  await updateDoc(dbRef, {
+    'firstRound.players': [],
+  });
+  else if (roundNo == RoundNumber.SECOND)
+  await updateDoc(dbRef, {
+    'secondRound.players': [],
+  });
+  else
+  await updateDoc(dbRef, {
+    'thirdRound.players': [],
+  });
+}
+
+//funkcija za dodavanje novog igrača u firestore, isto tako dodajemo igrača za točno određeno kolo
+export const addNewPlayer = async(player: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+
+  await updateDoc(dbRef, {
+    'firstRound.players': arrayUnion(player),
+  });
+  await updateDoc(dbRef, {
+    'secondRound.players': arrayUnion(player),
+  });
   await updateDoc(dbRef, {
     'thirdRound.players': arrayUnion(player),
   });
@@ -100,9 +133,9 @@ export const removePlayer = async(delPlayer: Player, tournamentId: string): Prom
   const playersThirdRound = tournament.thirdRound.players;
 
   //onda pokušavamo pronaći igrača kojeg brišemo u svakom kolu
-  const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating );
-  const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
-  const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
+  const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating && player.column === 'unmatched');
+  const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating && player.column === 'unmatched');
+  const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating && player.column === 'unmatched');
 
   //provjeravamo u kojim kolima je igrač i brišemo ga iz svakog kola u kojem se nalazi
   if (playerFR)
@@ -157,7 +190,7 @@ export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournament
 
 //ova funkcija je slična editu samo što se ovdje uređuje podatak o tome u kojem stupcu se igrač nalazi
 //za razliku od edita ovdje uređujemo podatak samo za određeno kolo
-export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+export const editSinglePlayer = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 
@@ -188,6 +221,7 @@ export const updatePlayerColumn = async(oldPlayer: Player, newPlayer: Player, to
   }
 
 }
+
 
 //ova funkcija nam služi da bi spremili u bazu podatak o vrijednosti color slidera
 export const putColorSliderValue = async(value: number, tournamentId: string): Promise<void> => {

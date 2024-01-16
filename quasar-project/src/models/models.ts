@@ -25,7 +25,7 @@ export interface Player{
     rating: string ;
     column: string | undefined;         //ovo je informacija u kojem se trenutno stupcu igrač nalazi
     color: string;   
-    played_against: string[];           // info o tome protiv koga je igrao
+    played_against: string | null;           // info o tome protiv koga je igrao
     last_playerd_color: Color | null;   // info o tome koju je boju igrac zadnju igrao, radi algoritma potrebno
     num_of_wins: number;                // informacije potrebne za konacnu tablicu
     stone_advantage: number
