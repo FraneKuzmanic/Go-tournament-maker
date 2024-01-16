@@ -47,17 +47,16 @@ body {
 .player-group {
   background-color: rgb(185, 187, 187);
   background-color: rgb(28, 33, 42);
-  justify-content: center;
-  width: 30%;
+  width: 32%;
 }
 
 #left-column {
-  background-color: whitesmoke;
+  background-color: #1D1D1D;
   border-radius: 20px;
 }
 
 #right-column {
-  background-color: #1D1D1D;
+  background-color: whitesmoke;
   border-radius: 20px;
 }
 
@@ -104,7 +103,7 @@ body {
   list-style-type: none;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  justify-content: flex-start;
   width: 95%;
 }
 
