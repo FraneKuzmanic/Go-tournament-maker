@@ -95,37 +95,33 @@
                 @deletePlayer="handleDeleteClick(player, 'left')"
               /> -->
               <li
-                :draggable="false"
-                :id="player.id"
-                :style="{ backgroundColor: player.color }"
+              :draggable="false"
+              :id="player.id"
+              :style="{ backgroundColor: player.color }"
               >
                 <div class="player-info">
                   <p>
-                    {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+                    {{ player.name }} {{ player.lastname }}, {{ player.rating }}, 
+                    adv: {{ player.stone_advantage }}
                   </p>
+                  <!-- Nikako da ovo proradi kako treba, sunac mu zareni -->
+                    <!-- <q-btn color="accent" round flat icon="more_vert">
+                      <q-menu cover auto-close>
+                        <q-list>
+                          <q-item clickable>
+                            <q-item-section >Edit Player</q-item-section>
+                          </q-item>
+                          <q-item clickable>
+                            <q-item-section >Remove Player</q-item-section>
+                          </q-item>
+                          <q-item clickable>
+                            <q-item-section>Add/Remove Advantage</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
+                    </q-btn> -->
                 </div>
-                <!-- <q-btn
-                  v-if="creatorId !== ''"
-                  class="q-ml-sm q-mr-sm"
-                  @click.stop
-                  round
-                  color="blue"
-                  icon="edit"
-                  dense
-                  @click="handleEditClick(player, 'left')"
-                />
-                <q-btn
-                  v-if="creatorId !== ''"
-                  class="q-ml-sm q-mr-sm"
-                  @click.stop
-                  round
-                  color="blue"
-                  icon="delete"
-                  dense
-                  @click="handleDeleteClick(player, 'left')"
-                /> -->
               </li>
-            </div>
           </template>
         </draggable>
       </div>
@@ -227,7 +223,7 @@ import { RoundNumber } from 'src/enums/rounds';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, OutcomeButton: OutcomeButton },
+  components: { draggable: draggable, OutcomeButton: OutcomeButton},
   emits: ['update-load'],
   props: {
     tournamentId: {
