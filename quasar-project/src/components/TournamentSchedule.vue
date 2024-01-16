@@ -95,17 +95,17 @@
                 @deletePlayer="handleDeleteClick(player, 'left')"
               /> -->
               <li
-              :draggable="false"
-              :id="player.id"
-              :style="{ backgroundColor: player.color }"
+                :draggable="false"
+                :id="player.id"
+                :style="{ backgroundColor: player.color }"
               >
                 <div class="player-info">
                   <p>
-                    {{ player.name }} {{ player.lastname }}, {{ player.rating }}, 
-                    adv: {{ player.stone_advantage }}
+                    {{ player.name }} {{ player.lastname }},
+                    {{ player.rating }}, adv: {{ player.stone_advantage }}
                   </p>
                   <!-- Nikako da ovo proradi kako treba, sunac mu zareni -->
-                    <!-- <q-btn color="accent" round flat icon="more_vert">
+                  <!-- <q-btn color="accent" round flat icon="more_vert">
                       <q-menu cover auto-close>
                         <q-list>
                           <q-item clickable>
@@ -122,6 +122,7 @@
                     </q-btn> -->
                 </div>
               </li>
+            </div>
           </template>
         </draggable>
       </div>
@@ -223,7 +224,7 @@ import { RoundNumber } from 'src/enums/rounds';
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, OutcomeButton: OutcomeButton},
+  components: { draggable: draggable, OutcomeButton: OutcomeButton },
   emits: ['update-load'],
   props: {
     tournamentId: {
