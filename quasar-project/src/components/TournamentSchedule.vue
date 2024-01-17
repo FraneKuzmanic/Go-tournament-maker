@@ -84,16 +84,6 @@
               }"
               class="player-card"
             >
-              <!-- Ovo je samo dok development traje, za sada nije spremno -->
-              <!-- <PlayerCardLeft 
-                :player_name="player.name"
-                :player_lastname="player.lastname"
-                :player_rating="player.rating"
-                :points="player.num_of_wins"
-                :stone_advantage="player.num_of_wins"
-                @editPlayer="handleEditClick(player, 'left')"
-                @deletePlayer="handleDeleteClick(player, 'left')"
-              /> -->
               <li
                 :draggable="false"
                 :id="player.id"
@@ -104,23 +94,19 @@
                     {{ player.name }} {{ player.lastname }},
                     {{ player.rating }}, adv: {{ player.stone_advantage }}
                   </p>
-                  <!-- Nikako da ovo proradi kako treba, sunac mu zareni -->
-                  <!-- <q-btn color="accent" round flat icon="more_vert">
-                      <q-menu cover auto-close>
-                        <q-list>
-                          <q-item clickable>
-                            <q-item-section >Edit Player</q-item-section>
-                          </q-item>
-                          <q-item clickable>
-                            <q-item-section >Remove Player</q-item-section>
-                          </q-item>
-                          <q-item clickable>
-                            <q-item-section>Add/Remove Advantage</q-item-section>
-                          </q-item>
-                        </q-list>
-                      </q-menu>
-                    </q-btn> -->
                 </div>
+                  <q-btn color="accent" round flat icon="more_vert" class="options-button">
+                    <q-menu cover auto-close>
+                        <q-list>
+                            <q-item clickable>
+                                <q-item-section @click="handleAdvChange(player, 1)">adv +1</q-item-section>
+                            </q-item>
+                            <q-item clickable>
+                                <q-item-section @click="handleAdvChange(player, -1)">adv -1</q-item-section>
+                            </q-item>
+                        </q-list>
+                    </q-menu>
+                  </q-btn>
               </li>
             </div>
           </template>
@@ -216,11 +202,10 @@ import {
   removeMatchups,
   updateSingleMatchup,
   addPlayers,
-  removePlayers,
+  // removePlayers,
 } from '../firebase/init';
-import { RoundNumber } from 'src/enums/rounds';
+// import { RoundNumber } from 'src/enums/rounds';
 
-// import PlayerCardLeft from './PlayerCardLeft.vue'
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -386,6 +371,15 @@ export default defineComponent({
       editedPlayerColumn.value = column;
       store.editPlayer(player);
     };
+
+    const handleAdvChange = (player: Player, adv: number) => {
+      var temp = {...player}
+      if(player.stone_advantage >= 0 && player.stone_advantage < 9 && adv > 0)
+        player.stone_advantage += adv
+      else if(player.stone_advantage > 0 && player.stone_advantage <= 9 && adv < 0)
+        player.stone_advantage += adv
+      editSinglePlayer(temp, player, props.tournamentId, store.currentRound)
+    }
 
     const PutPLayersInColumns = async (): Promise<void> => {
       //prilikom učitavanja apliakcije ili kola uvijek prvo učitavamo igrače u stupce
@@ -968,6 +962,7 @@ export default defineComponent({
       removeElementsFromRightAndLeft,
       CancelWin,
       getWinner,
+      handleAdvChange,
     };
   },
 });

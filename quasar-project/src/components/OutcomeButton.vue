@@ -144,7 +144,7 @@ export default defineComponent({
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: center;
-  min-height: 50px;
+  min-height: 70px;
   width: 100%;
   margin-top: 2em;
   margin-bottom: 2em;

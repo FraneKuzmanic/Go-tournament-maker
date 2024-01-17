@@ -129,6 +129,18 @@ body {
   align-items: center;
 }
 
+#left-column li {
+  display: flex;
+  justify-content: space-between;
+  min-height: 70px;
+}
+
+#right-column li {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 70px;
+}
+
 .outcome-buttons {
   position: relative ;
   background-color: rgb(37, 124, 159);
