@@ -33,20 +33,7 @@
           <q-btn @click="searchEGD" label="TRAŽI" />
           <q-btn label="DODAJ" type="submit" v-if="notFound || found" />
         </div>
-        <q-dialog v-model="notFound2">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">Alert</div>
-            </q-card-section>
-            <q-card-section class="q-pt-none">
-              Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime
-              i prezime ili upišite rating i kliknite na gumb DODAJ
-            </q-card-section>
-            <q-card-actions>
-              <q-btn flat label="OK" color="primary" v-close-popup />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
+        
       </q-form>
     </q-card>
   </q-dialog>
@@ -74,20 +61,6 @@
           <q-btn label="SPREMI" type="submit" />
           <q-btn @click="removeEditForm" label="PONIŠTI" />
         </div>
-        <q-dialog v-model="notFound2">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6">Alert</div>
-            </q-card-section>
-            <q-card-section class="q-pt-none">
-              Igrač nije pronađen u bazi. Provjerite je li uneseno ispravno ime
-              i prezime ili upišite rating
-            </q-card-section>
-            <q-card-actions>
-              <q-btn flat label="OK" color="primary" v-close-popup />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
       </q-form>
     </q-card>
   </q-dialog>
