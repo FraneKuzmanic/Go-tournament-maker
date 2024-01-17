@@ -64,7 +64,6 @@ body {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  height: 70px;
 }
 
 #right-column li{
@@ -111,7 +110,7 @@ body {
 
 #unmatched-column {
   width: 100%;
-  min-height: 150px;
+  min-height: 120px;
   margin: 0;
   border-top-right-radius: 20px;
   border-top-left-radius: 20px;
@@ -121,6 +120,13 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+}
+
+#unmatched-column ul li{
+  width: fit-content;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .outcome-buttons {

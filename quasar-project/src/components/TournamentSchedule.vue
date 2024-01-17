@@ -37,16 +37,31 @@
           @end="handleDragChange('unmatched')"
         >
           <template #item="{ element: player }">
-            <UnmatchedPlayerCard
-                :player_name="player.name"
-                :player_lastname="player.lastname"
-                :player_rating="player.rating"
-                :player_points="player.num_of_wins"
-                :color="player.color"
-                @editPlayer="handleEditClick(player, 'right')"
-                @deletePlayer="handleDeleteClick(player, 'right')"
-                style="max-width: 190px; margin: 0.5em;"
+            <li
+              :id="player.id"
+              class="igrac"
+              :style="{ backgroundColor: player.color }"
+            >
+              {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+              <q-btn
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="edit"
+                dense
+                @click="handleEditClick(player, 'unmatched')"
               />
+              <q-btn
+                class="q-ml-sm q-mr-sm"
+                @click.stop
+                round
+                color="blue"
+                icon="delete"
+                dense
+                @click="handleDeleteClick(player, 'unmatched')"
+              />
+            </li>
           </template>
         </draggable>
       </div>
@@ -67,18 +82,46 @@
               :class="{
                 'disable-fields': player.played_against !== null,
               }"
+              class="player-card"
             >
               <!-- Ovo je samo dok development traje, za sada nije spremno -->
-              <PlayerCardLeft
+              <!-- <PlayerCardLeft 
                 :player_name="player.name"
                 :player_lastname="player.lastname"
                 :player_rating="player.rating"
-                :player_points="player.num_of_wins"
-                :stone_advantage="player.stone_advantage"
-                :color="player.color"
+                :points="player.num_of_wins"
+                :stone_advantage="player.num_of_wins"
                 @editPlayer="handleEditClick(player, 'left')"
                 @deletePlayer="handleDeleteClick(player, 'left')"
-              />
+              /> -->
+              <li
+                :draggable="false"
+                :id="player.id"
+                :style="{ backgroundColor: player.color }"
+              >
+                <div class="player-info">
+                  <p>
+                    {{ player.name }} {{ player.lastname }},
+                    {{ player.rating }}, adv: {{ player.stone_advantage }}
+                  </p>
+                  <!-- Nikako da ovo proradi kako treba, sunac mu zareni -->
+                  <!-- <q-btn color="accent" round flat icon="more_vert">
+                      <q-menu cover auto-close>
+                        <q-list>
+                          <q-item clickable>
+                            <q-item-section >Edit Player</q-item-section>
+                          </q-item>
+                          <q-item clickable>
+                            <q-item-section >Remove Player</q-item-section>
+                          </q-item>
+                          <q-item clickable>
+                            <q-item-section>Add/Remove Advantage</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
+                    </q-btn> -->
+                </div>
+              </li>
             </div>
           </template>
         </draggable>
@@ -121,15 +164,33 @@
               }"
               class="player-card"
             >
-              <PlayerCardRight
-                :player_name="player.name"
-                :player_lastname="player.lastname"
-                :player_rating="player.rating"
-                :player_points="player.num_of_wins"
-                :color="player.color"
-                @editPlayer="handleEditClick(player, 'right')"
-                @deletePlayer="handleDeleteClick(player, 'right')"
-              />  
+              <li :id="player.id" :style="{ backgroundColor: player.color }">
+                <div class="player-info">
+                  <p>
+                    {{ player.name }} {{ player.lastname }}, {{ player.rating }}
+                  </p>
+                </div>
+                <!-- <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="edit"
+                  dense
+                  @click="handleEditClick(player, 'right')"
+                />
+                <q-btn
+                  v-if="creatorId !== ''"
+                  class="q-ml-sm q-mr-sm"
+                  @click.stop
+                  round
+                  color="blue"
+                  icon="delete"
+                  dense
+                  @click="handleDeleteClick(player, 'right')"
+                /> -->
+              </li>
             </div>
           </template>
         </draggable>
@@ -155,17 +216,15 @@ import {
   removeMatchups,
   updateSingleMatchup,
   addPlayers,
-  // removePlayers,
+  removePlayers,
 } from '../firebase/init';
-// import { RoundNumber } from 'src/enums/rounds';
+import { RoundNumber } from 'src/enums/rounds';
 
-import PlayerCardLeft from './PlayerCardLeft.vue'
-import PlayerCardRight from './PlayerCardRight.vue'
-import UnmatchedPlayerCard from './UnmatchedPlayerCard.vue';
+// import PlayerCardLeft from './PlayerCardLeft.vue'
 
 export default defineComponent({
   name: 'TournamentSchedule',
-  components: { draggable: draggable, OutcomeButton: OutcomeButton, PlayerCardLeft, PlayerCardRight, UnmatchedPlayerCard},
+  components: { draggable: draggable, OutcomeButton: OutcomeButton },
   emits: ['update-load'],
   props: {
     tournamentId: {
