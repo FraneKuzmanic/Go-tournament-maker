@@ -1,18 +1,6 @@
 <template>
 
     <div class="player-card-container" :style="{ backgroundColor: color }">
-        <q-btn color="accent" round flat icon="more_vert" class="options-button">
-            <q-menu cover auto-close>
-                <q-list>
-                    <q-item clickable>
-                        <q-item-section @click="$emit('editPlayer')">Edit Player</q-item-section>
-                    </q-item>
-                    <q-item clickable>
-                        <q-item-section @click="$emit('deletePlayer')">Remove Player</q-item-section>
-                    </q-item>
-                </q-list>
-            </q-menu>
-        </q-btn>
         <div class="player-info">
             {{ player_name }} {{ player_lastname }},
             {{ player_rating }}
@@ -52,7 +40,7 @@ export default defineComponent({
     width: 100%;
     margin-top: 2em;
     margin-bottom: 2em;
-    justify-content: space-between;
+    justify-content: flex-end;
     height: 70px;
 }
 
