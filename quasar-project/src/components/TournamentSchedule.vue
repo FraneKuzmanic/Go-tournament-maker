@@ -74,12 +74,10 @@
                 :player_lastname="player.lastname"
                 :player_rating="player.rating"
                 :player_points="player.num_of_wins"
-                :player_advantage="player.stone_advantage"
+                :stone_advantage="player.stone_advantage"
                 :color="player.color"
                 @editPlayer="handleEditClick(player, 'left')"
                 @deletePlayer="handleDeleteClick(player, 'left')"
-                @addAdvantage="handleEditAdvantage(player, 1)"
-                @subtractAdvantage="handleEditAdvantage(player, -1)"
               />
             </div>
           </template>
@@ -159,11 +157,11 @@ import {
   addPlayers,
   // removePlayers,
 } from '../firebase/init';
+// import { RoundNumber } from 'src/enums/rounds';
 
 import PlayerCardLeft from './PlayerCardLeft.vue'
 import PlayerCardRight from './PlayerCardRight.vue'
 import UnmatchedPlayerCard from './UnmatchedPlayerCard.vue';
-import { RoundNumber } from 'src/enums/rounds';
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -330,16 +328,6 @@ export default defineComponent({
       store.editPlayer(player);
     };
 
-    function handleEditAdvantage(player: Player, adv: number){
-      var temp = {...player}
-      if(player.stone_advantage >= 0 && player.stone_advantage < 9 && adv>0)
-        player.stone_advantage += adv
-      else if(player.stone_advantage > 0 && player.stone_advantage <= 9 && adv<0)
-        player.stone_advantage += adv
-      console.log(player.name + " " + player.lastname + " " + " " + player.stone_advantage)
-      editSinglePlayer(temp, player, props.tournamentId, store.currentRound)
-    }
-
     const PutPLayersInColumns = async (): Promise<void> => {
       //prilikom učitavanja apliakcije ili kola uvijek prvo učitavamo igrače u stupce
       playersColumnLeft.value = []; //uvijek kada učitavam igrače iz baze u tablice prvo počistim svaku tablicu prije jer sam možda switchao između kola
@@ -423,8 +411,6 @@ export default defineComponent({
 
       await removePlayer(delPlayer, props.tournamentId); //ažuriramo tablicu stanja ovaj put s izbrisanim igračem manje
     }
-
-    
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -923,7 +909,6 @@ export default defineComponent({
       removeElementsFromRightAndLeft,
       CancelWin,
       getWinner,
-      handleEditAdvantage,
     };
   },
 });

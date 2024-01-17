@@ -9,14 +9,13 @@
             <q-menu cover auto-close>
                 <q-list>
                     <q-item clickable>
-                        <q-item-section @click="$emit('addAdvantage')" class="advantage-buttons">
-                            <p>adv +1</p>
-                        </q-item-section>
+                        <q-item-section @click="$emit('editPlayer')">Edit Player</q-item-section>
                     </q-item>
                     <q-item clickable>
-                        <q-item-section @click="$emit('subtractAdvantage')" class="advantage-buttons">
-                            <p>adv -1</p>
-                        </q-item-section>
+                        <q-item-section @click="$emit('deletePlayer')">Remove Player</q-item-section>
+                    </q-item>
+                    <q-item clickable>
+                        <q-item-section @click="$emit('editAdvantage')">Add/Remove Advantage</q-item-section>
                     </q-item>
                 </q-list>
             </q-menu>
@@ -38,7 +37,7 @@ export default defineComponent({
     player_advantage: Number,
     color: String
   },
-  emits: ['editPlayer', 'deletePlayer', 'addAdvantage', 'subtractAdvantage'],
+  emits: ['editPlayer', 'deletePlayer', 'editAdvantage'],
   setup(props, context) {
     
     return {
@@ -64,25 +63,11 @@ export default defineComponent({
 .player-info {
     align-self: center;
     padding-left: 1em;
-    color: whitesmoke;
 }
 
 .options-button {
     padding: 0;
     margin: 0;
-}
-
-.advantage-buttons {
-    display: flex;
-    flex-direction: row;
-}
-
-.add-advantage {
-    background-color: aquamarine;
-}
-
-.subtract-advantage {
-    background-color: blue;
 }
 
 </style>
