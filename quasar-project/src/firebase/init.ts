@@ -66,6 +66,7 @@ export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundN
   
 }
 
+//funkcija za dodavanje svih igrača u neko kolo
 export const addPlayers = async(players: Player[], tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -84,9 +85,26 @@ export const addPlayers = async(players: Player[], tournamentId: string, roundNo
   });
 }
 
+//funkcija za uklanjanje svih igrača iz nekog kola
+export const removePlayers = async(tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
+  const dbRef = doc(db, 'tournaments', tournamentId);
 
-//funkcija za dodavanje novog igrača u firestore, isto tako dodajemo igrača za točno određeno kolo
+  if (roundNo == RoundNumber.FIRST)
+  await updateDoc(dbRef, {
+    'firstRound.players': [],
+  });
+  else if (roundNo == RoundNumber.SECOND)
+  await updateDoc(dbRef, {
+    'secondRound.players': [],
+  });
+  else
+  await updateDoc(dbRef, {
+    'thirdRound.players': [],
+  });
+}
+
+//funkcija za dodavanje novog igrača u firestore, dodajemo ga u sva kola
 export const addNewPlayer = async(player: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -103,7 +121,7 @@ export const addNewPlayer = async(player: Player, tournamentId: string): Promise
 
 }
 
-//funkcija za uklananje igrača, za razliku od dodavanja gdje dodajemo za točno određeno kolo, kod uklananja igrača uklanjamo ga iz svih kola
+//funkcija za uklananje igrača iz svih kola ako se nalazi u stupcu neraspoređenih
 export const removePlayer = async(delPlayer: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -314,6 +332,7 @@ export const getTournamentMatchups = async (tournamentId: string, roundNo: Round
  
 }
 
+//funkcija koja uklanja sve matchupove tj partije iz nekog kola
 export const removeMatchups = async (tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -333,6 +352,7 @@ export const removeMatchups = async (tournamentId: string, roundNo: RoundNumber)
   
 }
 
+//funkcija koja postavlja partije za neko kolo u bazuu
 export const addMatchups = async (tournamentId: string, roundNo: RoundNumber, matchups: Matchup[]): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -352,6 +372,7 @@ export const addMatchups = async (tournamentId: string, roundNo: RoundNumber, ma
   
 }
 
+//funkcija koja ažurira pojedini matchup iz nekog kola
 export const updateSingleMatchup = async(tournamentId: string, roundNo:RoundNumber, oldMatchup: Matchup, newMatchup: Matchup) : Promise<void> => {
 
   console.log(oldMatchup);

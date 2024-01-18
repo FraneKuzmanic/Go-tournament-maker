@@ -33,7 +33,6 @@
           <q-btn @click="searchEGD" label="TRAŽI" />
           <q-btn label="DODAJ" type="submit" v-if="notFound || found" />
         </div>
-        
       </q-form>
     </q-card>
   </q-dialog>
@@ -268,7 +267,7 @@ export default defineComponent({
           num_of_wins: playerToEditData.value.num_of_wins,
           stone_advantage: playerToEditData.value.stone_advantage,
         };
-        store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača
+        store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača, to nam treba samo kako bi ga dohvatili iz tournament-schedule komponente
         await editPlayer(
           playerToEditData.value,
           editedPlayer,

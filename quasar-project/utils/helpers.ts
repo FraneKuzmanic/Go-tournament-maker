@@ -38,7 +38,7 @@ export function savePlayerColor(players: Player[], value: number) : Player[]{ //
     return players;
 }
 
-export function getWinner(playerWonId: string | null, playerId: string) : boolean{
+export function getWinner(playerWonId: string | null, playerId: string) : boolean{ //odredi mi je li partija odigrana i ima li ishoda, vrati je li pobijedio igrač1 ili igrač2
 
   if (!playerWonId)
   return false;

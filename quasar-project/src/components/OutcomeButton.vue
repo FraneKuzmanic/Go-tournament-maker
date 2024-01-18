@@ -79,6 +79,7 @@ export default defineComponent({
     const leftButtonPressed: Ref<boolean> = ref(props.leftPlayerWon);
     const rightButtonPressed: Ref<boolean> = ref(props.rightPlayerWon);
 
+    //kada pritisnemo srednji gumb događa se zamjena u stupcima između dva sparena igrača, emitira se funkcija switchColumn koja obavlja tu željenu operaciju
     function handleMiddleButtonClick() {
       if (!(leftButtonPressed.value || rightButtonPressed.value)) {
         context.emit('switchColumns');
@@ -94,6 +95,7 @@ export default defineComponent({
       }, 100);
     }
 
+    //klikom na lijevi pehar određujemo da je pobijedio lijevi igrač kojeg inače tretiramo kao player one. Također ne možemo kliknuti na desni pehar dok ne isključimo lijevi
     function handleLeftClickActive() {
       if (!rightButtonPressed.value) {
         context.emit('playerOneWon');
@@ -104,6 +106,7 @@ export default defineComponent({
       }
     }
 
+    //klikom na desni pehar određujemo da je pobijedio desni igrač kojeg inače tretiramo kao player two. Također ne možemo kliknuti na lijevi pehar dok ne isključimo desni
     function handleRightClickActive() {
       if (!leftButtonPressed.value) {
         context.emit('playerTwoWon');
@@ -114,6 +117,7 @@ export default defineComponent({
       }
     }
 
+    //kada kliknemo na uključeni pehar tj isključimo ga, emitiramo funkciju za poništavanje pobjede koja ažurira podatke na frontendu i u bazi
     function handleLeftClickInactive() {
       leftButtonPressed.value = !leftButtonPressed.value;
       context.emit('cancelWin');

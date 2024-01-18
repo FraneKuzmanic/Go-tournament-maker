@@ -34,7 +34,7 @@ export interface Player{
 //Matchup će morati imati i informaciju o indexu u polju matchupova, i ishod matchupova pa to treba dodati kasnije
 export interface Matchup{
     matchupId: string,
-    tableIndex: number,
+    tableIndex: number, //tableIndex nam je bitan i on pokazuje redni broj matchupa u tablici, po njemu sortiramo igrače tako da sačuvamo redoslijed igrača unutar lijevog i desnog stupca
     playerOneId: string,
     playerTwoId: string,
     playerWonId: string | null,
