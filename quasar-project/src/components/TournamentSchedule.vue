@@ -213,7 +213,6 @@ import {
   updateSingleMatchup,
   addPlayers,
 } from '../firebase/init';
-// import { RoundNumber } from 'src/enums/rounds';
 
 export default defineComponent({
   name: 'TournamentSchedule',
