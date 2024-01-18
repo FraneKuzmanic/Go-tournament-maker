@@ -213,6 +213,7 @@ import {
   updateSingleMatchup,
   addPlayers,
 } from '../firebase/init';
+import { Console } from 'console';
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -286,7 +287,23 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       ); //dohvati igrace za odredjeno kolo turnira koji su pohranjeni na firestore-u
-      if (tournamentPlayers) store.setPlayers(tournamentPlayers); //postavlja igrače u playerStore te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za store.players
+      if (tournamentPlayers) {
+        store.setPlayers(tournamentPlayers); //postavlja igrače u playerStore te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za store.players
+
+        tournamentPlayers.forEach((player) => {
+          // Pronađi odgovarajućeg igrača u tablePlayers prema ID-u
+          const correspondingPlayer = store.tablePlayers.find(
+            (p) => p.id === player.id
+          );
+          // Ako pronađemo odgovarajućeg igrača, ažuriraj broj pobjeda u polju igraci
+          if (correspondingPlayer) {
+            player.num_of_wins = correspondingPlayer.num_of_wins;
+          }
+        });
+        console.log("getRoundplayers");
+        console.log(tournamentPlayers);
+        store.setTablePlayers(tournamentPlayers);
+      }
     }
 
     async function changeLeftColumn(ind: number): Promise<void> {
@@ -321,7 +338,7 @@ export default defineComponent({
       //ova funkcija mijenja igraču njegov column atribut u 'unmatched' i poziva funkciju koja će tu promjenu pohraniti u firestore
       const oldPlayer: Player = { ...unmatchedPlayers.value[ind] };
       unmatchedPlayers.value[ind].column = 'unmatched';
-      unmatchedPlayers.value[ind].stone_advantage = 0;  // resetiramo stone advantage za igrača kojeg stavimo u unmatched column
+      unmatchedPlayers.value[ind].stone_advantage = 0; // resetiramo stone advantage za igrača kojeg stavimo u unmatched column
       const newPlayer: Player = { ...unmatchedPlayers.value[ind] };
       await editSinglePlayer(
         //funkcija editSinglePlayer ažurira u bazi igrača, ali samo za određeno kolo
@@ -485,7 +502,7 @@ export default defineComponent({
         ...unmatchedPlayers.value,
       ];
       store.setPlayers(currentPlayers);
-
+      store.setTablePlayers(currentPlayers);
       await removePlayer(delPlayer, props.tournamentId); //ažuriramo tablicu stanja ovaj put s izbrisanim igračem manje
     }
 
@@ -536,6 +553,15 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
+      const igraci = await getTournamentPlayers(
+        props.tournamentId,
+        store.currentRound
+      );
+      if (igraci) {
+        console.log('one won');
+        console.log(igraci);
+        store.setTablePlayers(igraci);
+      }
 
       emit('update-load', !props.isLoading); //preventiva kojom onemogućujemo druge buttone dok ova operacija ne završi da ne bi došlo do problema sa spremanjem podataka tijekom asinkronih poziva, objašnjeno u funkciji generate
     }
@@ -581,7 +607,15 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
-
+      const igraci = await getTournamentPlayers(
+        props.tournamentId,
+        store.currentRound
+      );
+      if (igraci) {
+        console.log('two won');
+        console.log(igraci);
+        store.setTablePlayers(igraci);
+      }
       emit('update-load', !props.isLoading);
     }
 
@@ -671,7 +705,15 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
-
+      const igraci = await getTournamentPlayers(
+        props.tournamentId,
+        store.currentRound
+      );
+      if (igraci) {
+        console.log('cancel');
+        console.log(igraci);
+        store.setTablePlayers(igraci);
+      }
       emit('update-load', !props.isLoading); //ugasi preventivu
     }
 

@@ -61,6 +61,13 @@ export default defineComponent({
         field: (row: Player) => row.rating,
         sortable: true,
       },
+      {
+        name: 'NBW',
+        label: 'NBW',
+        align: 'center',
+        field: (row: Player) => row.num_of_wins,
+        sortable: true,
+      },
     ]);
 
     watch(
