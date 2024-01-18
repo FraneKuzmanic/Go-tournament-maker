@@ -68,8 +68,29 @@ export default defineComponent({
         field: (row: Player) => row.num_of_wins,
         sortable: true,
       },
+      {
+        name: 'firstRound',
+        label: 'Prvo kolo',
+        align: 'center',
+        field: (row: Player) => (row.column == 'right' ? 'w' : 'b'),
+        sortable: true,
+      },
+      {
+        name: 'secondRound',
+        label: 'Drugo kolo',
+        align: 'center',
+        field: (row: Player) => (row.column == 'right' ? 'w' : 'b'),
+        sortable: true,
+      },
+      {
+        name: 'thirdRound',
+        label: 'Treće kolo',
+        align: 'center',
+        field: (row: Player) => (row.column == 'right' ? 'w' : 'b'),
+        sortable: true,
+      },
     ]);
-
+      
     watch(
       () => store.tablePlayers,
       () => {
