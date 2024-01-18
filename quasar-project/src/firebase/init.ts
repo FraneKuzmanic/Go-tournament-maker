@@ -84,23 +84,7 @@ export const addPlayers = async(players: Player[], tournamentId: string, roundNo
   });
 }
 
-export const removePlayers = async(tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
-  const dbRef = doc(db, 'tournaments', tournamentId);
-
-  if (roundNo == RoundNumber.FIRST)
-  await updateDoc(dbRef, {
-    'firstRound.players': [],
-  });
-  else if (roundNo == RoundNumber.SECOND)
-  await updateDoc(dbRef, {
-    'secondRound.players': [],
-  });
-  else
-  await updateDoc(dbRef, {
-    'thirdRound.players': [],
-  });
-}
 
 //funkcija za dodavanje novog igrača u firestore, isto tako dodajemo igrača za točno određeno kolo
 export const addNewPlayer = async(player: Player, tournamentId: string): Promise<void> => {
@@ -153,10 +137,46 @@ export const removePlayer = async(delPlayer: Player, tournamentId: string): Prom
 
 }
 
+export const removePlayers = async(delPlayer: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(dbRef);
+
+  const tournament: Tournament = docSnap.data() as Tournament;
+
+  //prvo getamo sve igrače iz svakog kola
+  const playersFirstRound = tournament.firstRound.players;
+  const playersSecondRound = tournament.secondRound.players;
+  const playersThirdRound = tournament.thirdRound.players;
+
+  //onda pokušavamo pronaći igrača kojeg brišemo u svakom kolu
+  const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating);
+  const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
+  const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
+
+  //provjeravamo u kojim kolima je igrač i brišemo ga iz svakog kola u kojem se nalazi
+  if (playerFR)
+  await updateDoc(dbRef, {
+    'firstRound.players': arrayRemove(playerFR),
+  });
+  if (playerSR)
+  await updateDoc(dbRef, {
+    'secondRound.players': arrayRemove(playerSR),
+  });
+  if (playerTR)
+  await updateDoc(dbRef, {
+    'thirdRound.players': arrayRemove(playerTR),
+  });
+
+}
+
 //kod uređivanja igrača prosljeđujemo neuređenog igrača kao parametar kako bi ga prvo pronašli u bazi
 //onda ga uklonimo i dodamo njegovu uređenu verziju
 //kao kod uklananja, kad uređujemo igrača uređujemo ga u svim kolima
 export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournamentId: string): Promise<void> => {
+
+  console.log(oldPlayer);
+  console.log(newPlayer);
 
   const dbRef = doc(db, 'tournaments', tournamentId);
   const docSnap = await getDoc(dbRef);
@@ -171,7 +191,7 @@ export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournament
   const playerSR = playersSecondRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname  && player.rating === oldPlayer.rating);
   const playerTR = playersThirdRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname  && player.rating === oldPlayer.rating);
 
-  await removePlayer(oldPlayer, tournamentId);
+  await removePlayers(oldPlayer, tournamentId);
 
   if (playerFR)
   await updateDoc(dbRef, {

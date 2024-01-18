@@ -95,18 +95,28 @@
                     {{ player.rating }}, adv: {{ player.stone_advantage }}
                   </p>
                 </div>
-                  <q-btn color="accent" round flat icon="more_vert" class="options-button">
-                    <q-menu cover auto-close>
-                        <q-list>
-                            <q-item clickable>
-                                <q-item-section @click="handleAdvChange(player, 1)">adv +1</q-item-section>
-                            </q-item>
-                            <q-item clickable>
-                                <q-item-section @click="handleAdvChange(player, -1)">adv -1</q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-menu>
-                  </q-btn>
+                <q-btn
+                  color="accent"
+                  round
+                  flat
+                  icon="more_vert"
+                  class="options-button"
+                >
+                  <q-menu cover auto-close>
+                    <q-list>
+                      <q-item clickable>
+                        <q-item-section @click="handleAdvChange(player, 1)"
+                          >adv +1</q-item-section
+                        >
+                      </q-item>
+                      <q-item clickable>
+                        <q-item-section @click="handleAdvChange(player, -1)"
+                          >adv -1</q-item-section
+                        >
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
               </li>
             </div>
           </template>
@@ -205,7 +215,6 @@ import {
   // removePlayers,
 } from '../firebase/init';
 // import { RoundNumber } from 'src/enums/rounds';
-
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -372,14 +381,28 @@ export default defineComponent({
       store.editPlayer(player);
     };
 
-    const handleAdvChange = (player: Player, adv: number) => {
-      var temp = {...player}
-      if(player.stone_advantage >= 0 && player.stone_advantage < 9 && adv > 0)
-        player.stone_advantage += adv
-      else if(player.stone_advantage > 0 && player.stone_advantage <= 9 && adv < 0)
-        player.stone_advantage += adv
-      editSinglePlayer(temp, player, props.tournamentId, store.currentRound)
-    }
+    const handleAdvChange = async (
+      player: Player,
+      adv: number
+    ): Promise<void> => {
+      const temp = { ...player };
+
+      if (player.stone_advantage >= 0 && player.stone_advantage < 9 && adv > 0)
+        player.stone_advantage += adv;
+      else if (
+        player.stone_advantage > 0 &&
+        player.stone_advantage <= 9 &&
+        adv < 0
+      )
+        player.stone_advantage += adv;
+
+      await editSinglePlayer(
+        temp,
+        player,
+        props.tournamentId,
+        store.currentRound
+      );
+    };
 
     const PutPLayersInColumns = async (): Promise<void> => {
       //prilikom učitavanja apliakcije ili kola uvijek prvo učitavamo igrače u stupce
@@ -646,8 +669,6 @@ export default defineComponent({
       );
 
       emit('update-load', !props.isLoading);
-
-      console.log('Nobody won');
     }
 
     //////////////////////////////////////////////////////////////////////////////
