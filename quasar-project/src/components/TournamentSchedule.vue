@@ -321,6 +321,7 @@ export default defineComponent({
       //ova funkcija mijenja igraču njegov column atribut u 'unmatched' i poziva funkciju koja će tu promjenu pohraniti u firestore
       const oldPlayer: Player = { ...unmatchedPlayers.value[ind] };
       unmatchedPlayers.value[ind].column = 'unmatched';
+      unmatchedPlayers.value[ind].stone_advantage = 0;  // resetiramo stone advantage za igrača kojeg stavimo u unmatched column
       const newPlayer: Player = { ...unmatchedPlayers.value[ind] };
       await editSinglePlayer(
         //funkcija editSinglePlayer ažurira u bazi igrača, ali samo za određeno kolo
