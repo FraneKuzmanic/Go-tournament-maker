@@ -61,9 +61,7 @@ export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundN
   else if (roundNo == RoundNumber.SECOND)
   return tournament?.secondRound.players
   else //inače je sigurno treća runda
-  return tournament?.thirdRound.players
-
-  
+  return tournament?.thirdRound.players  
 }
 
 //funkcija za dodavanje svih igrača u neko kolo

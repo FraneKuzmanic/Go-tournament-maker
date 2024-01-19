@@ -27,6 +27,18 @@ export default defineComponent({
     const rows = ref<Player[]>(store.tablePlayers);
     // Kreiranje kopije polja igrača s dodanim rednim brojem
     const rowsWithIndex = ref<Player[]>([]);
+    watch(
+      () => store.tablePlayers,
+      () => {
+        (rows.value = store.tablePlayers), updateRowsWithIndex();
+      }
+    );
+    watch(
+      () => store.tableChange,
+      () => {
+        (rows.value = store.tablePlayers), updateRowsWithIndex();
+      }
+    );
     const columns = ref<
       Array<{
         name: string;
@@ -90,13 +102,7 @@ export default defineComponent({
         sortable: true,
       },
     ]);
-      
-    watch(
-      () => store.tablePlayers,
-      () => {
-        (rows.value = store.tablePlayers), updateRowsWithIndex();
-      }
-    );
+
     function updateRowsWithIndex() {
       rowsWithIndex.value = rows.value.map((player, index) => ({
         ...player,

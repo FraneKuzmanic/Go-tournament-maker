@@ -24,6 +24,7 @@ export const usePlayersStore = defineStore('players', {
           currentRound: RoundNumber.FIRST, //ovo je broj runde koja je trenutno prikazana korisniku u aplikaciji, inicijalno je prva runda jer će se ona prva prikazati kad učitamo aplikaciju
           colorValue: undefined, //ovo je vrijednost color slidera koju povlačimo iz baze prilikom učitavanja i spremamo ovdje
           tablePlayers: [], //ova nam vrijednost služi za igrače u tablici stanja igrača
+          tableChange: false,
         }
     },
     actions: {
