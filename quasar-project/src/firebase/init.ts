@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import 'firebase/firestore';
-import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, arrayUnion, arrayRemove,runTransaction } from 'firebase/firestore';
 import { Tournament, Player, Round, Matchup } from "src/models/models";
 import { RoundNumber } from "src/enums/rounds";
 import { Color } from "quasar";
@@ -207,7 +207,7 @@ export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournament
 
 //ova funkcija je slična editu samo što se ovdje uređuje podatak o tome u kojem stupcu se igrač nalazi
 //za razliku od edita ovdje uređujemo podatak samo za određeno kolo
-export const editSinglePlayer = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+/* export const editSinglePlayer = async(oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 
@@ -237,7 +237,36 @@ export const editSinglePlayer = async(oldPlayer: Player, newPlayer: Player, tour
     });
   }
 
-}
+} */
+
+export const editSinglePlayer = async (oldPlayer: Player, newPlayer: Player, tournamentId: string, roundNo: RoundNumber): Promise<void> => {
+  const dbRef = doc(db, 'tournaments', tournamentId);
+  const roundField = roundNo === RoundNumber.FIRST ? 'firstRound.players' :
+                      roundNo === RoundNumber.SECOND ? 'secondRound.players' :
+                      'thirdRound.players';
+
+  const igraci = await getTournamentPlayers(
+      tournamentId,
+      roundNo
+  );
+  if (igraci) {
+    await runTransaction(db, async (transaction) => {
+      const tournamentDoc = await transaction.get(dbRef);
+      const players = tournamentDoc.data()?.[roundField] || [];
+  
+      const updatedPlayers = igraci.map((player: Player) => {
+        // Korištenje identifikatora igrača za usporedbu
+        return player.id === oldPlayer.id ? newPlayer : player;
+      });
+  
+      transaction.update(dbRef, {
+        [roundField]: updatedPlayers
+      });
+    });
+  } else {
+    console.error("Nije moguće dohvatiti igrače za turnir i kolo.");
+  }
+};
 
 
 //ova funkcija nam služi da bi spremili u bazu podatak o vrijednosti color slidera

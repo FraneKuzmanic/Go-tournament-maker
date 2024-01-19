@@ -290,7 +290,7 @@ export default defineComponent({
       if (tournamentPlayers) {
         store.setPlayers(tournamentPlayers); //postavlja igrače u playerStore te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za store.players
 
-        tournamentPlayers.forEach((player) => {
+         tournamentPlayers.forEach((player) => {
           // Pronađi odgovarajućeg igrača u tablePlayers prema ID-u
           const correspondingPlayer = store.tablePlayers.find(
             (p) => p.id === player.id
@@ -302,8 +302,9 @@ export default defineComponent({
         });
         console.log("getRoundplayers");
         console.log(tournamentPlayers);
-        store.setTablePlayers(tournamentPlayers);
+        store.setTablePlayers(tournamentPlayers); 
       }
+      
     }
 
     async function changeLeftColumn(ind: number): Promise<void> {
@@ -705,7 +706,7 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
-      const igraci = await getTournamentPlayers(
+     const igraci = await getTournamentPlayers(
         props.tournamentId,
         store.currentRound
       );
@@ -713,7 +714,7 @@ export default defineComponent({
         console.log('cancel');
         console.log(igraci);
         store.setTablePlayers(igraci);
-      }
+      } 
       emit('update-load', !props.isLoading); //ugasi preventivu
     }
 
