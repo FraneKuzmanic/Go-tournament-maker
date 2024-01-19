@@ -314,6 +314,7 @@ export default defineComponent({
       //ova funkcija mijenja igraču njegov column atribut u 'right' i poziva funkciju koja će tu promjenu pohraniti u firestore
       const oldPlayer: Player = { ...playersColumnRight.value[ind] };
       playersColumnRight.value[ind].column = 'right';
+      playersColumnRight.value[ind].stone_advantage = 0;
       const newPlayer: Player = { ...playersColumnRight.value[ind] };
       await editSinglePlayer(
         //funkcija editSinglePlayer ažurira u bazi igrača, ali samo za određeno kolo
