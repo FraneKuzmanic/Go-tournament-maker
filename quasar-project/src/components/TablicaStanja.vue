@@ -8,7 +8,7 @@
       bordered
       title="Tablica poretka"
       :virtual-scroll="true"
-      pagination.sync="false"
+      :pagination="{}"
       style="width: 80%; max-width: 1200px; margin: 0 auto; overflow-x: auto"
     />
   </div>
@@ -18,27 +18,35 @@
 import { watch } from 'vue';
 import { defineComponent, ref } from 'vue';
 import { usePlayersStore } from '../../utils/store';
-import { Player } from '../models/models';
+import { Player, ExtendedPlayer } from '../models/models';
 
 export default defineComponent({
   name: 'TablicaStanja',
   setup() {
     const store = usePlayersStore();
-    const rows = ref<Player[]>(store.tablePlayers);
-    // Kreiranje kopije polja igrača s dodanim rednim brojem
-    const rowsWithIndex = ref<Player[]>([]);
+    const rows = ref<ExtendedPlayer[]>(store.tablePlayers);
+    const rowsWithIndex = ref<ExtendedPlayer[]>([]);
+    
     watch(
       () => store.tablePlayers,
       () => {
-        (rows.value = store.tablePlayers), updateRowsWithIndex();
+        // Sortiraj podatke prije nego što se pozove updateRowsWithIndex
+        const sortedPlayers = [...store.tablePlayers].sort((a, b) => b.num_of_wins - a.num_of_wins);
+        rows.value = sortedPlayers;
+        updateRowsWithIndex();
       }
     );
+
     watch(
       () => store.tableChange,
       () => {
-        (rows.value = store.tablePlayers), updateRowsWithIndex();
+        // Sortiraj podatke prije nego što se pozove updateRowsWithIndex
+        const sortedPlayers = [...store.tablePlayers].sort((a, b) => b.num_of_wins - a.num_of_wins);
+        rows.value = sortedPlayers;
+        updateRowsWithIndex();
       }
     );
+
     const columns = ref<
       Array<{
         name: string;
@@ -53,7 +61,7 @@ export default defineComponent({
       {
         name: 'index',
         required: true,
-        label: 'Pozicija',
+        label: 'Poredak',
         align: 'left',
         field: 'index',
         sortable: false,
@@ -63,43 +71,59 @@ export default defineComponent({
         required: true,
         label: 'Name',
         align: 'left',
-        field: (row: Player) => row.name + ' ' + row.lastname,
-        sortable: true,
+        field: (row: ExtendedPlayer) => row.name + ' ' + row.lastname,
+        sortable: false,
       },
       {
         name: 'rating',
         label: 'Rating',
         align: 'center',
-        field: (row: Player) => row.rating,
-        sortable: true,
+        field: (row: ExtendedPlayer) => row.rating,
+        sortable: false,
       },
       {
         name: 'NBW',
         label: 'NBW',
         align: 'center',
-        field: (row: Player) => row.num_of_wins,
+        field: (row: ExtendedPlayer) => row.num_of_wins,
+        sortable: true,
+      },
+       {
+        name: 'SOS',
+        label: 'SOS',
+        align: 'center',
+        field: (row: ExtendedPlayer) => row.opponentwins,
         sortable: true,
       },
       {
         name: 'firstRound',
         label: 'Prvo kolo',
         align: 'center',
-        field: (row: Player) => (row.column == 'right' ? 'w' : 'b'),
-        sortable: true,
+        field: (row: ExtendedPlayer) => {
+            const firstRoundMatch = row.playedMatches.length > 0 ? row.playedMatches[0] : null;
+            return firstRoundMatch ? firstRoundMatch.opponent : '';
+          },
+        sortable: false,
       },
       {
         name: 'secondRound',
         label: 'Drugo kolo',
         align: 'center',
-        field: (row: Player) => (row.column == 'right' ? 'w' : 'b'),
-        sortable: true,
+        field: (row: ExtendedPlayer) => {
+            const firstRoundMatch = row.playedMatches.length > 0 ? row.playedMatches[1] : null;
+            return firstRoundMatch ? firstRoundMatch.opponent : '';
+          },
+        sortable: false,
       },
       {
         name: 'thirdRound',
         label: 'Treće kolo',
         align: 'center',
-        field: (row: Player) => (row.column == 'right' ? 'w' : 'b'),
-        sortable: true,
+        field: (row: ExtendedPlayer) => {
+            const firstRoundMatch = row.playedMatches.length > 0 ? row.playedMatches[2] : null;
+            return firstRoundMatch ? firstRoundMatch.opponent : '';
+          },
+        sortable: false,
       },
     ]);
 
@@ -113,7 +137,7 @@ export default defineComponent({
     return {
       columns,
       rows,
-      rowsWithIndex, // Vraćanje tablice s rednim brojem
+      rowsWithIndex,
     };
   },
 });

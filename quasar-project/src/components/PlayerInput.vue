@@ -267,12 +267,12 @@ export default defineComponent({
           num_of_wins: playerToEditData.value.num_of_wins,
           stone_advantage: playerToEditData.value.stone_advantage,
         };
-        store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača, to nam treba samo kako bi ga dohvatili iz tournament-schedule komponente
         await editPlayer(
           playerToEditData.value,
           editedPlayer,
           props.tournamentId
         );
+        store.editedPlayer = editedPlayer; //pohranjujemo u store.ts trenutnog ažuriranog igrača, to nam treba samo kako bi ga dohvatili iz tournament-schedule komponente
       }
       removeEditForm();
       showNotifEdit();

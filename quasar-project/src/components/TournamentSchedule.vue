@@ -200,7 +200,7 @@ import { defineComponent, ref, Ref, watch } from 'vue';
 import draggable from 'vuedraggable';
 import { useQuasar } from 'quasar';
 import OutcomeButton from './OutcomeButton.vue';
-import { Player, Matchup } from 'src/models/models';
+import { Player, Matchup, ExtendedPlayer } from 'src/models/models';
 import { usePlayersStore } from 'app/utils/store';
 import { getWinner } from 'app/utils/helpers';
 import {
@@ -212,8 +212,8 @@ import {
   removeMatchups,
   updateSingleMatchup,
   addPlayers,
+  getAllTournamentPlayers,
 } from '../firebase/init';
-import { Console } from 'console';
 
 export default defineComponent({
   name: 'TournamentSchedule',
@@ -282,6 +282,135 @@ export default defineComponent({
 
     //FUNKCIJE ZA OPERACIJE NAD IGRAČIMA:
 
+    function formData(allPlayers: Player[]): ExtendedPlayer[] {
+      const playerMap: Map<string, ExtendedPlayer> = new Map();
+      const extendedPlayers = allPlayers.map(player => ({
+        ...player,
+        playedMatches: [],
+        opponentwins: 0
+      } as ExtendedPlayer));
+      // Iteriraj kroz sve igrače
+      extendedPlayers.forEach((player) => {
+        const playerId = player.id;
+
+        // Ako igrač već postoji u mapi, ažuriraj podatke
+        if (playerMap.has(playerId)) {
+          const existingPlayer = playerMap.get(playerId)!;
+          existingPlayer.num_of_wins += player.num_of_wins;
+
+          // Dodaj informacije o odigranim utakmicama
+          if (player.played_against) {
+            var protivnik = player.played_against;
+            if (player.num_of_wins > 0) {
+              protivnik = protivnik + ' +/';
+            } else {
+              protivnik = protivnik + ' -/';
+            }
+            if (player.column === 'left') {
+              protivnik = protivnik + 'b';
+            } else {
+              protivnik = protivnik + 'w';
+            }
+            protivnik = protivnik + player.stone_advantage;
+            if (player.stone_advantage > 0) {
+              extendedPlayers.forEach((player2) => {
+                if (player2.id === player.played_against) {
+                  if (player2.played_against === player.id) {
+                    player2.stone_advantage = player.stone_advantage;
+                  }
+                }
+              });
+            }
+            existingPlayer.playedMatches.push({
+              opponent: protivnik,
+              round: 0,
+            });
+          } else {
+            if (player.column === 'unmatched') {
+              existingPlayer.playedMatches.push({
+                opponent: '0-',
+                round: 0,
+              });
+            } else {
+              existingPlayer.playedMatches.push({
+                opponent: '0+',
+                round: 0,
+              });
+            }
+          }
+        } else {
+          // Inače, dodaj novog igrača u mapu s informacijama o odigranim utakmicama
+          const newPlayer: ExtendedPlayer = { ...player, playedMatches: [] };
+          playerMap.set(playerId, newPlayer);
+          const existingPlayer = playerMap.get(playerId)!;
+          if (player.played_against) {
+            var protivnik = player.played_against;
+            if (player.num_of_wins > 0) {
+              protivnik = protivnik + ' +/';
+            } else {
+              protivnik = protivnik + ' -/';
+            }
+
+            if (player.column === 'left') {
+              protivnik = protivnik + 'b';
+            } else {
+              protivnik = protivnik + 'w';
+            }
+            protivnik = protivnik + player.stone_advantage;
+            if (player.stone_advantage > 0) {
+              extendedPlayers.forEach((player2) => {
+                if (player2.id === player.played_against) {
+                  if (player2.played_against === player.id) {
+                    player2.stone_advantage = player.stone_advantage;
+                  }
+                }
+              });
+            }
+            existingPlayer.playedMatches.push({
+              opponent: protivnik,
+              round: 0,
+            });
+          } else {
+            if (player.column === 'unmatched') {
+              existingPlayer.playedMatches.push({
+                opponent: '0-',
+                round: 0,
+              });
+            } else {
+              existingPlayer.playedMatches.push({
+                opponent: '0+',
+                round: 0,
+              });
+            }
+          }
+        }
+      });
+
+      var polje = Array.from(playerMap.values());
+      polje.forEach((player) => {
+        player.opponentwins = 0;
+        player.playedMatches.forEach((protivnik) => {
+          if (protivnik.opponent.length > 4) {
+            const id = protivnik.opponent.slice(0, -5);
+            const lastFourCharacters = protivnik.opponent.slice(-4);
+            var protivnik_cijeli = playerMap.get(id);
+            if(protivnik_cijeli){
+              protivnik.opponent =
+              protivnik_cijeli.name +
+              ' ' +
+              protivnik_cijeli.lastname +
+              ' ' +
+              lastFourCharacters;
+              player.opponentwins += protivnik_cijeli.num_of_wins;
+            }
+          }
+        });
+      });
+      console.log(polje);
+      // Vrati sve spojene igrače kao niz
+      return Array.from(polje);
+    }
+
     async function getRoundPlayers(): Promise<void> {
       const tournamentPlayers = await getTournamentPlayers(
         props.tournamentId,
@@ -289,10 +418,11 @@ export default defineComponent({
       ); //dohvati igrace za odredjeno kolo turnira koji su pohranjeni na firestore-u
       if (tournamentPlayers) {
         store.setPlayers(tournamentPlayers); //postavlja igrače u playerStore te se onda opet poziva funkcija updateplayers, jer se aktivirao watcher za store.players
-        console.log("table players");
-        console.log(store.tablePlayers);
-        store.setTablePlayers(store.tablePlayers);
-        //store.tableChange = !store.tableChange;
+
+        const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+        if (allPlayers) {
+          store.setTablePlayers(formData(allPlayers));
+        }
       }
     }
 
@@ -380,6 +510,10 @@ export default defineComponent({
 
       emit('update-load', !props.isLoading); //preventiva kojom onemogućujemo druge buttone dok ova operacija ne završi da ne bi došlo do problema sa spremanjem podataka tijekom asinkronih poziva, objašnjeno u funkciji generate
       await updateMatchups();
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers)); //postavljamo opet igrače u tablicu stanja s novim igračem ovaj put
+      }
       emit('update-load', !props.isLoading); //preventiva kojom onemogućujemo druge buttone dok ova operacija ne završi da ne bi došlo do problema sa spremanjem podataka tijekom asinkronih poziva
     }
 
@@ -410,6 +544,10 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers)); //postavljamo opet igrače u tablicu stanja s novim stone_advantage
+      }
     };
 
     const PutPLayersInColumns = async (): Promise<void> => {
@@ -422,28 +560,25 @@ export default defineComponent({
       const currentPlayers = store.players;
 
       await getMatchups(); //dohvaćamo matchupove i raspoređujemo ih po indexima skupa s igračima
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers));
+      }
     };
 
-    const addPlayer = () => {
+    const addPlayer = async () => {
       //funkcija za lokalno dodavanje igrača u stupce i u tablicu stanja
       if (store.playerToAdd) unmatchedPlayers.value.push(store.playerToAdd);
 
-      /* const currentPlayers = [
-        ...playersColumnLeft.value,
-        ...playersColumnRight.value,
-        ...unmatchedPlayers.value,
-      ]; */
-      const temp = store.tablePlayers;
-      if(store.playerToAdd){
-        temp.push(store.playerToAdd);
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        console.log(allPlayers);
+        store.setTablePlayers(formData(allPlayers)); //postavljamo opet igrače u tablicu stanja s novim igračem ovaj put
+        console.log(store.tablePlayers);
       }
-      console.log(temp);
-      store.setTablePlayers(temp);
-      console.log(store.tablePlayers);
-     // store.setTablePlayers(currentPlayers); //postavljamo opet igrače u tablicu stanja s novim igračem ovaj put
     };
 
-    const updateEditedPlayer = () => {
+    const updateEditedPlayer = async () => {
       //funkcija za lokalno ažuriranje nekog igrača (lokalno znači na frontendu)
       if (editedPlayerColumn.value === 'right' && store.editedPlayer) {
         const index = playersColumnRight.value.findIndex(
@@ -463,14 +598,10 @@ export default defineComponent({
         );
         unmatchedPlayers.value.splice(index, 1, store.editedPlayer);
       }
-      /* const currentPlayers = [
-        ...playersColumnLeft.value,
-        ...playersColumnRight.value,
-        ...unmatchedPlayers.value,
-      ]; */
-      const index = store.tablePlayers.findIndex((player) => player.id === store.editedPlayer?.id)
-      if(store.editedPlayer){
-        store.tablePlayers.splice(index,1,store.editedPlayer); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        console.log(allPlayers);
+        store.setTablePlayers(formData(allPlayers));
       }
     };
 
@@ -499,13 +630,14 @@ export default defineComponent({
         ...playersColumnLeft.value,
         ...playersColumnRight.value,
         ...unmatchedPlayers.value,
-      ]; 
-      store.setPlayers(currentPlayers);
-      const index = store.tablePlayers.findIndex((player) => player.id === delPlayer.id)
-      
-      store.tablePlayers.splice(index,1); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
-      
+      ];
+
       await removePlayer(delPlayer, props.tournamentId); //ažuriramo tablicu stanja ovaj put s izbrisanim igračem manje
+      store.setPlayers(currentPlayers);
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers)); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
+      }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -555,18 +687,10 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
-      let winnerIndex = store.tablePlayers.findIndex(p => p.id === winner.id);
-      console.log(winnerIndex);
-      if (winnerIndex !== -1) {
-          console.log("prije");
-          console.log(store.tablePlayers);
-          store.tablePlayers[winnerIndex].num_of_wins++;
-          store.tableChange = !store.tableChange;
-          console.log("posli");
-          console.log(store.tablePlayers);
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers));
       }
-
-      
 
       emit('update-load', !props.isLoading); //preventiva kojom onemogućujemo druge buttone dok ova operacija ne završi da ne bi došlo do problema sa spremanjem podataka tijekom asinkronih poziva, objašnjeno u funkciji generate
     }
@@ -612,15 +736,9 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
-      let winnerIndex = store.tablePlayers.findIndex(p => p.id === winner.id);
-      console.log(winnerIndex);
-      if (winnerIndex !== -1) {
-          console.log("prije");
-          console.log(store.tablePlayers);
-          store.tablePlayers[winnerIndex].num_of_wins++;
-          store.tableChange = !store.tableChange;
-          console.log("posli");
-          console.log(store.tablePlayers);
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers));
       }
       emit('update-load', !props.isLoading);
     }
@@ -661,7 +779,10 @@ export default defineComponent({
         oldMatchup,
         newMatchup
       );
-
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers));
+      }
       emit('update-load', !props.isLoading); //ugasi preventivu
     }
 
@@ -674,15 +795,14 @@ export default defineComponent({
       let winnerId: string;
       emit('update-load', !props.isLoading); //preventiva kojom onemogućujemo druge buttone dok ova operacija ne završi da ne bi došlo do problema sa spremanjem podataka tijekom asinkronih poziva, objašnjeno u funkciji generate
 
-      if (matchup.playerWonId === matchup.playerOneId){
+      if (matchup.playerWonId === matchup.playerOneId) {
         //oduzimamo pobjedu onome tko je pobijedio s obizrom da smo gašenjem pehara maknuli ishod same partije
         playersColumnLeft.value[ind].num_of_wins--;
         winnerId = playersColumnLeft.value[ind].id;
-      }
-      else{
+      } else {
         playersColumnRight.value[ind].num_of_wins--;
         winnerId = playersColumnRight.value[ind].id;
-      } 
+      }
 
       playersColumnLeft.value[ind].played_against = null; //ažuriramo i played against na frontendu za oba igrača
       playersColumnRight.value[ind].played_against = null;
@@ -716,17 +836,10 @@ export default defineComponent({
         props.tournamentId,
         store.currentRound
       );
-      let winnerIndex = store.tablePlayers.findIndex(p => p.id === winnerId);
-      console.log(winnerIndex);
-      if (winnerIndex !== -1) {
-          console.log("prije");
-          console.log(store.tablePlayers);
-          store.tablePlayers[winnerIndex].num_of_wins--;
-          store.tableChange = !store.tableChange;
-          console.log("posli");
-          console.log(store.tablePlayers);
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers));
       }
-
       emit('update-load', !props.isLoading); //ugasi preventivu
     }
 
@@ -981,6 +1094,10 @@ export default defineComponent({
       matchups.value = _matchups; //ažuriramo ref od matchupa na frontendu
 
       await addMatchups(props.tournamentId, store.currentRound, _matchups); //ažuriramo matchupove u bazi, tj dodamo ih
+      const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+      if (allPlayers) {
+        store.setTablePlayers(formData(allPlayers)); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
+      }
     };
 
     ///////////////////////////////////////////////////////////////////////////////////

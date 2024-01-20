@@ -64,6 +64,35 @@ export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundN
   return tournament?.thirdRound.players  
 }
 
+export const getAllTournamentPlayers = async (tournamentId: string): Promise<Player[] | undefined> => {
+  const docRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const tournament = docSnap.data() as Tournament;
+
+    let allPlayers: Player[] = [];
+
+    if (tournament.firstRound && tournament.firstRound.players) {
+      allPlayers = allPlayers.concat(tournament.firstRound.players);
+    }
+
+    if (tournament.secondRound && tournament.secondRound.players) {
+      allPlayers = allPlayers.concat(tournament.secondRound.players);
+    }
+
+    if (tournament.thirdRound && tournament.thirdRound.players) {
+      allPlayers = allPlayers.concat(tournament.thirdRound.players);
+    }
+
+    return allPlayers;
+  } else {
+    console.log("Tournament doesn't exist!");
+    return undefined;
+  }
+};
+
+
 //funkcija za dodavanje svih igrača u neko kolo
 export const addPlayers = async(players: Player[], tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
@@ -190,15 +219,15 @@ export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournament
 
   if (playerFR)
   await updateDoc(dbRef, {
-    'firstRound.players': arrayUnion({...newPlayer, column: playerFR.column}),
+    'firstRound.players': arrayUnion({...newPlayer, column: playerFR.column, num_of_wins: playerFR.num_of_wins, played_against: playerFR.played_against, stone_advantage:playerFR.stone_advantage}),
   });
   if (playerSR)
   await updateDoc(dbRef, {
-    'secondRound.players': arrayUnion({...newPlayer, column: playerSR.column}),
+    'secondRound.players': arrayUnion({...newPlayer, column: playerSR.column, num_of_wins: playerSR.num_of_wins, played_against: playerSR.played_against, stone_advantage:playerSR.stone_advantage}),
   });
   if (playerTR)
   await updateDoc(dbRef, {
-    'thirdRound.players': arrayUnion({...newPlayer, column: playerTR.column}),
+    'thirdRound.players': arrayUnion({...newPlayer, column: playerTR.column, num_of_wins: playerTR.num_of_wins, played_against: playerTR.played_against, stone_advantage:playerTR.stone_advantage}),
   });
 
 }

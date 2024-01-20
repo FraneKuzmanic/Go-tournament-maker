@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Player, AppState } from 'src/models/models'
+import { Player, AppState, ExtendedPlayer } from 'src/models/models'
 import { RoundNumber } from 'src/enums/rounds'
 
 //ovo nam je takozvani store, sluzi za globalni state managment, ako ne znate sta je to proucite malo
@@ -48,7 +48,7 @@ export const usePlayersStore = defineStore('players', {
         setColorValue(val: number){
             this.colorValue = val;
         },
-        setTablePlayers(players: Player[]){
+        setTablePlayers(players: ExtendedPlayer[]){
             this.tablePlayers = players;
         }
     }
