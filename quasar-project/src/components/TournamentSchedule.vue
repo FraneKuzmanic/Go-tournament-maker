@@ -29,7 +29,7 @@
         style="overflow-y: scroll; max-height: 6rem"
       >
         <draggable
-          :disabled="creatorId === ''"
+          :disabled="creatorId === '' || isLoading"
           v-model="unmatchedPlayers"
           tag="ul"
           group="players"
@@ -45,6 +45,7 @@
               {{ player.name }} {{ player.lastname }}, {{ player.rating }}
               <q-btn
                 class="q-ml-sm q-mr-sm"
+                :disabled="creatorId === '' || isLoading"
                 @click.stop
                 round
                 color="blue"
@@ -54,6 +55,7 @@
               />
               <q-btn
                 class="q-ml-sm q-mr-sm"
+                :disabled="creatorId === '' || isLoading"
                 @click.stop
                 round
                 color="blue"
@@ -265,11 +267,14 @@ export default defineComponent({
 
     function formData(allPlayers: Player[]): ExtendedPlayer[] {
       const playerMap: Map<string, ExtendedPlayer> = new Map();
-      const extendedPlayers = allPlayers.map(player => ({
-        ...player,
-        playedMatches: [],
-        opponentwins: 0
-      } as ExtendedPlayer));
+      const extendedPlayers = allPlayers.map(
+        (player) =>
+          ({
+            ...player,
+            playedMatches: [],
+            opponentwins: 0,
+          } as ExtendedPlayer)
+      );
       // Iteriraj kroz sve igrače
       extendedPlayers.forEach((player) => {
         const playerId = player.id;
@@ -375,19 +380,18 @@ export default defineComponent({
             const id = protivnik.opponent.slice(0, -5);
             const lastFourCharacters = protivnik.opponent.slice(-4);
             var protivnik_cijeli = playerMap.get(id);
-            if(protivnik_cijeli){
+            if (protivnik_cijeli) {
               protivnik.opponent =
-              protivnik_cijeli.name +
-              ' ' +
-              protivnik_cijeli.lastname +
-              ' ' +
-              lastFourCharacters;
+                protivnik_cijeli.name +
+                ' ' +
+                protivnik_cijeli.lastname +
+                ' ' +
+                lastFourCharacters;
               player.opponentwins += protivnik_cijeli.num_of_wins;
             }
           }
         });
       });
-      console.log(polje);
       // Vrati sve spojene igrače kao niz
       return Array.from(polje);
     }
@@ -553,9 +557,7 @@ export default defineComponent({
 
       const allPlayers = await getAllTournamentPlayers(props.tournamentId);
       if (allPlayers) {
-        console.log(allPlayers);
         store.setTablePlayers(formData(allPlayers)); //postavljamo opet igrače u tablicu stanja s novim igračem ovaj put
-        console.log(store.tablePlayers);
       }
     };
 
@@ -581,7 +583,6 @@ export default defineComponent({
       }
       const allPlayers = await getAllTournamentPlayers(props.tournamentId);
       if (allPlayers) {
-        console.log(allPlayers);
         store.setTablePlayers(formData(allPlayers));
       }
     };
