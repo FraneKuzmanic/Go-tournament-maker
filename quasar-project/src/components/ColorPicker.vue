@@ -52,7 +52,7 @@ export default defineComponent({
     const store = usePlayersStore();
     const $q = useQuasar();
     const inputVal: Ref<number> = ref(0);
-    const isLoading: Ref<boolean> = ref(false);
+    const isLoading: Ref<boolean> = ref(false); //ovo nam služi kao naznaka kad promijenimo boju da se sve spremilo u bazu, pa tek onda ponovno možemo slideati color slider
 
     const changeColor = async () => {
       //kad god slideamo color slider i stanemo na neku vrijednost aktivira se ova funkcija

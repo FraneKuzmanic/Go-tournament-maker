@@ -30,11 +30,14 @@ export interface Player{
     num_of_wins: number;                // informacije potrebne za konacnu tablicu
     stone_advantage: number
 }
-
+export interface ExtendedPlayer extends Player {
+    playedMatches: Array<{ opponent: string, round: number }>;
+    opponentwins: number;
+}
 //Matchup će morati imati i informaciju o indexu u polju matchupova, i ishod matchupova pa to treba dodati kasnije
 export interface Matchup{
     matchupId: string,
-    tableIndex: number,
+    tableIndex: number, //tableIndex nam je bitan i on pokazuje redni broj matchupa u tablici, po njemu sortiramo igrače tako da sačuvamo redoslijed igrača unutar lijevog i desnog stupca
     playerOneId: string,
     playerTwoId: string,
     playerWonId: string | null,
@@ -48,7 +51,8 @@ export interface AppState{
     editedPlayer: Player |undefined, //ovdje spremamo ažuriranog igrača
     currentRound: RoundNumber, //ovo je broj runde koja je trenutno prikazana korisniku u aplikaciji, inicijalno je prva runda jer će se ona prva prikazati kad učitamo aplikaciju
     colorValue: number | undefined, //ovo je vrijednost color slidera koju povlačimo iz baze prilikom učitavanja i spremamo ovdje
-    tablePlayers: Player[]; //ovo je lista igrača koja je prikazana u tablici stanja igrača
+    tablePlayers: ExtendedPlayer[]; //ovo je lista igrača koja je prikazana u tablici stanja igrača
+    tableChange: Boolean;
 }
 //Sve ove varijable u AppStateu nam služe kao varijable koje koristimo u više komponenti, a pošto je u vue.js teško
 //pristupati takvim varijablama s više mjesta moramo definirati nekakav globalni appState i spremiti ih negdje

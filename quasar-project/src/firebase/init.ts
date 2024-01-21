@@ -61,11 +61,39 @@ export const getTournamentPlayers = async (tournamentId: string, roundNo: RoundN
   else if (roundNo == RoundNumber.SECOND)
   return tournament?.secondRound.players
   else //inače je sigurno treća runda
-  return tournament?.thirdRound.players
-
-  
+  return tournament?.thirdRound.players  
 }
 
+export const getAllTournamentPlayers = async (tournamentId: string): Promise<Player[] | undefined> => {
+  const docRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const tournament = docSnap.data() as Tournament;
+
+    let allPlayers: Player[] = [];
+
+    if (tournament.firstRound && tournament.firstRound.players) {
+      allPlayers = allPlayers.concat(tournament.firstRound.players);
+    }
+
+    if (tournament.secondRound && tournament.secondRound.players) {
+      allPlayers = allPlayers.concat(tournament.secondRound.players);
+    }
+
+    if (tournament.thirdRound && tournament.thirdRound.players) {
+      allPlayers = allPlayers.concat(tournament.thirdRound.players);
+    }
+
+    return allPlayers;
+  } else {
+    console.log("Tournament doesn't exist!");
+    return undefined;
+  }
+};
+
+
+//funkcija za dodavanje svih igrača u neko kolo
 export const addPlayers = async(players: Player[], tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -84,25 +112,8 @@ export const addPlayers = async(players: Player[], tournamentId: string, roundNo
   });
 }
 
-export const removePlayers = async(tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
-  const dbRef = doc(db, 'tournaments', tournamentId);
-
-  if (roundNo == RoundNumber.FIRST)
-  await updateDoc(dbRef, {
-    'firstRound.players': [],
-  });
-  else if (roundNo == RoundNumber.SECOND)
-  await updateDoc(dbRef, {
-    'secondRound.players': [],
-  });
-  else
-  await updateDoc(dbRef, {
-    'thirdRound.players': [],
-  });
-}
-
-//funkcija za dodavanje novog igrača u firestore, isto tako dodajemo igrača za točno određeno kolo
+//funkcija za dodavanje novog igrača u firestore, dodajemo ga u sva kola
 export const addNewPlayer = async(player: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -119,7 +130,7 @@ export const addNewPlayer = async(player: Player, tournamentId: string): Promise
 
 }
 
-//funkcija za uklananje igrača, za razliku od dodavanja gdje dodajemo za točno određeno kolo, kod uklananja igrača uklanjamo ga iz svih kola
+//funkcija za uklananje igrača iz svih kola ako se nalazi u stupcu neraspoređenih
 export const removePlayer = async(delPlayer: Player, tournamentId: string): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -136,6 +147,39 @@ export const removePlayer = async(delPlayer: Player, tournamentId: string): Prom
   const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating && player.column === 'unmatched');
   const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating && player.column === 'unmatched');
   const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating && player.column === 'unmatched');
+
+  //provjeravamo u kojim kolima je igrač i brišemo ga iz svakog kola u kojem se nalazi
+  if (playerFR)
+  await updateDoc(dbRef, {
+    'firstRound.players': arrayRemove(playerFR),
+  });
+  if (playerSR)
+  await updateDoc(dbRef, {
+    'secondRound.players': arrayRemove(playerSR),
+  });
+  if (playerTR)
+  await updateDoc(dbRef, {
+    'thirdRound.players': arrayRemove(playerTR),
+  });
+
+}
+
+export const removePlayers = async(delPlayer: Player, tournamentId: string): Promise<void> => {
+
+  const dbRef = doc(db, 'tournaments', tournamentId);
+  const docSnap = await getDoc(dbRef);
+
+  const tournament: Tournament = docSnap.data() as Tournament;
+
+  //prvo getamo sve igrače iz svakog kola
+  const playersFirstRound = tournament.firstRound.players;
+  const playersSecondRound = tournament.secondRound.players;
+  const playersThirdRound = tournament.thirdRound.players;
+
+  //onda pokušavamo pronaći igrača kojeg brišemo u svakom kolu
+  const playerFR = playersFirstRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname && player.rating === delPlayer.rating);
+  const playerSR = playersSecondRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
+  const playerTR = playersThirdRound.find((player : Player) => player.name === delPlayer.name && player.lastname === delPlayer.lastname  && player.rating === delPlayer.rating);
 
   //provjeravamo u kojim kolima je igrač i brišemo ga iz svakog kola u kojem se nalazi
   if (playerFR)
@@ -171,19 +215,19 @@ export const editPlayer = async(oldPlayer: Player, newPlayer: Player, tournament
   const playerSR = playersSecondRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname  && player.rating === oldPlayer.rating);
   const playerTR = playersThirdRound.find((player : Player) => player.name === oldPlayer.name && player.lastname === oldPlayer.lastname  && player.rating === oldPlayer.rating);
 
-  await removePlayer(oldPlayer, tournamentId);
+  await removePlayers(oldPlayer, tournamentId);
 
   if (playerFR)
   await updateDoc(dbRef, {
-    'firstRound.players': arrayUnion({...newPlayer, column: playerFR.column}),
+    'firstRound.players': arrayUnion({...newPlayer, column: playerFR.column, num_of_wins: playerFR.num_of_wins, played_against: playerFR.played_against, stone_advantage:playerFR.stone_advantage}),
   });
   if (playerSR)
   await updateDoc(dbRef, {
-    'secondRound.players': arrayUnion({...newPlayer, column: playerSR.column}),
+    'secondRound.players': arrayUnion({...newPlayer, column: playerSR.column, num_of_wins: playerSR.num_of_wins, played_against: playerSR.played_against, stone_advantage:playerSR.stone_advantage}),
   });
   if (playerTR)
   await updateDoc(dbRef, {
-    'thirdRound.players': arrayUnion({...newPlayer, column: playerTR.column}),
+    'thirdRound.players': arrayUnion({...newPlayer, column: playerTR.column, num_of_wins: playerTR.num_of_wins, played_against: playerTR.played_against, stone_advantage:playerTR.stone_advantage}),
   });
 
 }
@@ -294,6 +338,7 @@ export const getTournamentMatchups = async (tournamentId: string, roundNo: Round
  
 }
 
+//funkcija koja uklanja sve matchupove tj partije iz nekog kola
 export const removeMatchups = async (tournamentId: string, roundNo: RoundNumber): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -313,6 +358,7 @@ export const removeMatchups = async (tournamentId: string, roundNo: RoundNumber)
   
 }
 
+//funkcija koja postavlja partije za neko kolo u bazuu
 export const addMatchups = async (tournamentId: string, roundNo: RoundNumber, matchups: Matchup[]): Promise<void> => {
 
   const dbRef = doc(db, 'tournaments', tournamentId);
@@ -332,9 +378,8 @@ export const addMatchups = async (tournamentId: string, roundNo: RoundNumber, ma
   
 }
 
+//funkcija koja ažurira pojedini matchup iz nekog kola
 export const updateSingleMatchup = async(tournamentId: string, roundNo:RoundNumber, oldMatchup: Matchup, newMatchup: Matchup) : Promise<void> => {
-
-  console.log(oldMatchup);
 
   const dbRef = doc(db, 'tournaments', tournamentId);
 

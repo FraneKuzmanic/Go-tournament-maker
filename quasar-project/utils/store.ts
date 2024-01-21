@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Player, AppState } from 'src/models/models'
+import { Player, AppState, ExtendedPlayer } from 'src/models/models'
 import { RoundNumber } from 'src/enums/rounds'
 
 //ovo nam je takozvani store, sluzi za globalni state managment, ako ne znate sta je to proucite malo
@@ -24,6 +24,7 @@ export const usePlayersStore = defineStore('players', {
           currentRound: RoundNumber.FIRST, //ovo je broj runde koja je trenutno prikazana korisniku u aplikaciji, inicijalno je prva runda jer će se ona prva prikazati kad učitamo aplikaciju
           colorValue: undefined, //ovo je vrijednost color slidera koju povlačimo iz baze prilikom učitavanja i spremamo ovdje
           tablePlayers: [], //ova nam vrijednost služi za igrače u tablici stanja igrača
+          tableChange: false,
         }
     },
     actions: {
@@ -47,7 +48,7 @@ export const usePlayersStore = defineStore('players', {
         setColorValue(val: number){
             this.colorValue = val;
         },
-        setTablePlayers(players: Player[]){
+        setTablePlayers(players: ExtendedPlayer[]){
             this.tablePlayers = players;
         }
     }
