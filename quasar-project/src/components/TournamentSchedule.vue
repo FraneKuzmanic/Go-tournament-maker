@@ -935,7 +935,10 @@ export default defineComponent({
         //isto kao i kod funkcije generate, koristimo emitiranje i koristimo isLoading prop pa pogledajte kako sam to tamo objasnio
 
         await removeMatchups(props.tournamentId, store.currentRound); //uklanjanje matchupova mora slijediti budući da smo poništili igrače iz stupaca
-
+        const allPlayers = await getAllTournamentPlayers(props.tournamentId);
+        if (allPlayers) {
+          store.setTablePlayers(formData(allPlayers)); //postavljamo tablicu stanja ovaj put s ažuriranim igračem
+        }
         showNotifCancel();
       }
     };
