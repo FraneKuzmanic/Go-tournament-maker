@@ -21,5 +21,5 @@ Download from <a href="https://nodejs.org/" target="_blank">Node.js</a></p>
 
 <p>Install dependencies: <pre lang="markdown"> npm install </pre></p>
 
-<p>Run project: <pre lang="markdown"> npm run </pre></p>
+<p>Run project: <pre lang="markdown"> npm run dev </pre></p>
 
