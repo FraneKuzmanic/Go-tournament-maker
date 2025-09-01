@@ -1,18 +1,18 @@
-#Swiss System Tournament Manager
+<h2>Swiss System Tournament Manager</h2>
 
-This project is a web application for managing Swiss-system tournaments, commonly used in chess and other competitive events. The application allows users to create tournaments, manage players, generate pairings for each round, and track results.
+<p>This project is a web application for managing Swiss-system tournaments, commonly used in chess and other competitive events. The application allows users to create tournaments, manage players, generate pairings for each round, and track results.</p>
 
-Technologies Used:
-Vue.js: Progressive JavaScript framework for building user interfaces.
-Quasar Framework: UI framework for Vue.js, providing responsive and modern components.
-TypeScript: Strongly typed programming language that builds on JavaScript.
-Firebase: Used for backend services such as authentication and data storage.
-EmailJS: For sending emails directly from the application.
-SCSS: For styling and theming the application.
+<p>Technologies Used:</p>
+<ul>
+<li><b>Vue.js</b>: Progressive JavaScript framework for building user interfaces.</li>
+<li><b>Quasar Framework</b>: UI framework for Vue.js, providing responsive and modern components.</li>
+<li><b>TypeScript</b>: Strongly typed programming language that builds on JavaScript.</li>
+<li><b>Firebase</b>: Used for backend services such as authentication and data storage.</li>
+<li><b>EmailJS</b>: For sending emails directly from the application.</li>
+</ul>
 
-Project Structure:
-quasar-project/: Main frontend application built with Quasar and Vue.js.
-src/: Source code (components, pages, models, utils, etc.).
-public/: Static assets and icons.
-@types/: TypeScript type definitions for external libraries.
-firebase/: Firebase initialization and configuration.
+<p>How to Run Locally:</p>
+<p>Install Node.js (if not already installed):
+Download from <a href="https://nodejs.org/" target="_blank">Node.js</a></p>
+
+Install Quasar CLI (if not already installed): <pre lang="markdown"> ``` npm install -g @quasar/cli ``` </pre>
