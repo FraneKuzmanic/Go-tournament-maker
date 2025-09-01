@@ -1,6 +1,6 @@
 <h2>Swiss System Tournament Manager</h2>
 
-<p>This project is a web application for managing Swiss-system tournaments, commonly used in chess and other competitive events. The application allows users to create tournaments, manage players, generate pairings for each round, and track results.</p>
+<p>This project is a web application for managing Swiss-system tournaments, commonly used in Go, Chess and other competitive events. The application allows users to create tournaments, manage players, generate pairings for each round, and track results.</p>
 
 <p>Technologies Used:</p>
 <ul>
@@ -15,4 +15,11 @@
 <p>Install Node.js (if not already installed):
 Download from <a href="https://nodejs.org/" target="_blank">Node.js</a></p>
 
-Install Quasar CLI (if not already installed): <pre lang="markdown"> ``` npm install -g @quasar/cli ``` </pre>
+<p>Install Quasar CLI (if not already installed): <pre lang="markdown"> npm install -g @quasar/cli </pre></p>
+
+<p>Navigate to your project directory: <pre lang="markdown"> cd quasar-project </pre></p>
+
+<p>Install dependencies: <pre lang="markdown"> npm install </pre></p>
+
+<p>Run project: <pre lang="markdown"> npm run </pre></p>
+
